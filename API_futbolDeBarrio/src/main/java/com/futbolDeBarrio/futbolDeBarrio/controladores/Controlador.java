@@ -1,9 +1,11 @@
 package com.futbolDeBarrio.futbolDeBarrio.controladores;
 
-import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,11 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubDto;
-import com.futbolDeBarrio.futbolDeBarrio.dtos.EquipoTorneoDto;
-import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
-import com.futbolDeBarrio.futbolDeBarrio.dtos.MiembroClubDto;
-import com.futbolDeBarrio.futbolDeBarrio.dtos.TorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.ClubFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.EquipoTorneoFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.InstalacionFuncionalidades;
@@ -51,24 +55,49 @@ public class Controlador {
 	/**
 	 * Metodo que se encarga de realizar una peticion get a tabla club
 	 */
-	@GetMapping("/club")
-	public ArrayList<ClubDto> mostrarClubes() {
-		return this.clubFuncionalidades.listaClubes();
-	}
+	
+	    
+	    
+	
+	    /**
+	     * Método GET para obtener un usuario por su ID.
+	     */
+	    @GetMapping("/club/{id_club}")
+	    public ResponseEntity<ClubDto> obtenerClubPorId(@PathVariable("id_club") Long idClub) {
+	        ClubDto clubDto = clubFuncionalidades.obtenerClubDtoPorId(idClub);
+	        
+	        if (clubDto != null) {
+	            return ResponseEntity.ok(clubDto);
+	        } else {
+	            return ResponseEntity.notFound().build();
+	        }
+	    }
+
+	    
+	    /**
+	     * Método GET para obtener todos los usuarios como una lista de DTOs.
+	     */
+	    @GetMapping("/mostrarClubes")
+	    public List<ClubDto> mostrarClubes() {
+	        // Devolver la lista de DTOs
+	        return clubFuncionalidades.obtenerClubesDto();
+	    }
+
 
 	/**
 	 * Metodo que se encarga de realizar una peticion post a tabla club
 	 */
-	@PostMapping("/guardarClub")
-	public ClubDto guardarClub(@RequestBody ClubDto club) {
-		return this.clubFuncionalidades.guardarClub(club);
-	}
-
+	    @PostMapping("/guardarClub")
+	    public ClubDto guardarClub(@RequestBody ClubDto club) {
+	    	ClubEntidad clubEntidad = clubFuncionalidades.guardarClub(club);
+	        return clubFuncionalidades.mapearAClubDto(clubEntidad);
+	    }
+	 
 	/**
 	 * Metodo que se encarga de realizar un peticion delete a tabla club
 	 */
 	@DeleteMapping("/eliminarClub/{id_club}")
-	public Boolean borrarClub(@PathVariable("id_club") String id_club) {
+	public boolean borrarClub(@PathVariable("id_club") String id_club) {
 		return this.clubFuncionalidades.borrarClub(id_club);
 	}
 
@@ -76,9 +105,12 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion put a tabla club
 	 */
 	@PutMapping("/modificarClub/{id_club}")
-	public Boolean modificarCluBoolean(@PathVariable("id_club") String id_club, @RequestBody ClubDto clubDto) {
-		return this.clubFuncionalidades.modificarClub(id_club, clubDto);
+	public boolean modificarClub(@PathVariable("id_club") String idClub, @RequestBody ClubEntidad clubDto) {
+		return this.clubFuncionalidades.modificarClub(idClub, null);
 	}
+	
+
+	
 
 	/* METODOS CRUD DE LA TABLA EQUIPO_TORNEO */
 
@@ -86,7 +118,7 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion get a tabla equipo_torneo
 	 */
 	@GetMapping("/equipoTorneo")
-	public ArrayList<EquipoTorneoDto> mostrarEquiposTorneo() {
+	public ArrayList<EquipoTorneoEntidad> mostrarEquiposTorneo() {
 		return this.equipoTorneoFuncionalidades.listaEquipoTorneo();
 	}
 
@@ -94,7 +126,7 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion post a tabla equipo_torneo
 	 */
 	@PostMapping("/guardarEquipoTorneo")
-	public EquipoTorneoDto guardarEquipoTorneo(@RequestBody EquipoTorneoDto equipoTorneoDto) {
+	public EquipoTorneoEntidad guardarEquipoTorneo(@RequestBody EquipoTorneoEntidad equipoTorneoDto) {
 		return this.equipoTorneoFuncionalidades.guardarEquipoTorneo(equipoTorneoDto);
 	}
 
@@ -111,7 +143,7 @@ public class Controlador {
 	 */
 	@PutMapping("/modificarEquipoTorneo/{id_equipo_torneo}")
 	public Boolean modificarEquipoTorneo(@PathVariable("id_equipo_torneo") String id_equipo_torneo,
-			@RequestBody EquipoTorneoDto equipoTorneoDto) {
+			@RequestBody EquipoTorneoEntidad equipoTorneoDto) {
 		return equipoTorneoFuncionalidades.modificarEquipoTorneo(id_equipo_torneo, equipoTorneoDto);
 	}
 
@@ -121,7 +153,7 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion get a tabla instalacion
 	 */
 	@GetMapping("/instalacion")
-	public ArrayList<InstalacionDto> mostrarInstalaciones() {
+	public ArrayList<InstalacionEntidad> mostrarInstalaciones() {
 		return this.instalacionFuncionalidades.listaInstalacion();
 
 	}
@@ -130,7 +162,7 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion post a tabla instalacion
 	 */
 	@PostMapping("/guardarInstalacion")
-	public InstalacionDto guardarInstalacion(@RequestBody InstalacionDto instalacionDto) {
+	public InstalacionEntidad guardarInstalacion(@RequestBody InstalacionEntidad instalacionDto) {
 		return this.instalacionFuncionalidades.guardarInstalacion(instalacionDto);
 	}
 
@@ -147,7 +179,7 @@ public class Controlador {
 	 */
 	@PutMapping("/modificarInstalacion/{id_instalacion}")
 	public Boolean modificarInstalacion(@PathVariable("id_instalacion") String id_instalacion,
-			@RequestBody InstalacionDto instalacionDto) {
+			@RequestBody InstalacionEntidad instalacionDto) {
 		return this.instalacionFuncionalidades.modificarInstalacion(id_instalacion, instalacionDto);
 	}
 
@@ -157,7 +189,7 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion get a tabla miembro_club
 	 */
 	@GetMapping("/miembroClub")
-	public ArrayList<MiembroClubDto> mostrarMiembrosClubes() {
+	public ArrayList<MiembroClubEntidad> mostrarMiembrosClubes() {
 		return this.miembroClubFuncionalidades.listaMiembroClub();
 	}
 
@@ -165,7 +197,7 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion post a tabla miembro_club
 	 */
 	@PostMapping("/guardarMiembroClub")
-	public MiembroClubDto guardarMiembroClub(@RequestBody MiembroClubDto miembroClubDto) {
+	public MiembroClubEntidad guardarMiembroClub(@RequestBody MiembroClubEntidad miembroClubDto) {
 		return this.miembroClubFuncionalidades.guardarMiembroClub(miembroClubDto);
 	}
 
@@ -181,7 +213,7 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion put a tabla miembro_club
 	 */
 	@PutMapping("modificarMiembroClub/{id_miembro_club}")
-	public Boolean modificarMiembroClub(@PathVariable ("id_miembro_club") String id_miembro_club, @RequestBody MiembroClubDto miembroClubDto) {
+	public Boolean modificarMiembroClub(@PathVariable ("id_miembro_club") String id_miembro_club, @RequestBody MiembroClubEntidad miembroClubDto) {
 		return this.miembroClubFuncionalidades.modificarMiembroClub(id_miembro_club, miembroClubDto);
 	}
 
@@ -191,7 +223,7 @@ public class Controlador {
      * Metodo que se encarga de realizar una peticion GET a la tabla torneo
      */
     @GetMapping("/torneo")
-    public ArrayList<TorneoDto> mostrarTorneos() {
+    public ArrayList<TorneoEntidad> mostrarTorneos() {
         return this.torneoFuncionalidades.listaTorneos();
     }
 
@@ -199,7 +231,7 @@ public class Controlador {
      * Metodo que se encarga de realizar una peticion POST a la tabla torneo
      */
     @PostMapping("/guardarTorneo")
-    public TorneoDto guardarTorneo(@RequestBody TorneoDto torneoDto) {
+    public TorneoEntidad guardarTorneo(@RequestBody TorneoEntidad torneoDto) {
         return this.torneoFuncionalidades.guardarTorneo(torneoDto);
     }
 
@@ -215,7 +247,7 @@ public class Controlador {
      * Metodo que se encarga de realizar una peticion PUT a la tabla torneo
      */
     @PutMapping("/modificarTorneo/{id_torneo}")
-    public Boolean modificarTorneo(@PathVariable("id_torneo") String idTorneo, @RequestBody TorneoDto torneoDto) {
+    public Boolean modificarTorneo(@PathVariable("id_torneo") String idTorneo, @RequestBody TorneoEntidad torneoDto) {
         return this.torneoFuncionalidades.modificarTorneo(idTorneo, torneoDto);
     }
     
@@ -225,32 +257,58 @@ public class Controlador {
 	 /**
     * Metodo que se encarga de realizar una peticion GET a la tabla usuario
     */
-   @GetMapping("/usuario")
-   public ArrayList<UsuarioDto> mostrarUsuario() {
-       return this.usuarioFuncionalidades.listaUsuarios();
-   }
+    @CrossOrigin(origins = "http://localhost:4200")
+    
+    
+    /**
+     * Método GET para obtener un usuario por su ID.
+     */
+    @GetMapping("/usuarios/{id_usuario}")
+    public ResponseEntity<UsuarioDto> obtenerUsuarioPorId(@PathVariable("id_usuario") Long idUsuario) {
+        UsuarioDto usuarioDto = usuarioFuncionalidades.obtenerUsuarioDtoPorId(idUsuario);
+        
+        if (usuarioDto != null) {
+            return ResponseEntity.ok(usuarioDto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
-   /**
-    * Metodo que se encarga de realizar una peticion POST a la tabla usuario
-    */
-   @PostMapping("/guardarUsuario")
-   public UsuarioDto guardarUsuario(@RequestBody UsuarioDto usuarioDto) {
-       return this.usuarioFuncionalidades.guardarUsuario(usuarioDto);
-   }
+    
+    /**
+     * Método GET para obtener todos los usuarios como una lista de DTOs.
+     */
+    @GetMapping("/mostrarUsuarios")
+    public List<UsuarioDto> mostrarUsuarios() {
+        // Devolver la lista de DTOs
+        return usuarioFuncionalidades.obtenerUsuariosDto();
+    }
 
-   /**
-    * Metodo que se encarga de realizar una peticion DELETE a la tabla usuario
-    */
-   @DeleteMapping("/eliminarUsuario/{id_usuario}")
-   public Boolean eliminarUsuario(@PathVariable("id_usuario") String idUsuario) {
-       return this.usuarioFuncionalidades.borrarUsuario(idUsuario);
-   }
+    /**
+     * Método POST para crear un nuevo usuario. Recibe un DTO de Usuario y lo guarda en la base de datos.
+     */
+    @PostMapping("/guardarUsuario")
+    public UsuarioDto guardarUsuario(@RequestBody UsuarioDto usuarioDto) {
+        // Guardar el usuario y devolverlo como DTO
+        UsuarioEntidad usuarioEntidad = usuarioFuncionalidades.guardarUsuario(usuarioDto);
+        return usuarioFuncionalidades.mapearAUsuarioDto(usuarioEntidad);
+    }
 
-   /**
-    * Metodo que se encarga de realizar una peticion PUT a la tabla usuario
-    */
-   @PutMapping("/modificarUsuario/{id_usuario}")
-   public Boolean modificarUsuario(@PathVariable("id_usuario") String idUsuario, @RequestBody UsuarioDto usuarioDto) {
-       return this.usuarioFuncionalidades.modificarUsuario(idUsuario, usuarioDto);
-   }
+    /**
+     * Método DELETE para eliminar un usuario por su ID.
+     */
+    @DeleteMapping("/eliminarUsuario/{id_usuario}")
+    public boolean eliminarUsuario(@PathVariable("id_usuario") String idUsuario) {
+        // Llamada a la funcionalidad de eliminación
+        return usuarioFuncionalidades.borrarUsuario(idUsuario);
+    }
+
+    /**
+     * Método PUT para actualizar un usuario por su ID. Recibe un DTO y lo actualiza.
+     */
+    @PutMapping("/modificarUsuario/{id_usuario}")
+    public boolean modificarUsuario(@PathVariable("id_usuario") String idUsuario, @RequestBody UsuarioDto usuarioDto) {
+        // Modificar el usuario y devolver si fue exitoso
+        return usuarioFuncionalidades.modificarUsuario(idUsuario, usuarioDto);
+    }
 }

@@ -1,98 +1,65 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
 import java.util.Date;
 
 import com.futbolDeBarrio.futbolDeBarrio.enums.EstadoParticipacion;
 
-@Entity
-@Table(name = "equipo_torneo", schema = "sch")
 public class EquipoTorneoDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_equipo_torneo")
     private long idEquipoTorneo;
-
-    @Column(name = "fecha_inicio_participacion")
     private Date fechaInicioParticipacion;
-
-    @Column(name = "fecha_fin_participacion")
     private Date fechaFinParticipacion;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "estado_participacion")
     private EstadoParticipacion estadoParticipacion;
-    
-    @ManyToOne
-    @JoinColumn(name = "torneo_id", referencedColumnName = "id_torneo", nullable = false)
-    private TorneoDto torneo;
+    private long torneoId;  
+    private long clubId;    
 
-    @ManyToOne
-    @JoinColumn(name = "club_id", referencedColumnName = "id_club", nullable = false)
-    private ClubDto club;
-    
-	public long getIdEquipoTorneo() {
-		return idEquipoTorneo;
-	}
+    // Getters y Setters
+    public long getIdEquipoTorneo() {
+        return idEquipoTorneo;
+    }
 
-	public void setIdEquipoTorneo(long idEquipoTorneo) {
-		this.idEquipoTorneo = idEquipoTorneo;
-	}
+    public void setIdEquipoTorneo(long idEquipoTorneo) {
+        this.idEquipoTorneo = idEquipoTorneo;
+    }
 
-	public TorneoDto getTorneo() {
-		return torneo;
-	}
+    public Date getFechaInicioParticipacion() {
+        return fechaInicioParticipacion;
+    }
 
-	public void setTorneo(TorneoDto torneo) {
-		this.torneo = torneo;
-	}
+    public void setFechaInicioParticipacion(Date fechaInicioParticipacion) {
+        this.fechaInicioParticipacion = fechaInicioParticipacion;
+    }
 
-	public ClubDto getClub() {
-		return club;
-	}
+    public Date getFechaFinParticipacion() {
+        return fechaFinParticipacion;
+    }
 
-	public void setClub(ClubDto club) {
-		this.club = club;
-	}
+    public void setFechaFinParticipacion(Date fechaFinParticipacion) {
+        this.fechaFinParticipacion = fechaFinParticipacion;
+    }
 
-	public Date getFechaInicioParticipacion() {
-		return fechaInicioParticipacion;
-	}
+    public EstadoParticipacion getEstadoParticipacion() {
+        return estadoParticipacion;
+    }
 
-	public void setFechaInicioParticipacion(Date fechaInicioParticipacion) {
-		this.fechaInicioParticipacion = fechaInicioParticipacion;
-	}
+    public void setEstadoParticipacion(EstadoParticipacion estadoParticipacion) {
+        this.estadoParticipacion = estadoParticipacion;
+    }
 
-	public Date getFechaFinParticipacion() {
-		return fechaFinParticipacion;
-	}
+    public long getTorneoId() {
+        return torneoId;
+    }
 
-	public void setFechaFinParticipacion(Date fechaFinParticipacion) {
-		this.fechaFinParticipacion = fechaFinParticipacion;
-	}
+    public void setTorneoId(long torneoId) {
+        this.torneoId = torneoId;
+    }
 
-	public EstadoParticipacion getEstadoParticipacion() {
-		return estadoParticipacion;
-	}
+    public long getClubId() {
+        return clubId;
+    }
 
-	public void setEstadoParticipacion(EstadoParticipacion estadoParticipacion) {
-		this.estadoParticipacion = estadoParticipacion;
-	}
+    public void setClubId(long clubId) {
+        this.clubId = clubId;
+    }
 
-	public EquipoTorneoDto() {
-
-	}
-
-    
 }

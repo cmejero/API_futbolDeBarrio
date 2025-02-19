@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.futbolDeBarrio.futbolDeBarrio.dtos.EquipoTorneoDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.EquipoTorneoInterfaz;
 
 /**
@@ -22,14 +22,14 @@ public class EquipoTorneoFuncionalidades {
 	/**
 	 * Metodo que se encarga de mostrar listado de los clubes de un torneo
 	 */
-	public ArrayList<EquipoTorneoDto> listaEquipoTorneo() {
-		return (ArrayList<EquipoTorneoDto>) equipoTorneoInterfaz.findAll();
+	public ArrayList<EquipoTorneoEntidad> listaEquipoTorneo() {
+		return (ArrayList<EquipoTorneoEntidad>) equipoTorneoInterfaz.findAll();
 	}
 
 	/**
 	 * Metodo que se encarga de guardar un nuevo club en un torneo
 	 */
-	public EquipoTorneoDto guardarEquipoTorneo(EquipoTorneoDto equipoTorneoDto) {
+	public EquipoTorneoEntidad guardarEquipoTorneo(EquipoTorneoEntidad equipoTorneoDto) {
 		return equipoTorneoInterfaz.save(equipoTorneoDto);
 	}
 
@@ -43,7 +43,7 @@ public class EquipoTorneoFuncionalidades {
 			boolean estaBorrado = false;
 			boolean coincide = false;
 
-			EquipoTorneoDto equipoTorneoDto = equipoTorneoInterfaz.findByIdEquipoTorneo(idEquipoTorneo);
+			EquipoTorneoEntidad equipoTorneoDto = equipoTorneoInterfaz.findByIdEquipoTorneo(idEquipoTorneo);
 
 			if (equipoTorneoDto == null) {
 				System.out.println("El ID introducido es incorrecto");
@@ -75,12 +75,12 @@ public class EquipoTorneoFuncionalidades {
 	/**
 	 * Metodo que se encarga de modificar los campos de un club en un torneo 
 	 */
-	public Boolean modificarEquipoTorneo(String id, EquipoTorneoDto equipoTorneoDto) {
+	public Boolean modificarEquipoTorneo(String id, EquipoTorneoEntidad equipoTorneoDto) {
 	    boolean esModificado = false;
 
 	    try {
 	        Long idEquipoTorneo = Long.parseLong(id);
-	        EquipoTorneoDto equipoTorneo = equipoTorneoInterfaz.findByIdEquipoTorneo(idEquipoTorneo);
+	        EquipoTorneoEntidad equipoTorneo = equipoTorneoInterfaz.findByIdEquipoTorneo(idEquipoTorneo);
 
 	        if (equipoTorneo == null) {
 	            System.out.println("El id introducido no existe");

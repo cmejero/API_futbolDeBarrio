@@ -1,27 +1,76 @@
-package com.futbolDeBarrio.futbolDeBarrio.dtos;
+package com.futbolDeBarrio.futbolDeBarrio.entidad;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.futbolDeBarrio.futbolDeBarrio.enums.Estado;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Modalidad;
 
-import java.util.List;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
-public class InstalacionDto {
+@Entity
+@Table(name = "instalacion", schema = "sch")
+public class InstalacionEntidad {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_instalacion")
     private long idInstalacion;
+
+    @Column(name = "nombre_instalacion")
     private String nombreInstalacion;
+
+    @Column(name = "direccion_instalacion")
     private String direccionInstalacion;
+
+    @Column(name = "telefono_instalacion")
     private String telefonoInstalacion;
+
+    @Column(name = "email_instalacion")
     private String emailInstalacion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_campo1")
     private Modalidad tipoCampo1;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_campo2")
     private Modalidad tipoCampo2;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_campo3")
     private Modalidad tipoCampo3;
+
+    @Column(name = "servicios_instalacion")
     private String serviciosInstalacion;
+
+    @Column(name = "descripcion")
     private String descripcion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_instalacion")
     private Estado estadoInstalacion;
+
+    @Column(name = "password_instalacion")
     private String passwordInstalacion;
+
+    @Column(name = "imagen_instalacion")
     private String imagenInstalacion;
-    private List<Long> clubsIds; // IDs de los clubes asociados a la instalación
-    private List<Long> torneoIds; // IDs de los torneos asociados a la instalación
+
+    @OneToMany(mappedBy = "instalacion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClubEntidad> clubs = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "instalacion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TorneoEntidad> torneo = new ArrayList<>();
 
     // Getters y Setters
     public long getIdInstalacion() {
@@ -111,6 +160,7 @@ public class InstalacionDto {
     public void setEstadoInstalacion(Estado estadoInstalacion) {
         this.estadoInstalacion = estadoInstalacion;
     }
+    
 
     public String getPasswordInstalacion() {
         return passwordInstalacion;
@@ -128,21 +178,12 @@ public class InstalacionDto {
         this.imagenInstalacion = imagenInstalacion;
     }
 
-    public List<Long> getClubsIds() {
-        return clubsIds;
+    // Relación con ClubDto (Getter y Setter)
+    public List<ClubEntidad> getClubs() {
+        return clubs;
     }
 
-    public void setClubsIds(List<Long> clubsIds) {
-        this.clubsIds = clubsIds;
+    public void setClubs(List<ClubEntidad> clubs) {
+        this.clubs = clubs;
     }
-
-    public List<Long> getTorneoIds() {
-        return torneoIds;
-    }
-
-    public void setTorneoIds(List<Long> torneoIds) {
-        this.torneoIds = torneoIds;
-    }
-
 }
-

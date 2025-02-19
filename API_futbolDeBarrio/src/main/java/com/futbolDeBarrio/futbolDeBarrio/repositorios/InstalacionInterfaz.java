@@ -2,12 +2,12 @@ package com.futbolDeBarrio.futbolDeBarrio.repositorios;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 
 /**
  * Clase que se encarga de gestionar operaciones CRUD básicas sobre la entidad InstalacionDto.
  */
-public interface InstalacionInterfaz extends JpaRepository<InstalacionDto, Long> {
+public interface InstalacionInterfaz extends JpaRepository<InstalacionEntidad, Long> {
 	
 	
 	/**
@@ -15,7 +15,7 @@ public interface InstalacionInterfaz extends JpaRepository<InstalacionDto, Long>
 	 * @param idInstalacion
 	 * @return
 	 */
-	InstalacionDto findByIdInstalacion(Long idInstalacion);
+	InstalacionEntidad findByIdInstalacion(Long idInstalacion);
 	
 	/**
 	 * metodo que elimina una instalacion por su id.

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.futbolDeBarrio.futbolDeBarrio.dtos.MiembroClubDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.MiembroClubInterfaz;
 
 /**
@@ -20,14 +20,14 @@ public class MiembroClubFuncionalidades {
 	/**
 	 * Metodo que se encarga de mostrar listado de los miembros de cada club
 	 */
-	public ArrayList<MiembroClubDto> listaMiembroClub(){
-		return (ArrayList<MiembroClubDto>) miembroClubInterfaz.findAll();
+	public ArrayList<MiembroClubEntidad> listaMiembroClub(){
+		return (ArrayList<MiembroClubEntidad>) miembroClubInterfaz.findAll();
 	}
 	
 	/**
 	 * Metodo que se encarga de guardar un miembro en un club
 	 */
-	public MiembroClubDto guardarMiembroClub(MiembroClubDto miembroClubDto) {
+	public MiembroClubEntidad guardarMiembroClub(MiembroClubEntidad miembroClubDto) {
 		return miembroClubInterfaz.save(miembroClubDto);
 	}
 	
@@ -40,7 +40,7 @@ public class MiembroClubFuncionalidades {
 		try {
 		Long idMiembroClub = Long.parseLong(idMiembroClubString);
 		boolean coincide = false;
-		MiembroClubDto miembroClubDto = miembroClubInterfaz.findByIdMiembroClub(idMiembroClub);
+		MiembroClubEntidad miembroClubDto = miembroClubInterfaz.findByIdMiembroClub(idMiembroClub);
 		
 		if(miembroClubDto == null) {
 			System.out.println("El ID introducido no existe");
@@ -73,12 +73,12 @@ public class MiembroClubFuncionalidades {
 	/**
 	 * Metodo que se encarga de modificar los campos de la tabla miembro_club
 	 */
-	public boolean modificarMiembroClub(String idMiembroClubString, MiembroClubDto miembroClub) {
+	public boolean modificarMiembroClub(String idMiembroClubString, MiembroClubEntidad miembroClub) {
 		
 		boolean estaModificado= false;
 		try {
 		Long idMiembroClub = Long.parseLong(idMiembroClubString);
-		MiembroClubDto miembroClubDto = miembroClubInterfaz.findByIdMiembroClub(idMiembroClub);
+		MiembroClubEntidad miembroClubDto = miembroClubInterfaz.findByIdMiembroClub(idMiembroClub);
 		
 		if(miembroClub == null) {
 			System.out.println("El ID introducido no existe");

@@ -1,23 +1,74 @@
-package com.futbolDeBarrio.futbolDeBarrio.dtos;
-
+package com.futbolDeBarrio.futbolDeBarrio.entidad;
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ClubDto {
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "club", schema = "sch")
+public class ClubEntidad {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_club")
     private long idClub;
+
+    @Column(name = "nombre_club")
     private String nombreClub;
+    
+    @Column(name = "abreviatura_club")
     private String abreviaturaClub;
+
+    @Column(name = "descripcion_club")
     private String descripcionClub;
+
+    @Column(name = "fecha_creacion_club")
     private String fechaCreacionClub;
+
+    @Column(name = "fecha_fundacion_club")
     private String fechaFundacionClub;
+
+    @Column(name = "localidad_club")
     private String localidadClub;
+
+    @Column(name = "pais_club")
     private String paisClub;
+
+    @Column(name = "logo_club")
     private String logoClub;
+
+    @Column(name = "email_club")
     private String emailClub;
+
+    @Column(name = "password_club")
     private String passwordClub;
+
+    @Column(name = "telefono_club")
     private String telefonoClub;
-    private long instalacionId; // Si solo necesitas el ID de la instalación
+
+    // Relación con InstalacionDto
+    @ManyToOne
+    @JoinColumn(name = "instalacion_id", referencedColumnName = "id_instalacion", nullable = false)
+    private InstalacionEntidad instalacion;
+    
+
+    // Relación con los clubes
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EquipoTorneoEntidad> equipoTorneo = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MiembroClubEntidad> miembroClub = new ArrayList<>();
 
     // Getters y Setters
     public long getIdClub() {
@@ -43,10 +94,11 @@ public class ClubDto {
     public void setAbreviaturaClub(String abreviaturaClub) {
         this.abreviaturaClub = abreviaturaClub;
     }
-
+    
     public String getDescripcionClub() {
         return descripcionClub;
     }
+    
 
     public void setDescripcionClub(String descripcionClub) {
         this.descripcionClub = descripcionClub;
@@ -116,12 +168,11 @@ public class ClubDto {
         this.telefonoClub = telefonoClub;
     }
 
-    public long getInstalacionId() {
-        return instalacionId;
+    public InstalacionEntidad getInstalacion() {
+        return instalacion;
     }
 
-    public void setInstalacionId(long instalacionId) {
-        this.instalacionId = instalacionId;
+    public void setInstalacion(InstalacionEntidad instalacion) {
+        this.instalacion = instalacion;
     }
-
 }

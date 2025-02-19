@@ -2,12 +2,12 @@ package com.futbolDeBarrio.futbolDeBarrio.repositorios;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.futbolDeBarrio.futbolDeBarrio.dtos.EquipoTorneoDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
 
 /**
  * Clase que se encarga de gestionar operaciones CRUD básicas sobre la entidad EquipoTorneoDto.
  */
-public interface EquipoTorneoInterfaz extends JpaRepository<EquipoTorneoDto, Long> {
+public interface EquipoTorneoInterfaz extends JpaRepository<EquipoTorneoEntidad, Long> {
 
 	/**
 	 * metodo que elimina un equipo de torneo dado su id.
@@ -20,5 +20,5 @@ public interface EquipoTorneoInterfaz extends JpaRepository<EquipoTorneoDto, Lon
 	 * @param idClub
 	 * @return
 	 */
-	EquipoTorneoDto findByIdEquipoTorneo(Long idEquipoTorneo);
+	EquipoTorneoEntidad findByIdEquipoTorneo(Long idEquipoTorneo);
 }

@@ -1,82 +1,53 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import java.util.Date;
 
-@Entity
-@Table(name = "miembro_club", schema = "sch")
 public class MiembroClubDto {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id_miembro_club")
-	private long idMiembroClub;
+    private long idMiembroClub;
+    private Date fechaAltaUsuario;
+    private Date fechaBajaUsuario;
+    private long clubId;  // ID del club asociado
+    private long usuarioId;  // ID del usuario asociado
 
-	@Column(name = "fecha_alta_usuario")
-	private Date fechaAltaUsuario; // Fecha en que el usuario se unió al club
+    // Getters y Setters
+    public long getIdMiembroClub() {
+        return idMiembroClub;
+    }
 
-	@Column(name = "fecha_baja_usuario")
-	private Date fechaBajaUsuario; // Fecha en que el usuario dejó de ser parte del club (si aplica)
+    public void setIdMiembroClub(long idMiembroClub) {
+        this.idMiembroClub = idMiembroClub;
+    }
 
-	   @ManyToOne
-	    @JoinColumn(name = "club_id", referencedColumnName = "id_club", nullable = false)
-	    private ClubDto club;
+    public Date getFechaAltaUsuario() {
+        return fechaAltaUsuario;
+    }
 
-	    @ManyToOne
-	    @JoinColumn(name = "usuario_id", referencedColumnName = "id_usuario", nullable = false)
-	    private UsuarioDto usuario;
-	
-	
-	// Getters y Setters
-	public long getIdMiembroClub() {
-		return idMiembroClub;
-	}
+    public void setFechaAltaUsuario(Date fechaAltaUsuario) {
+        this.fechaAltaUsuario = fechaAltaUsuario;
+    }
 
-	public void setIdMiembroClub(long idMiembroClub) {
-		this.idMiembroClub = idMiembroClub;
-	}
+    public Date getFechaBajaUsuario() {
+        return fechaBajaUsuario;
+    }
 
+    public void setFechaBajaUsuario(Date fechaBajaUsuario) {
+        this.fechaBajaUsuario = fechaBajaUsuario;
+    }
 
-	public ClubDto getClub() {
-		return club;
-	}
+    public long getClubId() {
+        return clubId;
+    }
 
-	public void setClub(ClubDto club) {
-		this.club = club;
-	}
+    public void setClubId(long clubId) {
+        this.clubId = clubId;
+    }
 
+    public long getUsuarioId() {
+        return usuarioId;
+    }
 
-	public UsuarioDto getUsuario() {
-		return usuario;
-	}
-
-	public void setUsuario(UsuarioDto usuario) {
-		this.usuario = usuario;
-	}
-
-	public Date getFechaAltaUsuario() {
-		return fechaAltaUsuario;
-	}
-
-	public void setFechaAltaUsuario(Date fechaAltaUsuario) {
-		this.fechaAltaUsuario = fechaAltaUsuario;
-	}
-
-	public Date getFechaBajaUsuario() {
-		return fechaBajaUsuario;
-	}
-
-	public void setFechaBajaUsuario(Date fechaBajaUsuario) {
-		this.fechaBajaUsuario = fechaBajaUsuario;
-	}
-
-	public MiembroClubDto() {
-	}
+    public void setUsuarioId(long usuarioId) {
+        this.usuarioId = usuarioId;
+    }
 }

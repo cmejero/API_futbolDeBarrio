@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 
 /**
@@ -22,15 +22,15 @@ public class InstalacionFuncionalidades {
 	/**
 	 * Metodo que se encarga de mostrar listado de las instalaciones
 	 */
-	public ArrayList<InstalacionDto> listaInstalacion(){
-		return (ArrayList<InstalacionDto>) instalacionInterfaz.findAll();
+	public ArrayList<InstalacionEntidad> listaInstalacion(){
+		return (ArrayList<InstalacionEntidad>) instalacionInterfaz.findAll();
 		
 	}
 	
 	/**
 	 * Metodo que se encarga de guardar una nueva instalacion
 	 */
-	public InstalacionDto guardarInstalacion(InstalacionDto instalacionDto) {
+	public InstalacionEntidad guardarInstalacion(InstalacionEntidad instalacionDto) {
 		instalacionDto.setPasswordInstalacion(encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
 		return instalacionInterfaz.save(instalacionDto);
 	}
@@ -45,7 +45,7 @@ public class InstalacionFuncionalidades {
 		Long idInstalacion = Long.parseLong(idInstalacionString);
 		boolean coincide = false;
 		
-		InstalacionDto instalacionDto = instalacionInterfaz.findByIdInstalacion(idInstalacion);
+		InstalacionEntidad instalacionDto = instalacionInterfaz.findByIdInstalacion(idInstalacion);
 		
 		if(instalacionDto == null) {
 			
@@ -78,12 +78,12 @@ public class InstalacionFuncionalidades {
 	/**
 	 * Metodo que se encarga de modificar los campos de una instalacion
 	 */
-	public Boolean modificarInstalacion(String idInstalacionString, InstalacionDto instalacion) {
+	public Boolean modificarInstalacion(String idInstalacionString, InstalacionEntidad instalacion) {
 		
 		boolean estaModificado = false;
 		try {
 		Long idInstalacion = Long.parseLong(idInstalacionString);
-		InstalacionDto instalacionDto = instalacionInterfaz.findByIdInstalacion(idInstalacion);
+		InstalacionEntidad instalacionDto = instalacionInterfaz.findByIdInstalacion(idInstalacion);
 		
 		if(instalacionDto == null) {
 			

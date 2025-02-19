@@ -1,6 +1,8 @@
 package com.futbolDeBarrio.futbolDeBarrio.enums;
 
-public enum Rol {
+public enum RolUsuario {
     Administrador,
-    Jugador
+    Jugador,
+    Portero
+   
     }

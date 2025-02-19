@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.futbolDeBarrio.futbolDeBarrio.dtos.TorneoDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
 
 /**
@@ -20,14 +20,14 @@ public class TorneoFuncionalidades {
 	/**
 	 * Método que se encarga de mostrar listado de todos los torneos
 	 */
-	public ArrayList<TorneoDto> listaTorneos() {
-		return (ArrayList<TorneoDto>) torneoInterfaz.findAll();
+	public ArrayList<TorneoEntidad> listaTorneos() {
+		return (ArrayList<TorneoEntidad>) torneoInterfaz.findAll();
 	}
 	
 	/**
 	 * Método que se encarga de guardar un torneo
 	 */
-	public TorneoDto guardarTorneo(TorneoDto torneoDto) {
+	public TorneoEntidad guardarTorneo(TorneoEntidad torneoDto) {
 		return torneoInterfaz.save(torneoDto);
 	}
 	
@@ -40,7 +40,7 @@ public class TorneoFuncionalidades {
 		try {
 			Long idTorneo = Long.parseLong(idTorneoString);
 			boolean coincide = false;
-			TorneoDto torneoDto = torneoInterfaz.findByIdTorneo(idTorneo);
+			TorneoEntidad torneoDto = torneoInterfaz.findByIdTorneo(idTorneo);
 			
 			if(torneoDto == null) {
 				System.out.println("El ID introducido no existe");
@@ -70,12 +70,12 @@ public class TorneoFuncionalidades {
 	/**
 	 * Método que se encarga de modificar los campos del torneo
 	 */
-	public boolean modificarTorneo(String idTorneoString, TorneoDto torneo) {
+	public boolean modificarTorneo(String idTorneoString, TorneoEntidad torneo) {
 		
 		boolean estaModificado = false;
 		try {
 			Long idTorneo = Long.parseLong(idTorneoString);
-			TorneoDto torneoDto = torneoInterfaz.findByIdTorneo(idTorneo);
+			TorneoEntidad torneoDto = torneoInterfaz.findByIdTorneo(idTorneo);
 			
 			if(torneo == null) {
 				System.out.println("El ID introducido no existe");
