@@ -1,9 +1,9 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
-import com.futbolDeBarrio.futbolDeBarrio.enums.Estado;
-import com.futbolDeBarrio.futbolDeBarrio.enums.Modalidad;
-
 import java.util.List;
+
+import com.futbolDeBarrio.futbolDeBarrio.enums.Modalidad;
+import com.futbolDeBarrio.futbolDeBarrio.enums.Estado;
 
 public class InstalacionDto {
 
@@ -16,14 +16,12 @@ public class InstalacionDto {
     private Modalidad tipoCampo2;
     private Modalidad tipoCampo3;
     private String serviciosInstalacion;
-    private String descripcion;
     private Estado estadoInstalacion;
     private String passwordInstalacion;
     private String imagenInstalacion;
-    private List<Long> clubsIds; // IDs de los clubes asociados a la instalación
-    private List<Long> torneoIds; // IDs de los torneos asociados a la instalación
+    private List<Long> torneoId;  
 
-    // Getters y Setters
+    // Getters and Setters
     public long getIdInstalacion() {
         return idInstalacion;
     }
@@ -96,13 +94,6 @@ public class InstalacionDto {
         this.serviciosInstalacion = serviciosInstalacion;
     }
 
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
 
     public Estado getEstadoInstalacion() {
         return estadoInstalacion;
@@ -128,21 +119,11 @@ public class InstalacionDto {
         this.imagenInstalacion = imagenInstalacion;
     }
 
-    public List<Long> getClubsIds() {
-        return clubsIds;
-    }
-
-    public void setClubsIds(List<Long> clubsIds) {
-        this.clubsIds = clubsIds;
-    }
-
     public List<Long> getTorneoIds() {
-        return torneoIds;
+        return torneoId;
     }
 
-    public void setTorneoIds(List<Long> torneoIds) {
-        this.torneoIds = torneoIds;
+    public void setTorneoIds(List<Long> torneoId) {
+        this.torneoId = torneoId;
     }
-
 }
-

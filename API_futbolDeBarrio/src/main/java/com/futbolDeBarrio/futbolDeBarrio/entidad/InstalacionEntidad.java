@@ -53,9 +53,6 @@ public class InstalacionEntidad {
     @Column(name = "servicios_instalacion")
     private String serviciosInstalacion;
 
-    @Column(name = "descripcion")
-    private String descripcion;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_instalacion")
     private Estado estadoInstalacion;
@@ -66,8 +63,7 @@ public class InstalacionEntidad {
     @Column(name = "imagen_instalacion")
     private String imagenInstalacion;
 
-    @OneToMany(mappedBy = "instalacion", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ClubEntidad> clubs = new ArrayList<>();
+   
     
     @OneToMany(mappedBy = "instalacion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TorneoEntidad> torneo = new ArrayList<>();
@@ -145,13 +141,6 @@ public class InstalacionEntidad {
         this.serviciosInstalacion = serviciosInstalacion;
     }
 
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
 
     public Estado getEstadoInstalacion() {
         return estadoInstalacion;
@@ -178,12 +167,5 @@ public class InstalacionEntidad {
         this.imagenInstalacion = imagenInstalacion;
     }
 
-    // Relación con ClubDto (Getter y Setter)
-    public List<ClubEntidad> getClubs() {
-        return clubs;
-    }
-
-    public void setClubs(List<ClubEntidad> clubs) {
-        this.clubs = clubs;
-    }
+  
 }

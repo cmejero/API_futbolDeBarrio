@@ -13,7 +13,7 @@ public class EquipoTorneoDto {
     private long torneoId;  
     private long clubId;    
 
-    // Getters y Setters
+    // Getters and Setters
     public long getIdEquipoTorneo() {
         return idEquipoTorneo;
     }
@@ -61,5 +61,4 @@ public class EquipoTorneoDto {
     public void setClubId(long clubId) {
         this.clubId = clubId;
     }
-
 }

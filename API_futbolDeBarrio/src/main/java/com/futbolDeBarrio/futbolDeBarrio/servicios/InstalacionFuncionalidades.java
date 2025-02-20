@@ -1,12 +1,15 @@
 package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 
@@ -18,126 +21,156 @@ public class InstalacionFuncionalidades {
 
 	@Autowired
 	InstalacionInterfaz instalacionInterfaz;
-	
-	/**
-	 * Metodo que se encarga de mostrar listado de las instalaciones
-	 */
-	public ArrayList<InstalacionEntidad> listaInstalacion(){
-		return (ArrayList<InstalacionEntidad>) instalacionInterfaz.findAll();
-		
-	}
-	
-	/**
-	 * Metodo que se encarga de guardar una nueva instalacion
-	 */
-	public InstalacionEntidad guardarInstalacion(InstalacionEntidad instalacionDto) {
-		instalacionDto.setPasswordInstalacion(encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
-		return instalacionInterfaz.save(instalacionDto);
-	}
-	
-	/**
-	 * Metodo que se encarga de eliminar una instalacion
-	 */
-	public Boolean borrarInstalacion(String idInstalacionString) {
-		
-		try {
-		boolean estaBorrado= false;
-		Long idInstalacion = Long.parseLong(idInstalacionString);
-		boolean coincide = false;
-		
-		InstalacionEntidad instalacionDto = instalacionInterfaz.findByIdInstalacion(idInstalacion);
-		
-		if(instalacionDto == null) {
-			
-			System.out.println("El id introducido de la instalacion no existe");
-			estaBorrado = false;
-		}
-		
-		if(idInstalacion == instalacionDto.getIdInstalacion()) {
-			coincide = true;
-		}
-		
-		if(coincide) {
-			
-			System.out.println("La instalacion " + instalacionDto.getNombreInstalacion() + " ha sido eliminada con exito");
-			instalacionInterfaz.delete(instalacionDto);
-			estaBorrado = true;	
-		}
-		return estaBorrado;
-		
-		}catch (NumberFormatException nfe) {
-			System.out.println("Error: el ID proporcionado no es valido " + nfe.getMessage());
-			return false;
-		} catch (Exception e) {
+	 /**
+     * Método que mapea de entidad a DTO
+     */
+    public InstalacionDto mapearAInstalacionDto(InstalacionEntidad instalacionEntidad) {
+        InstalacionDto instalacionDto = new InstalacionDto();
+        instalacionDto.setIdInstalacion(instalacionEntidad.getIdInstalacion());
+        instalacionDto.setNombreInstalacion(instalacionEntidad.getNombreInstalacion());
+        instalacionDto.setDireccionInstalacion(instalacionEntidad.getDireccionInstalacion());
+        instalacionDto.setTelefonoInstalacion(instalacionEntidad.getTelefonoInstalacion());
+        instalacionDto.setEmailInstalacion(instalacionEntidad.getEmailInstalacion());
+        instalacionDto.setTipoCampo1(instalacionEntidad.getTipoCampo1());
+        instalacionDto.setTipoCampo2(instalacionEntidad.getTipoCampo2());
+        instalacionDto.setTipoCampo3(instalacionEntidad.getTipoCampo3());
+        instalacionDto.setServiciosInstalacion(instalacionEntidad.getServiciosInstalacion());
+        instalacionDto.setEstadoInstalacion(instalacionEntidad.getEstadoInstalacion());
+        instalacionDto.setImagenInstalacion(instalacionEntidad.getImagenInstalacion());
+        return instalacionDto;
+    }
 
-			System.out.println("Se ha producido un error " + e.getMessage());
-			return false;
-		}
-	}
-	
-	/**
-	 * Metodo que se encarga de modificar los campos de una instalacion
-	 */
-	public Boolean modificarInstalacion(String idInstalacionString, InstalacionEntidad instalacion) {
-		
-		boolean estaModificado = false;
-		try {
-		Long idInstalacion = Long.parseLong(idInstalacionString);
-		InstalacionEntidad instalacionDto = instalacionInterfaz.findByIdInstalacion(idInstalacion);
-		
-		if(instalacionDto == null) {
-			
-			System.out.println("El id introducido de la instalcion no existe");
-			estaModificado = false;
-		}else {
-			instalacionDto.setDescripcion(instalacion.getDescripcion());
-			instalacionDto.setDireccionInstalacion(instalacion.getDireccionInstalacion());
-			instalacionDto.setEmailInstalacion(instalacion.getEmailInstalacion());
-			instalacionDto.setEstadoInstalacion(instalacion.getEstadoInstalacion());
-			instalacionDto.setImagenInstalacion(instalacion.getImagenInstalacion());
-			instalacionDto.setNombreInstalacion(instalacion.getNombreInstalacion());
-			instalacionDto.setPasswordInstalacion(encriptarContrasenya(instalacion.getPasswordInstalacion()));
-			instalacionDto.setServiciosInstalacion(instalacion.getServiciosInstalacion());
-			instalacionDto.setTelefonoInstalacion(instalacion.getTelefonoInstalacion());
-			instalacionDto.setTipoCampo1(instalacion.getTipoCampo1());
-			instalacionDto.setTipoCampo2(instalacion.getTipoCampo2());
-			instalacionDto.setTipoCampo3(instalacion.getTipoCampo3());
-			
-			instalacionInterfaz.save(instalacionDto);
-			System.out.println("Se ha modificado "+ instalacionDto.getNombreInstalacion() + " con exito");
-			estaModificado = true;
-			
-		}
-		
-		}catch (NumberFormatException nfe) {
-			System.out.println("Error: el ID proporcionado no es valido " + nfe.getMessage());
-			return false;
-		} catch (Exception e) {
+    /**
+     * Método que mapea de DTO a entidad
+     */
+    private InstalacionEntidad mapearADtoAEntidad(InstalacionDto instalacionDto) {
+        InstalacionEntidad instalacionEntidad = new InstalacionEntidad();
+        instalacionEntidad.setIdInstalacion(instalacionDto.getIdInstalacion());
+        instalacionEntidad.setNombreInstalacion(instalacionDto.getNombreInstalacion());
+        instalacionEntidad.setDireccionInstalacion(instalacionDto.getDireccionInstalacion());
+        instalacionEntidad.setTelefonoInstalacion(instalacionDto.getTelefonoInstalacion());
+        instalacionEntidad.setEmailInstalacion(instalacionDto.getEmailInstalacion());
+        instalacionEntidad.setTipoCampo1(instalacionDto.getTipoCampo1());
+        instalacionEntidad.setTipoCampo2(instalacionDto.getTipoCampo2());
+        instalacionEntidad.setTipoCampo3(instalacionDto.getTipoCampo3());
+        instalacionEntidad.setServiciosInstalacion(instalacionDto.getServiciosInstalacion());
+        instalacionEntidad.setEstadoInstalacion(instalacionDto.getEstadoInstalacion());
+        instalacionEntidad.setImagenInstalacion(instalacionDto.getImagenInstalacion());
+        return instalacionEntidad;
+    }
 
-			System.out.println("Se ha producido un error " + e.getMessage());
-			return false;
-		}
-		return estaModificado;
-	}
-	
-	/**
-	 * Metodo que se encarga de encriptar una contraseña
-	 */
-	public String encriptarContrasenya(String contraseña) {
-		try {
-			MessageDigest digest = MessageDigest.getInstance("SHA-256");
-			byte[] hash = digest.digest(contraseña.getBytes());
-			StringBuilder hexString = new StringBuilder();
+    /**
+     * Método que obtiene una lista de instalaciones en formato DTO
+     */
+    public List<InstalacionDto> obtenerInstalacionesDto() {
+        List<InstalacionEntidad> instalacionesEntidad = (List<InstalacionEntidad>) instalacionInterfaz.findAll();
+        List<InstalacionDto> instalacionesDto = new ArrayList<>();
+        for (InstalacionEntidad instalacion : instalacionesEntidad) {
+            instalacionesDto.add(mapearAInstalacionDto(instalacion));
+        }
+        return instalacionesDto;
+    }
 
-			for (byte b : hash) {
-				String hex = String.format("%02x", b); // Formato hexadecimal simplificado
-				hexString.append(hex);
-			}
+    /**
+     * Método que obtiene una instalación por su ID en formato DTO
+     */
+    public InstalacionDto obtenerInstalacionDtoPorId(Long idInstalacion) {
+        InstalacionEntidad instalacionEntidad = instalacionInterfaz.findByIdInstalacion(idInstalacion);
+        return instalacionEntidad != null ? mapearAInstalacionDto(instalacionEntidad) : null;
+    }
 
-			return hexString.toString();
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		}
+    /**
+     * Método para guardar una instalación en la base de datos, recibiendo un DTO
+     */
+    public InstalacionEntidad guardarInstalacion(InstalacionDto instalacionDto) {
+        InstalacionEntidad instalacionEntidad = mapearADtoAEntidad(instalacionDto);
+        instalacionEntidad.setPasswordInstalacion(encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
+        return instalacionInterfaz.save(instalacionEntidad);
+    }
 
-	}
+    /**
+     * Método que modifica una instalación en la base de datos
+     */
+    public boolean modificarInstalacion(String id, InstalacionDto instalacionDto) {
+        boolean esModificado = false;
+        try {
+            Long idInstalacion = Long.parseLong(id);
+            InstalacionEntidad instalacion = instalacionInterfaz.findByIdInstalacion(idInstalacion);
+
+            if (instalacion == null) {
+                System.out.println("El ID proporcionado no existe");
+            } else {
+                instalacion.setNombreInstalacion(instalacionDto.getNombreInstalacion());
+                instalacion.setDireccionInstalacion(instalacionDto.getDireccionInstalacion());
+                instalacion.setTelefonoInstalacion(instalacionDto.getTelefonoInstalacion());
+                instalacion.setEmailInstalacion(instalacionDto.getEmailInstalacion());
+                instalacion.setTipoCampo1(instalacionDto.getTipoCampo1());
+                instalacion.setTipoCampo2(instalacionDto.getTipoCampo2());
+                instalacion.setTipoCampo3(instalacionDto.getTipoCampo3());
+                instalacion.setServiciosInstalacion(instalacionDto.getServiciosInstalacion());
+                instalacion.setEstadoInstalacion(instalacionDto.getEstadoInstalacion());
+                instalacion.setPasswordInstalacion(encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
+                instalacion.setImagenInstalacion(instalacionDto.getImagenInstalacion());
+
+                instalacionInterfaz.save(instalacion);
+                System.out.println("La instalación: " + instalacion.getNombreInstalacion() + " ha sido modificada.");
+                esModificado = true;
+            }
+
+        } catch (NumberFormatException nfe) {
+            System.out.println("Error: El ID proporcionado no es válido. " + nfe.getMessage());
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error al modificar la instalación. " + e.getMessage());
+        }
+
+        return esModificado;
+    }
+
+    /**
+     * Método que encripta una contraseña utilizando SHA-256
+     * @param contraseña La contraseña en texto plano
+     * @return La contraseña encriptada en formato hexadecimal
+     */
+    public String encriptarContrasenya(String contraseña) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(contraseña.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+
+            for (byte b : hash) {
+                String hex = String.format("%02x", b);
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error al encriptar la contraseña", e);
+        }
+    }
+    
+    
+    /**
+     * Método que borra una instalación por su ID
+     * @param idInstalacionString El ID de la instalación en formato String
+     * @return true si la instalación fue borrada, false si no se encontró
+     */
+    public boolean borrarInstalacion(String idInstalacionString) {
+        try {
+            Long idInstalacion = Long.parseLong(idInstalacionString);
+            if (instalacionInterfaz.existsById(idInstalacion)) {
+                instalacionInterfaz.deleteById(idInstalacion);
+                System.out.println("La instalación con ID " + idInstalacion + " ha sido borrada con éxito.");
+                return true;
+            } else {
+                System.out.println("El ID de la instalación no existe.");
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Error: El ID proporcionado no es válido. " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            System.out.println("Se ha producido un error al borrar la instalación. " + e.getMessage());
+            return false;
+        }
+    }
 }

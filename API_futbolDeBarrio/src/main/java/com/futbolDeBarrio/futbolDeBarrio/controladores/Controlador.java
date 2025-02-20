@@ -1,6 +1,5 @@
 package com.futbolDeBarrio.futbolDeBarrio.controladores;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.EquipoTorneoDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.MiembroClubDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.TorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
@@ -50,49 +53,42 @@ public class Controlador {
 	@Autowired
 	UsuarioFuncionalidades usuarioFuncionalidades;
 
+	@CrossOrigin(origins = "http://localhost:4200")
+
 	/* METODOS CRUD DE LA TABLA CLUB */
 
 	/**
-	 * Metodo que se encarga de realizar una peticion get a tabla club
+	 * Método GET para obtener un usuario por su ID.
 	 */
-	
-	    
-	    
-	
-	    /**
-	     * Método GET para obtener un usuario por su ID.
-	     */
-	    @GetMapping("/club/{id_club}")
-	    public ResponseEntity<ClubDto> obtenerClubPorId(@PathVariable("id_club") Long idClub) {
-	        ClubDto clubDto = clubFuncionalidades.obtenerClubDtoPorId(idClub);
-	        
-	        if (clubDto != null) {
-	            return ResponseEntity.ok(clubDto);
-	        } else {
-	            return ResponseEntity.notFound().build();
-	        }
-	    }
+	@GetMapping("/club/{id_club}")
+	public ResponseEntity<ClubDto> obtenerClubPorId(@PathVariable("id_club") Long idClub) {
+		ClubDto clubDto = clubFuncionalidades.obtenerClubDtoPorId(idClub);
 
-	    
-	    /**
-	     * Método GET para obtener todos los usuarios como una lista de DTOs.
-	     */
-	    @GetMapping("/mostrarClubes")
-	    public List<ClubDto> mostrarClubes() {
-	        // Devolver la lista de DTOs
-	        return clubFuncionalidades.obtenerClubesDto();
-	    }
+		if (clubDto != null) {
+			return ResponseEntity.ok(clubDto);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
 
+	/**
+	 * Método GET para obtener todos los usuarios como una lista de DTOs.
+	 */
+	@GetMapping("/mostrarClubes")
+	public List<ClubDto> mostrarClubes() {
+		// Devolver la lista de DTOs
+		return clubFuncionalidades.obtenerClubesDto();
+	}
 
 	/**
 	 * Metodo que se encarga de realizar una peticion post a tabla club
 	 */
-	    @PostMapping("/guardarClub")
-	    public ClubDto guardarClub(@RequestBody ClubDto club) {
-	    	ClubEntidad clubEntidad = clubFuncionalidades.guardarClub(club);
-	        return clubFuncionalidades.mapearAClubDto(clubEntidad);
-	    }
-	 
+	@PostMapping("/guardarClub")
+	public ClubDto guardarClub(@RequestBody ClubDto club) {
+		ClubEntidad clubEntidad = clubFuncionalidades.guardarClub(club);
+		return clubFuncionalidades.mapearAClubDto(clubEntidad);
+	}
+
 	/**
 	 * Metodo que se encarga de realizar un peticion delete a tabla club
 	 */
@@ -105,72 +101,82 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion put a tabla club
 	 */
 	@PutMapping("/modificarClub/{id_club}")
-	public boolean modificarClub(@PathVariable("id_club") String idClub, @RequestBody ClubEntidad clubDto) {
-		return this.clubFuncionalidades.modificarClub(idClub, null);
+	public boolean modificarClub(@PathVariable("id_club") String idClub, @RequestBody ClubDto clubDto) {
+		return this.clubFuncionalidades.modificarClub(idClub, clubDto);
 	}
-	
-
-	
 
 	/* METODOS CRUD DE LA TABLA EQUIPO_TORNEO */
 
-	/**
-	 * Metodo que se encarga de realizar una peticion get a tabla equipo_torneo
-	 */
-	@GetMapping("/equipoTorneo")
-	public ArrayList<EquipoTorneoEntidad> mostrarEquiposTorneo() {
-		return this.equipoTorneoFuncionalidades.listaEquipoTorneo();
+	@GetMapping("/equipoTorneo/{id_equipoTorneo}")
+	public ResponseEntity<EquipoTorneoDto> obtenerEquipoTorneoPorId(
+			@PathVariable("id_equipoTorneo") Long idEquipoTorneo) {
+		EquipoTorneoDto equipoTorneoDto = equipoTorneoFuncionalidades.obtenerEquipoTorneoDtoPorId(idEquipoTorneo);
+
+		if (equipoTorneoDto != null) {
+			return ResponseEntity.ok(equipoTorneoDto);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
-	/**
-	 * Metodo que se encarga de realizar una peticion post a tabla equipo_torneo
-	 */
+	@GetMapping("/mostrarEquipoTorneo")
+	public List<EquipoTorneoDto> mostrarEquipoTorneo() {
+
+		return equipoTorneoFuncionalidades.obtenerEquiposTorneoDto();
+	}
+
 	@PostMapping("/guardarEquipoTorneo")
-	public EquipoTorneoEntidad guardarEquipoTorneo(@RequestBody EquipoTorneoEntidad equipoTorneoDto) {
-		return this.equipoTorneoFuncionalidades.guardarEquipoTorneo(equipoTorneoDto);
+	public EquipoTorneoDto guardarEquipoTorneo(@RequestBody EquipoTorneoDto equipoTorneoDto) {
+		EquipoTorneoEntidad equipoTorneoEntidad = equipoTorneoFuncionalidades.guardarEquipoTorneo(equipoTorneoDto);
+		return equipoTorneoFuncionalidades.mapearAEquipoTorneoDto(equipoTorneoEntidad);
 	}
 
-	/**
-	 * Metodo que se encarga de realizar un peticion delete a tabla equipo_torneo
-	 */
-	@DeleteMapping("/eliminarEquipoTorneo/{id_equipo_torneo}")
-	public Boolean borrarEquipoTorneo(@PathVariable("id_equipo_torneo") String id_equipo_torneo) {
-		return equipoTorneoFuncionalidades.borrarEquipoTorneo(id_equipo_torneo);
+	@DeleteMapping("/eliminarEquipoTorneo/{id_equipoTorneo}")
+	public boolean borrarEquipoTorneo(@PathVariable("id_equipoTorneo") String id_equipoTorneo) {
+		return this.equipoTorneoFuncionalidades.borrarEquipoTorneo(id_equipoTorneo);
 	}
 
-	/**
-	 * Metodo que se encarga de realizar una peticion put a tabla equipo_torneo
-	 */
-	@PutMapping("/modificarEquipoTorneo/{id_equipo_torneo}")
-	public Boolean modificarEquipoTorneo(@PathVariable("id_equipo_torneo") String id_equipo_torneo,
-			@RequestBody EquipoTorneoEntidad equipoTorneoDto) {
-		return equipoTorneoFuncionalidades.modificarEquipoTorneo(id_equipo_torneo, equipoTorneoDto);
+	@PutMapping("/modificarEquipoTorneo/{id_equipoTorneo}")
+	public boolean modificarEquipoTorneo(@PathVariable("id_equipoTorneo") String idEquipoTorneo,
+			@RequestBody EquipoTorneoDto equipoTorneoDto) {
+		return this.equipoTorneoFuncionalidades.modificarEquipoTorneo(idEquipoTorneo, equipoTorneoDto);
 	}
 
 	/* METODOS CRUD DE LA TABLA INSTALACION */
 
 	/**
-	 * Metodo que se encarga de realizar una peticion get a tabla instalacion
+	 * Metodo que se encarga de realizar una peticion get a tabla instalacion para
+	 * obetener id
 	 */
-	@GetMapping("/instalacion")
-	public ArrayList<InstalacionEntidad> mostrarInstalaciones() {
-		return this.instalacionFuncionalidades.listaInstalacion();
+	@GetMapping("/instalacion/{id_instalacion}")
+	public ResponseEntity<InstalacionDto> obtenerInstalacionPorId(@PathVariable("id_instalacion") Long idInstalacion) {
+		InstalacionDto instalacionDto = instalacionFuncionalidades.obtenerInstalacionDtoPorId(idInstalacion);
+		if (instalacionDto != null) {
+			return ResponseEntity.ok(instalacionDto);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
 
+	@GetMapping("mostrarInstalaciones")
+	public List<InstalacionDto> mostrarInstalaciones() {
+		return instalacionFuncionalidades.obtenerInstalacionesDto();
 	}
 
 	/**
 	 * Metodo que se encarga de realizar una peticion post a tabla instalacion
 	 */
 	@PostMapping("/guardarInstalacion")
-	public InstalacionEntidad guardarInstalacion(@RequestBody InstalacionEntidad instalacionDto) {
-		return this.instalacionFuncionalidades.guardarInstalacion(instalacionDto);
+	public InstalacionDto guardarInstalacion(@RequestBody InstalacionDto instalacionDto) {
+		InstalacionEntidad instalacionEntidad = instalacionFuncionalidades.guardarInstalacion(instalacionDto);
+		return instalacionFuncionalidades.mapearAInstalacionDto(instalacionEntidad);
 	}
 
 	/**
 	 * Metodo que se encarga de realizar un peticion delete a tabla instalacion
 	 */
 	@DeleteMapping("/eliminarInstalacion/{id_instalacion}")
-	public Boolean eliminarInstalacion(@PathVariable("id_instalacion") String id_instalacion) {
+	public boolean eliminarInstalacion(@PathVariable("id_instalacion") String id_instalacion) {
 		return this.instalacionFuncionalidades.borrarInstalacion(id_instalacion);
 	}
 
@@ -178,137 +184,132 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion put a tabla instalacion
 	 */
 	@PutMapping("/modificarInstalacion/{id_instalacion}")
-	public Boolean modificarInstalacion(@PathVariable("id_instalacion") String id_instalacion,
-			@RequestBody InstalacionEntidad instalacionDto) {
+	public boolean modificarInstalacion(@PathVariable("id_instalacion") String id_instalacion,
+			@RequestBody InstalacionDto instalacionDto) {
 		return this.instalacionFuncionalidades.modificarInstalacion(id_instalacion, instalacionDto);
 	}
 
 	/* METODOS CRUD DE LA TABLA MIEMBRO_CLUB */
 
-	/**
-	 * Metodo que se encarga de realizar una peticion get a tabla miembro_club
-	 */
-	@GetMapping("/miembroClub")
-	public ArrayList<MiembroClubEntidad> mostrarMiembrosClubes() {
-		return this.miembroClubFuncionalidades.listaMiembroClub();
+	@GetMapping("/miembroClub/{id_miembroClub}")
+	public ResponseEntity<MiembroClubDto> obtenerMiembroClubPorId(@PathVariable("id_miembroClub") Long idMiembroClub) {
+		MiembroClubDto miembroClubDto = miembroClubFuncionalidades.obtenerMiembroClubDtoPorId(idMiembroClub);
+		if (miembroClubDto != null) {
+			return ResponseEntity.ok(miembroClubDto);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
 	}
 
-	/**
-	 * Metodo que se encarga de realizar una peticion post a tabla miembro_club
-	 */
+	@GetMapping("mostrarMiembrosClub")
+	public List<MiembroClubDto> mostrarMiembroClub() {
+		return miembroClubFuncionalidades.obtenerMiembrosClubDto();
+	}
+
 	@PostMapping("/guardarMiembroClub")
-	public MiembroClubEntidad guardarMiembroClub(@RequestBody MiembroClubEntidad miembroClubDto) {
-		return this.miembroClubFuncionalidades.guardarMiembroClub(miembroClubDto);
+	public MiembroClubDto guardarMiembroClub(@RequestBody MiembroClubDto miembroClubDto) {
+		MiembroClubEntidad miembroClubEntidad = miembroClubFuncionalidades.guardarMiembroClub(miembroClubDto);
+		return miembroClubFuncionalidades.mapearAMiembroClubDto(miembroClubEntidad);
 	}
 
-	/**
-	 * Metodo que se encarga de realizar un peticion delete a tabla miembro_club
-	 */
-	@DeleteMapping("eliminarMiembroClub/{id_miembro_club}")
-	public Boolean eliminarMiembroClub(@PathVariable("id_miembro_club") String id_miembro_club) {
-		return this.miembroClubFuncionalidades.eliminarMiembroClub(id_miembro_club);
+	@DeleteMapping("/eliminarMiembroClub/{id_miembroClub}")
+	public boolean eliminarMiembroClub(@PathVariable("id_miembroClub") String id_miembroClub) {
+		return this.miembroClubFuncionalidades.borrarMiembroClub(id_miembroClub);
 	}
-	
-	/**
-	 * Metodo que se encarga de realizar una peticion put a tabla miembro_club
-	 */
-	@PutMapping("modificarMiembroClub/{id_miembro_club}")
-	public Boolean modificarMiembroClub(@PathVariable ("id_miembro_club") String id_miembro_club, @RequestBody MiembroClubEntidad miembroClubDto) {
-		return this.miembroClubFuncionalidades.modificarMiembroClub(id_miembro_club, miembroClubDto);
+
+	@PutMapping("/modificarMiembroClub/{id_miembroClub}")
+	public boolean modificarMiembroClub(@PathVariable("id_miembroClub") String id_miembroClub,
+			@RequestBody MiembroClubDto miembroClubDto) {
+		return this.miembroClubFuncionalidades.modificarMiembroClub(id_miembroClub, miembroClubDto);
 	}
 
 	/* METODOS CRUD DE LA TABLA TORNEO */
-	
-	 /**
-     * Metodo que se encarga de realizar una peticion GET a la tabla torneo
-     */
-    @GetMapping("/torneo")
-    public ArrayList<TorneoEntidad> mostrarTorneos() {
-        return this.torneoFuncionalidades.listaTorneos();
-    }
 
-    /**
-     * Metodo que se encarga de realizar una peticion POST a la tabla torneo
-     */
-    @PostMapping("/guardarTorneo")
-    public TorneoEntidad guardarTorneo(@RequestBody TorneoEntidad torneoDto) {
-        return this.torneoFuncionalidades.guardarTorneo(torneoDto);
-    }
+	@GetMapping("/torneo/{id_torneo}")
+	public ResponseEntity<TorneoDto> obtenerTorneoPorId(@PathVariable("id_torneo") Long idTorneo) {
+		TorneoDto torneoDto = torneoFuncionalidades.obtenerTorneoPorId(idTorneo);
 
-    /**
-     * Metodo que se encarga de realizar una peticion DELETE a la tabla torneo
-     */
-    @DeleteMapping("/eliminarTorneo/{id_torneo}")
-    public Boolean eliminarTorneo(@PathVariable("id_torneo") String idTorneo) {
-        return this.torneoFuncionalidades.eliminarTorneo(idTorneo);
-    }
+		if (torneoDto != null) {
+			return ResponseEntity.ok(torneoDto);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
 
-    /**
-     * Metodo que se encarga de realizar una peticion PUT a la tabla torneo
-     */
-    @PutMapping("/modificarTorneo/{id_torneo}")
-    public Boolean modificarTorneo(@PathVariable("id_torneo") String idTorneo, @RequestBody TorneoEntidad torneoDto) {
-        return this.torneoFuncionalidades.modificarTorneo(idTorneo, torneoDto);
-    }
-    
-    
-    /* METODOS CRUD DE LA TABLA USUARIO */
-	
-	 /**
-    * Metodo que se encarga de realizar una peticion GET a la tabla usuario
-    */
-    @CrossOrigin(origins = "http://localhost:4200")
-    
-    
-    /**
-     * Método GET para obtener un usuario por su ID.
-     */
-    @GetMapping("/usuarios/{id_usuario}")
-    public ResponseEntity<UsuarioDto> obtenerUsuarioPorId(@PathVariable("id_usuario") Long idUsuario) {
-        UsuarioDto usuarioDto = usuarioFuncionalidades.obtenerUsuarioDtoPorId(idUsuario);
-        
-        if (usuarioDto != null) {
-            return ResponseEntity.ok(usuarioDto);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+	@GetMapping("/mostrarTorneo")
+	public List<TorneoDto> mostrarTorneos() {
 
-    
-    /**
-     * Método GET para obtener todos los usuarios como una lista de DTOs.
-     */
-    @GetMapping("/mostrarUsuarios")
-    public List<UsuarioDto> mostrarUsuarios() {
-        // Devolver la lista de DTOs
-        return usuarioFuncionalidades.obtenerUsuariosDto();
-    }
+		return torneoFuncionalidades.obtenerTodosLosTorneos();
+	}
 
-    /**
-     * Método POST para crear un nuevo usuario. Recibe un DTO de Usuario y lo guarda en la base de datos.
-     */
-    @PostMapping("/guardarUsuario")
-    public UsuarioDto guardarUsuario(@RequestBody UsuarioDto usuarioDto) {
-        // Guardar el usuario y devolverlo como DTO
-        UsuarioEntidad usuarioEntidad = usuarioFuncionalidades.guardarUsuario(usuarioDto);
-        return usuarioFuncionalidades.mapearAUsuarioDto(usuarioEntidad);
-    }
+	@PostMapping("/guardarTorneo")
+	public TorneoDto guardarTorneo(@RequestBody TorneoDto torneoDto) {
+		TorneoEntidad torneoEntidad = torneoFuncionalidades.guardarTorneo(torneoDto);
+		return torneoFuncionalidades.mapearATorneoDto(torneoEntidad);
+	}
 
-    /**
-     * Método DELETE para eliminar un usuario por su ID.
-     */
-    @DeleteMapping("/eliminarUsuario/{id_usuario}")
-    public boolean eliminarUsuario(@PathVariable("id_usuario") String idUsuario) {
-        // Llamada a la funcionalidad de eliminación
-        return usuarioFuncionalidades.borrarUsuario(idUsuario);
-    }
+	@DeleteMapping("/eliminarTorneo/{id_torneo}")
+	public boolean borrarTorneo(@PathVariable("id_torneo") String id_torneo) {
+		return this.torneoFuncionalidades.borrarTorneo(id_torneo);
+	}
 
-    /**
-     * Método PUT para actualizar un usuario por su ID. Recibe un DTO y lo actualiza.
-     */
-    @PutMapping("/modificarUsuario/{id_usuario}")
-    public boolean modificarUsuario(@PathVariable("id_usuario") String idUsuario, @RequestBody UsuarioDto usuarioDto) {
-        // Modificar el usuario y devolver si fue exitoso
-        return usuarioFuncionalidades.modificarUsuario(idUsuario, usuarioDto);
-    }
+	@PutMapping("/modificarTorneo/{id_torneo}")
+	public boolean modificarTorneo(@PathVariable("id_torneo") String idTorneo, @RequestBody TorneoDto torneoDto) {
+		return this.torneoFuncionalidades.modificarTorneo(idTorneo, torneoDto);
+	}
+
+	/* METODOS CRUD DE LA TABLA USUARIO */
+
+	/**
+	 * Método GET para obtener un usuario por su ID.
+	 */
+	@GetMapping("/usuarios/{id_usuario}")
+	public ResponseEntity<UsuarioDto> obtenerUsuarioPorId(@PathVariable("id_usuario") Long idUsuario) {
+		UsuarioDto usuarioDto = usuarioFuncionalidades.obtenerUsuarioDtoPorId(idUsuario);
+
+		if (usuarioDto != null) {
+			return ResponseEntity.ok(usuarioDto);
+		} else {
+			return ResponseEntity.notFound().build();
+		}
+	}
+
+	/**
+	 * Método GET para obtener todos los usuarios como una lista de DTOs.
+	 */
+	@GetMapping("/mostrarUsuarios")
+	public List<UsuarioDto> mostrarUsuarios() {
+		// Devolver la lista de DTOs
+		return usuarioFuncionalidades.obtenerUsuariosDto();
+	}
+
+	/**
+	 * Método POST para crear un nuevo usuario. Recibe un DTO de Usuario y lo guarda
+	 * en la base de datos.
+	 */
+	@PostMapping("/guardarUsuario")
+	public UsuarioDto guardarUsuario(@RequestBody UsuarioDto usuarioDto) {
+		// Guardar el usuario y devolverlo como DTO
+		UsuarioEntidad usuarioEntidad = usuarioFuncionalidades.guardarUsuario(usuarioDto);
+		return usuarioFuncionalidades.mapearAUsuarioDto(usuarioEntidad);
+	}
+
+	/**
+	 * Método DELETE para eliminar un usuario por su ID.
+	 */
+	@DeleteMapping("/eliminarUsuario/{id_usuario}")
+	public boolean eliminarUsuario(@PathVariable("id_usuario") String idUsuario) {
+		// Llamada a la funcionalidad de eliminación
+		return usuarioFuncionalidades.borrarUsuario(idUsuario);
+	}
+
+	/**
+	 * Método PUT para actualizar un usuario por su ID. Recibe un DTO y lo
+	 * actualiza.
+	 */
+	@PutMapping("/modificarUsuario/{id_usuario}")
+	public boolean modificarUsuario(@PathVariable("id_usuario") String idUsuario, @RequestBody UsuarioDto usuarioDto) {
+		// Modificar el usuario y devolver si fue exitoso
+		return usuarioFuncionalidades.modificarUsuario(idUsuario, usuarioDto);
+	}
 }

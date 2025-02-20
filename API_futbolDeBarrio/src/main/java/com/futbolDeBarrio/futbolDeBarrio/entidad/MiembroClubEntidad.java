@@ -8,75 +8,78 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.util.Date;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "miembro_club", schema = "sch")
 public class MiembroClubEntidad {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id_miembro_club")
-	private long idMiembroClub;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_miembro_club")
+    private long idMiembroClub;
 
-	@Column(name = "fecha_alta_usuario")
-	private Date fechaAltaUsuario; // Fecha en que el usuario se unió al club
+    @NotNull
+    @Column(name = "fecha_alta_usuario", nullable = false)
+    private LocalDate fechaAltaUsuario; // Fecha en que el usuario se unió al club
 
-	@Column(name = "fecha_baja_usuario")
-	private Date fechaBajaUsuario; // Fecha en que el usuario dejó de ser parte del club (si aplica)
+    @Column(name = "fecha_baja_usuario")
+    private LocalDate fechaBajaUsuario; // Fecha en que el usuario dejó de ser parte del club (si aplica)
 
-	   @ManyToOne
-	    @JoinColumn(name = "club_id", referencedColumnName = "id_club", nullable = false)
-	    private ClubEntidad club;
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "club_id", referencedColumnName = "id_club", nullable = false)
+    private ClubEntidad club;
 
-	    @ManyToOne
-	    @JoinColumn(name = "usuario_id", referencedColumnName = "id_usuario", nullable = false)
-	    private UsuarioEntidad usuario;
-	
-	
-	// Getters y Setters
-	public long getIdMiembroClub() {
-		return idMiembroClub;
-	}
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id_usuario", nullable = false)
+    private UsuarioEntidad usuario;
 
-	public void setIdMiembroClub(long idMiembroClub) {
-		this.idMiembroClub = idMiembroClub;
-	}
+    // Constructor por defecto
+    public MiembroClubEntidad() {
+    }
 
+    // Getters y Setters
 
-	public ClubEntidad getClub() {
-		return club;
-	}
+    public long getIdMiembroClub() {
+        return idMiembroClub;
+    }
 
-	public void setClub(ClubEntidad club) {
-		this.club = club;
-	}
+    public void setIdMiembroClub(long idMiembroClub) {
+        this.idMiembroClub = idMiembroClub;
+    }
 
+    public LocalDate getFechaAltaUsuario() {
+        return fechaAltaUsuario;
+    }
 
-	public UsuarioEntidad getUsuario() {
-		return usuario;
-	}
+    public void setFechaAltaUsuario(LocalDate fechaAltaUsuario) {
+        this.fechaAltaUsuario = fechaAltaUsuario;
+    }
 
-	public void setUsuario(UsuarioEntidad usuario) {
-		this.usuario = usuario;
-	}
+    public LocalDate getFechaBajaUsuario() {
+        return fechaBajaUsuario;
+    }
 
-	public Date getFechaAltaUsuario() {
-		return fechaAltaUsuario;
-	}
+    public void setFechaBajaUsuario(LocalDate fechaBajaUsuario) {
+        this.fechaBajaUsuario = fechaBajaUsuario;
+    }
 
-	public void setFechaAltaUsuario(Date fechaAltaUsuario) {
-		this.fechaAltaUsuario = fechaAltaUsuario;
-	}
+    public ClubEntidad getClub() {
+        return club;
+    }
 
-	public Date getFechaBajaUsuario() {
-		return fechaBajaUsuario;
-	}
+    public void setClub(ClubEntidad club) {
+        this.club = club;
+    }
 
-	public void setFechaBajaUsuario(Date fechaBajaUsuario) {
-		this.fechaBajaUsuario = fechaBajaUsuario;
-	}
+    public UsuarioEntidad getUsuario() {
+        return usuario;
+    }
 
-	public MiembroClubEntidad() {
-	}
+    public void setUsuario(UsuarioEntidad usuario) {
+        this.usuario = usuario;
+    }
 }

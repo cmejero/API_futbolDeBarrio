@@ -1,16 +1,16 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class MiembroClubDto {
 
     private long idMiembroClub;
-    private Date fechaAltaUsuario;
-    private Date fechaBajaUsuario;
-    private long clubId;  // ID del club asociado
-    private long usuarioId;  // ID del usuario asociado
+    private LocalDate fechaAltaUsuario;
+    private LocalDate fechaBajaUsuario;
+    private long clubId;  
+    private long usuarioId;  
 
-    // Getters y Setters
+    // Getters and Setters
     public long getIdMiembroClub() {
         return idMiembroClub;
     }
@@ -19,19 +19,19 @@ public class MiembroClubDto {
         this.idMiembroClub = idMiembroClub;
     }
 
-    public Date getFechaAltaUsuario() {
+    public LocalDate getFechaAltaUsuario() {
         return fechaAltaUsuario;
     }
 
-    public void setFechaAltaUsuario(Date fechaAltaUsuario) {
+    public void setFechaAltaUsuario(LocalDate fechaAltaUsuario) {
         this.fechaAltaUsuario = fechaAltaUsuario;
     }
 
-    public Date getFechaBajaUsuario() {
+    public LocalDate getFechaBajaUsuario() {
         return fechaBajaUsuario;
     }
 
-    public void setFechaBajaUsuario(Date fechaBajaUsuario) {
+    public void setFechaBajaUsuario(LocalDate fechaBajaUsuario) {
         this.fechaBajaUsuario = fechaBajaUsuario;
     }
 

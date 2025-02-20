@@ -1,6 +1,5 @@
 package com.futbolDeBarrio.futbolDeBarrio.entidad;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +9,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -57,10 +54,7 @@ public class ClubEntidad {
     @Column(name = "telefono_club")
     private String telefonoClub;
 
-    // Relación con InstalacionDto
-    @ManyToOne
-    @JoinColumn(name = "instalacion_id", referencedColumnName = "id_instalacion", nullable = false)
-    private InstalacionEntidad instalacion;
+  
     
 
     // Relación con los clubes
@@ -168,11 +162,5 @@ public class ClubEntidad {
         this.telefonoClub = telefonoClub;
     }
 
-    public InstalacionEntidad getInstalacion() {
-        return instalacion;
-    }
-
-    public void setInstalacion(InstalacionEntidad instalacion) {
-        this.instalacion = instalacion;
-    }
+   
 }

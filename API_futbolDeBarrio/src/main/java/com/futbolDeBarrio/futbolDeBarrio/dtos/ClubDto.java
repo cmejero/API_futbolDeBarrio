@@ -1,8 +1,5 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
-
-import java.sql.Date;
-
 public class ClubDto {
 
     private long idClub;
@@ -17,7 +14,6 @@ public class ClubDto {
     private String emailClub;
     private String passwordClub;
     private String telefonoClub;
-    private long instalacionId; // Si solo necesitas el ID de la instalación
 
     // Getters y Setters
     public long getIdClub() {
@@ -115,13 +111,4 @@ public class ClubDto {
     public void setTelefonoClub(String telefonoClub) {
         this.telefonoClub = telefonoClub;
     }
-
-    public long getInstalacionId() {
-        return instalacionId;
-    }
-
-    public void setInstalacionId(long instalacionId) {
-        this.instalacionId = instalacionId;
-    }
-
 }

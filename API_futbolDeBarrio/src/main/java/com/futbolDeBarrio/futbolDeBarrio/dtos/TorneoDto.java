@@ -1,6 +1,6 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import com.futbolDeBarrio.futbolDeBarrio.enums.Modalidad;
 
@@ -8,13 +8,13 @@ public class TorneoDto {
 
     private long idTorneo;
     private String nombreTorneo;
-    private Date fechaInicioTorneo;
-    private Date fechaFinTorneo;
+    private LocalDate fechaInicioTorneo;
+    private LocalDate fechaFinTorneo;
     private String descripcionTorneo;
     private Modalidad modalidad;
-    private long instalacionId;  // Solo guardamos el ID de la instalación asociada
+    private long instalacionId;
 
-    // Getters y Setters
+    // Getters and Setters
     public long getIdTorneo() {
         return idTorneo;
     }
@@ -31,19 +31,19 @@ public class TorneoDto {
         this.nombreTorneo = nombreTorneo;
     }
 
-    public Date getFechaInicioTorneo() {
+    public LocalDate getFechaInicioTorneo() {
         return fechaInicioTorneo;
     }
 
-    public void setFechaInicioTorneo(Date fechaInicioTorneo) {
+    public void setFechaInicioTorneo(LocalDate fechaInicioTorneo) {
         this.fechaInicioTorneo = fechaInicioTorneo;
     }
 
-    public Date getFechaFinTorneo() {
+    public LocalDate getFechaFinTorneo() {
         return fechaFinTorneo;
     }
 
-    public void setFechaFinTorneo(Date fechaFinTorneo) {
+    public void setFechaFinTorneo(LocalDate fechaFinTorneo) {
         this.fechaFinTorneo = fechaFinTorneo;
     }
 

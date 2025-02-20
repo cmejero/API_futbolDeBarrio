@@ -1,107 +1,129 @@
 package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.futbolDeBarrio.futbolDeBarrio.dtos.MiembroClubDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.MiembroClubInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
 
-/**
- * Clase que se encarga de la logica interna de los metodos CRUD
- */
 @Service
 public class MiembroClubFuncionalidades {
 
-	@Autowired
-	MiembroClubInterfaz miembroClubInterfaz;
-	
-	/**
-	 * Metodo que se encarga de mostrar listado de los miembros de cada club
-	 */
-	public ArrayList<MiembroClubEntidad> listaMiembroClub(){
-		return (ArrayList<MiembroClubEntidad>) miembroClubInterfaz.findAll();
-	}
-	
-	/**
-	 * Metodo que se encarga de guardar un miembro en un club
-	 */
-	public MiembroClubEntidad guardarMiembroClub(MiembroClubEntidad miembroClubDto) {
-		return miembroClubInterfaz.save(miembroClubDto);
-	}
-	
-	/**
-	 * Metodo que se encarga de eliminar un miembro de un club
-	 */
-	public boolean eliminarMiembroClub(String idMiembroClubString) {
-		
-		boolean estaBorrado = false;
-		try {
-		Long idMiembroClub = Long.parseLong(idMiembroClubString);
-		boolean coincide = false;
-		MiembroClubEntidad miembroClubDto = miembroClubInterfaz.findByIdMiembroClub(idMiembroClub);
-		
-		if(miembroClubDto == null) {
-			System.out.println("El ID introducido no existe");
-			estaBorrado= false;
-		}
-		
-		if(idMiembroClub == miembroClubDto.getIdMiembroClub()) {
-			
-			coincide = true;
-		}
-		
-		if(coincide) {
-			
-			System.out.println("el miembro del club se ha eliminado con exito");
-			miembroClubInterfaz.delete(miembroClubDto);
-			estaBorrado= true;
-		}
-		
-		}catch(NumberFormatException nfe) {
-			System.out.println("Error: el ID proporcionado no es valido " + nfe.getMessage());
-			return false;
-		} catch (Exception e) {
+    @Autowired
+    private MiembroClubInterfaz miembroClubInterfaz;
 
-			System.out.println("Se ha producido un error " + e.getMessage());
-			return false;
-		}
-		return estaBorrado;
-	}
-	
-	/**
-	 * Metodo que se encarga de modificar los campos de la tabla miembro_club
-	 */
-	public boolean modificarMiembroClub(String idMiembroClubString, MiembroClubEntidad miembroClub) {
-		
-		boolean estaModificado= false;
-		try {
-		Long idMiembroClub = Long.parseLong(idMiembroClubString);
-		MiembroClubEntidad miembroClubDto = miembroClubInterfaz.findByIdMiembroClub(idMiembroClub);
-		
-		if(miembroClub == null) {
-			System.out.println("El ID introducido no existe");
-			estaModificado = false;
-		}
-		else {
-			miembroClubDto.setClub(miembroClub.getClub());
-			miembroClubDto.setFechaAltaUsuario(miembroClub.getFechaAltaUsuario());
-			miembroClubDto.setFechaBajaUsuario(miembroClub.getFechaBajaUsuario());
-			miembroClubDto.setUsuario(miembroClub.getUsuario());;
-			
-			miembroClubInterfaz.save(miembroClubDto);
-			System.out.println("Se ha modificado miembro_club con exito");
-			estaModificado = true;
-		}
-		}catch(NumberFormatException nfe) {
-			System.out.println("Error: el ID proporcionado no es valido " + nfe.getMessage());
-			return false;
-		} catch (Exception e) {
+    @Autowired
+    private ClubInterfaz clubInterfaz;
 
-			System.out.println("Se ha producido un error " + e.getMessage());
-			return false;
-		}
-		return estaModificado;
-	}
+    @Autowired
+    private UsuarioInterfaz usuarioInterfaz;
+
+    /**
+     * Mapea una entidad MiembroClubEntidad a un DTO MiembroClubDto.
+     */
+    public MiembroClubDto mapearAMiembroClubDto(MiembroClubEntidad miembroClubEntidad) {
+        MiembroClubDto miembroClubDto = new MiembroClubDto();
+        miembroClubDto.setIdMiembroClub(miembroClubEntidad.getIdMiembroClub());
+        miembroClubDto.setFechaAltaUsuario(miembroClubEntidad.getFechaAltaUsuario());
+        miembroClubDto.setFechaBajaUsuario(miembroClubEntidad.getFechaBajaUsuario());
+        miembroClubDto.setClubId(miembroClubEntidad.getClub().getIdClub());
+        miembroClubDto.setUsuarioId(miembroClubEntidad.getUsuario().getIdUsuario());
+        return miembroClubDto;
+    }
+
+    /**
+     * Mapea un DTO MiembroClubDto a una entidad MiembroClubEntidad.
+     */
+    private MiembroClubEntidad mapearADtoAEntidad(MiembroClubDto miembroClubDto) {
+        MiembroClubEntidad miembroClubEntidad = new MiembroClubEntidad();
+        miembroClubEntidad.setIdMiembroClub(miembroClubDto.getIdMiembroClub());
+        miembroClubEntidad.setFechaAltaUsuario(miembroClubDto.getFechaAltaUsuario());
+        miembroClubEntidad.setFechaBajaUsuario(miembroClubDto.getFechaBajaUsuario());
+
+        Optional<ClubEntidad> clubOpt = clubInterfaz.findById(miembroClubDto.getClubId());
+        clubOpt.ifPresent(miembroClubEntidad::setClub);
+
+        Optional<UsuarioEntidad> usuarioOpt = usuarioInterfaz.findById(miembroClubDto.getUsuarioId());
+        usuarioOpt.ifPresent(miembroClubEntidad::setUsuario);
+
+        return miembroClubEntidad;
+    }
+
+    /**
+     * Obtiene una lista de todos los MiembroClubDto.
+     */
+    public List<MiembroClubDto> obtenerMiembrosClubDto() {
+        List<MiembroClubEntidad> miembrosClubEntidad = (List<MiembroClubEntidad>) miembroClubInterfaz.findAll();
+        List<MiembroClubDto> miembrosClubDto = new ArrayList<>();
+        for (MiembroClubEntidad miembroClub : miembrosClubEntidad) {
+            miembrosClubDto.add(mapearAMiembroClubDto(miembroClub));
+        }
+        return miembrosClubDto;
+    }
+
+    /**
+     * Obtiene un MiembroClubDto por su ID.
+     */
+    public MiembroClubDto obtenerMiembroClubDtoPorId(Long idMiembroClub) {
+        Optional<MiembroClubEntidad> miembroClubEntidad = miembroClubInterfaz.findById(idMiembroClub);
+        return miembroClubEntidad.map(this::mapearAMiembroClubDto).orElse(null);
+    }
+
+    /**
+     * Guarda un nuevo miembro del club en la base de datos.
+     */
+    public MiembroClubEntidad guardarMiembroClub(MiembroClubDto miembroClubDto) {
+        MiembroClubEntidad miembroClubEntidad = mapearADtoAEntidad(miembroClubDto);
+        return miembroClubInterfaz.save(miembroClubEntidad);
+    }
+
+    /**
+     * Modifica un miembro del club existente en la base de datos.
+     */
+    public boolean modificarMiembroClub(String idMiembroClubString, MiembroClubDto miembroClubDto) {
+    	 Long idMiembroClub = Long.parseLong(idMiembroClubString);
+        Optional<MiembroClubEntidad> miembroClubOpt = miembroClubInterfaz.findById(idMiembroClub);
+        if (miembroClubOpt.isPresent()) {
+            MiembroClubEntidad miembroClub = miembroClubOpt.get();
+            miembroClub.setFechaAltaUsuario(miembroClubDto.getFechaAltaUsuario());
+            miembroClub.setFechaBajaUsuario(miembroClubDto.getFechaBajaUsuario());
+
+            Optional<ClubEntidad> clubOpt = clubInterfaz.findById(miembroClubDto.getClubId());
+            clubOpt.ifPresent(miembroClub::setClub);
+
+            Optional<UsuarioEntidad> usuarioOpt = usuarioInterfaz.findById(miembroClubDto.getUsuarioId());
+            usuarioOpt.ifPresent(miembroClub::setUsuario);
+
+            miembroClubInterfaz.save(miembroClub);
+            return true;
+        } else {
+            System.out.println("El ID proporcionado no existe");
+            return false;
+        }
+    }
+
+    /**
+     * Borra un miembro del club por su ID.
+     */
+    public boolean borrarMiembroClub(String idMiembroClubString) {
+    	 Long idMiembroClub = Long.parseLong(idMiembroClubString);
+         Optional<MiembroClubEntidad> miembroClubOpt = miembroClubInterfaz.findById(idMiembroClub);
+        if (miembroClubOpt.isPresent()) {
+            miembroClubInterfaz.delete(miembroClubOpt.get());
+            System.out.println("El miembro del club ha sido borrado con éxito");
+            return true;
+        } else {
+            System.out.println("El id del miembro del club no existe");
+            return false;
+        }
+    }
 }
