@@ -38,6 +38,7 @@ import com.futbolDeBarrio.futbolDeBarrio.servicios.UsuarioFuncionalidades;
  */
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:9527")
 public class Controlador {
 
 	@Autowired
@@ -104,6 +105,8 @@ public class Controlador {
 	public boolean modificarClub(@PathVariable("id_club") String idClub, @RequestBody ClubDto clubDto) {
 		return this.clubFuncionalidades.modificarClub(idClub, clubDto);
 	}
+
+	
 
 	/* METODOS CRUD DE LA TABLA EQUIPO_TORNEO */
 
