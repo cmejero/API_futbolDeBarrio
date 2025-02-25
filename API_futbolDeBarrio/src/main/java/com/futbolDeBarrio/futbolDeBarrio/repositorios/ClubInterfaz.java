@@ -1,9 +1,12 @@
 package com.futbolDeBarrio.futbolDeBarrio.repositorios;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 
 /**
  * Clase que se encarga de gestionar operaciones CRUD básicas sobre la entidad
@@ -27,4 +30,6 @@ public interface ClubInterfaz extends JpaRepository<ClubEntidad, Long> {
 	 * @return
 	 */
 	void deleteByIdClub(long idClub);
+	
+	 Optional<ClubEntidad> findByEmailClubAndPasswordClub(String email, String password);
 }

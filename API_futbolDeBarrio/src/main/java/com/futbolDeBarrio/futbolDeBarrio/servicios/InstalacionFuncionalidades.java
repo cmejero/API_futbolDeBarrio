@@ -5,12 +5,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 
 /**
@@ -21,6 +23,10 @@ public class InstalacionFuncionalidades {
 
 	@Autowired
 	InstalacionInterfaz instalacionInterfaz;
+	
+	 public Optional<InstalacionEntidad> buscarInstalacionPorEmailYPassword(String email, String password) {
+	        return instalacionInterfaz.findByEmailInstalacionAndPasswordInstalacion(email, password);
+	    }
 	 /**
      * Método que mapea de entidad a DTO
      */
@@ -35,6 +41,7 @@ public class InstalacionFuncionalidades {
         instalacionDto.setTipoCampo2(instalacionEntidad.getTipoCampo2());
         instalacionDto.setTipoCampo3(instalacionEntidad.getTipoCampo3());
         instalacionDto.setServiciosInstalacion(instalacionEntidad.getServiciosInstalacion());
+        instalacionDto.setPasswordInstalacion(instalacionEntidad.getPasswordInstalacion());
         instalacionDto.setEstadoInstalacion(instalacionEntidad.getEstadoInstalacion());
         instalacionDto.setImagenInstalacion(instalacionEntidad.getImagenInstalacion());
         return instalacionDto;
@@ -54,6 +61,7 @@ public class InstalacionFuncionalidades {
         instalacionEntidad.setTipoCampo2(instalacionDto.getTipoCampo2());
         instalacionEntidad.setTipoCampo3(instalacionDto.getTipoCampo3());
         instalacionEntidad.setServiciosInstalacion(instalacionDto.getServiciosInstalacion());
+        instalacionDto.setPasswordInstalacion(instalacionEntidad.getPasswordInstalacion());
         instalacionEntidad.setEstadoInstalacion(instalacionDto.getEstadoInstalacion());
         instalacionEntidad.setImagenInstalacion(instalacionDto.getImagenInstalacion());
         return instalacionEntidad;

@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,10 @@ public class UsuarioFuncionalidades {
     @Autowired
     UsuarioInterfaz usuarioInterfaz;
 
+    
+    public Optional<UsuarioEntidad> buscarPorEmailYPassword(String email, String password) {
+        return usuarioInterfaz.findByEmailUsuarioAndPasswordUsuario(email, password);
+    }
     // Otros métodos existentes...
 
     /**
@@ -33,6 +38,7 @@ public class UsuarioFuncionalidades {
         usuarioEntidad.setAliasUsuario(usuarioDto.getAliasUsuario());
         usuarioDto.setFechaNacimientoUsuario(usuarioEntidad.getFechaNacimientoUsuario());
         usuarioDto.setEmailUsuario(usuarioEntidad.getEmailUsuario());
+        usuarioDto.setPasswordUsuario(usuarioEntidad.getPasswordUsuario());
         usuarioDto.setTelefonoUsuario(usuarioEntidad.getTelefonoUsuario());
         usuarioDto.setDescripcionUsuario(usuarioEntidad.getDescripcionUsuario());
         usuarioDto.setImagenUsuario(usuarioEntidad.getImagenUsuario());
@@ -51,6 +57,7 @@ public class UsuarioFuncionalidades {
         usuarioEntidad.setAliasUsuario(usuarioDto.getAliasUsuario());
         usuarioEntidad.setFechaNacimientoUsuario(usuarioDto.getFechaNacimientoUsuario());
         usuarioEntidad.setEmailUsuario(usuarioDto.getEmailUsuario());
+        usuarioDto.setPasswordUsuario(usuarioEntidad.getPasswordUsuario());
         usuarioEntidad.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
         usuarioEntidad.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
         usuarioEntidad.setImagenUsuario(usuarioDto.getImagenUsuario());

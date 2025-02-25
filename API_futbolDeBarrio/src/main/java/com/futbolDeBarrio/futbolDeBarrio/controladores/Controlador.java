@@ -3,6 +3,7 @@ package com.futbolDeBarrio.futbolDeBarrio.controladores;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.EquipoTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.LoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.MiembroClubDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.TipoUsuarioLoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.TorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
@@ -26,6 +29,7 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.servicios.AutentificacionFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.ClubFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.EquipoTorneoFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.InstalacionFuncionalidades;
@@ -38,7 +42,7 @@ import com.futbolDeBarrio.futbolDeBarrio.servicios.UsuarioFuncionalidades;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:9527")
+
 public class Controlador {
 
 	@Autowired
@@ -53,8 +57,25 @@ public class Controlador {
 	TorneoFuncionalidades torneoFuncionalidades;
 	@Autowired
 	UsuarioFuncionalidades usuarioFuncionalidades;
+	@Autowired
+	AutentificacionFuncionalidades autentificacionFuncionalidades;
 
+	
+	
 	@CrossOrigin(origins = "http://localhost:4200")
+	
+	
+	
+	@PostMapping("/login")
+	public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
+	    // Llamada al servicio para hacer el login
+	    ResponseEntity<TipoUsuarioLoginDto> response = autentificacionFuncionalidades.login(loginDto);
+
+	    // Si el usuario no se ha encontrado, ya lo hemos gestionado dentro del servicio
+	    return response;
+	}
+	
+	
 
 	/* METODOS CRUD DE LA TABLA CLUB */
 
@@ -280,11 +301,12 @@ public class Controlador {
 	/**
 	 * Método GET para obtener todos los usuarios como una lista de DTOs.
 	 */
-	@GetMapping("/mostrarUsuarios")
+	@GetMapping("/mostrarUsuarios") 
 	public List<UsuarioDto> mostrarUsuarios() {
-		// Devolver la lista de DTOs
-		return usuarioFuncionalidades.obtenerUsuariosDto();
+	    // Devolver la lista de DTOs
+	    return usuarioFuncionalidades.obtenerUsuariosDto();
 	}
+ 
 
 	/**
 	 * Método POST para crear un nuevo usuario. Recibe un DTO de Usuario y lo guarda

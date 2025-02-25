@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,10 @@ public class ClubFuncionalidades {
     @Autowired
     ClubInterfaz clubInterfaz;
 
+    public Optional<ClubEntidad> buscarClubPorEmailYPassword(String email, String password) {
+        return clubInterfaz.findByEmailClubAndPasswordClub(email, password);
+    }
+    
     /**
      * Método que mapea de entidad a DTO
      */
@@ -31,6 +36,7 @@ public class ClubFuncionalidades {
         clubDto.setFechaFundacionClub(clubEntidad.getFechaFundacionClub());
         clubDto.setLocalidadClub(clubEntidad.getLocalidadClub());
         clubDto.setPaisClub(clubEntidad.getPaisClub());
+        clubDto.setPasswordClub(clubEntidad.getPasswordClub());
         clubDto.setLogoClub(clubEntidad.getLogoClub());
         clubDto.setEmailClub(clubEntidad.getEmailClub());
         clubDto.setTelefonoClub(clubEntidad.getTelefonoClub());
@@ -50,6 +56,7 @@ public class ClubFuncionalidades {
         clubEntidad.setFechaFundacionClub(clubDto.getFechaFundacionClub());
         clubEntidad.setLocalidadClub(clubDto.getLocalidadClub());
         clubEntidad.setPaisClub(clubDto.getPaisClub());
+        clubDto.setPasswordClub(clubEntidad.getPasswordClub());
         clubEntidad.setLogoClub(clubDto.getLogoClub());
         clubEntidad.setEmailClub(clubDto.getEmailClub());
         clubEntidad.setTelefonoClub(clubDto.getTelefonoClub());
