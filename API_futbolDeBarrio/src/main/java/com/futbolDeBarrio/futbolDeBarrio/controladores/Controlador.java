@@ -1,9 +1,9 @@
 package com.futbolDeBarrio.futbolDeBarrio.controladores;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -302,7 +302,7 @@ public class Controlador {
 	 * Método GET para obtener todos los usuarios como una lista de DTOs.
 	 */
 	@GetMapping("/mostrarUsuarios") 
-	public List<UsuarioDto> mostrarUsuarios() {
+	public ArrayList<UsuarioDto> mostrarUsuarios() {
 	    // Devolver la lista de DTOs
 	    return usuarioFuncionalidades.obtenerUsuariosDto();
 	}
@@ -314,9 +314,9 @@ public class Controlador {
 	 */
 	@PostMapping("/guardarUsuario")
 	public UsuarioDto guardarUsuario(@RequestBody UsuarioDto usuarioDto) {
-		// Guardar el usuario y devolverlo como DTO
-		UsuarioEntidad usuarioEntidad = usuarioFuncionalidades.guardarUsuario(usuarioDto);
-		return usuarioFuncionalidades.mapearAUsuarioDto(usuarioEntidad);
+	    System.out.println("Datos recibidos: " + usuarioDto.getEmailUsuario() + " " + usuarioDto.getPasswordUsuario());  // Verifica si los datos son correctos
+	    UsuarioEntidad usuarioEntidad = usuarioFuncionalidades.guardarUsuario(usuarioDto);
+	    return usuarioFuncionalidades.mapearAUsuarioDto(usuarioEntidad);
 	}
 
 	/**

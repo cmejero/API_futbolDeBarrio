@@ -38,7 +38,7 @@ public class UsuarioFuncionalidades {
         usuarioEntidad.setAliasUsuario(usuarioDto.getAliasUsuario());
         usuarioDto.setFechaNacimientoUsuario(usuarioEntidad.getFechaNacimientoUsuario());
         usuarioDto.setEmailUsuario(usuarioEntidad.getEmailUsuario());
-        usuarioDto.setPasswordUsuario(usuarioEntidad.getPasswordUsuario());
+        
         usuarioDto.setTelefonoUsuario(usuarioEntidad.getTelefonoUsuario());
         usuarioDto.setDescripcionUsuario(usuarioEntidad.getDescripcionUsuario());
         usuarioDto.setImagenUsuario(usuarioEntidad.getImagenUsuario());
@@ -57,7 +57,7 @@ public class UsuarioFuncionalidades {
         usuarioEntidad.setAliasUsuario(usuarioDto.getAliasUsuario());
         usuarioEntidad.setFechaNacimientoUsuario(usuarioDto.getFechaNacimientoUsuario());
         usuarioEntidad.setEmailUsuario(usuarioDto.getEmailUsuario());
-        usuarioDto.setPasswordUsuario(usuarioEntidad.getPasswordUsuario());
+      
         usuarioEntidad.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
         usuarioEntidad.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
         usuarioEntidad.setImagenUsuario(usuarioDto.getImagenUsuario());
@@ -69,9 +69,9 @@ public class UsuarioFuncionalidades {
     /**
      * Método que mapea una lista de entidades a DTOs
      */
-    public List<UsuarioDto> obtenerUsuariosDto() {
-        List<UsuarioEntidad> usuariosEntidad = (List<UsuarioEntidad>) usuarioInterfaz.findAll();
-        List<UsuarioDto> usuariosDto = new ArrayList<>();
+    public ArrayList<UsuarioDto> obtenerUsuariosDto() {
+        ArrayList<UsuarioEntidad> usuariosEntidad = (ArrayList<UsuarioEntidad>) usuarioInterfaz.findAll();
+        ArrayList<UsuarioDto> usuariosDto = new ArrayList<>();
         for (UsuarioEntidad usuario : usuariosEntidad) {
             usuariosDto.add(mapearAUsuarioDto(usuario));
         }
@@ -140,6 +140,10 @@ public class UsuarioFuncionalidades {
      * Método que encripta una contraseña antes de guardarla
      */
     public String encriptarContrasenya(String contraseña) {
+        if (contraseña == null || contraseña.isEmpty()) {
+            throw new IllegalArgumentException("La contraseña no puede ser nula o vacía.");
+        }
+
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(contraseña.getBytes());
@@ -152,7 +156,7 @@ public class UsuarioFuncionalidades {
 
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error al encriptar la contraseña", e);
         }
     }
 
