@@ -1,11 +1,10 @@
 package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +18,8 @@ public class ClubFuncionalidades {
     @Autowired
     ClubInterfaz clubInterfaz;
 
-    public Optional<ClubEntidad> buscarClubPorEmailYPassword(String email, String password) {
-        return clubInterfaz.findByEmailClubAndPasswordClub(email, password);
+    public Optional<ClubEntidad> buscarClubPorEmail(String email) {
+        return clubInterfaz.findByEmailClub(email);
     }
     
     /**
@@ -129,20 +128,17 @@ public class ClubFuncionalidades {
      * Método que encripta una contraseña antes de guardarla
      */
     public String encriptarContrasenya(String contraseña) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(contraseña.getBytes());
-            StringBuilder hexString = new StringBuilder();
-
-            for (byte b : hash) {
-                String hex = String.format("%02x", b);
-                hexString.append(hex);
-            }
-
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+        if (contraseña == null || contraseña.isEmpty()) {
+            throw new IllegalArgumentException("La contraseña no puede ser nula o vacía.");
         }
+        
+        // Genera el hash de la contraseña usando BCrypt
+        return BCrypt.hashpw(contraseña, BCrypt.gensalt());
+    }
+    
+    public boolean verificarContrasena(String contraseñaIngresada, String hashAlmacenado) {
+        // Verifica que la contraseña ingresada coincide con el hash almacenado
+        return BCrypt.checkpw(contraseñaIngresada, hashAlmacenado);
     }
 
     /**

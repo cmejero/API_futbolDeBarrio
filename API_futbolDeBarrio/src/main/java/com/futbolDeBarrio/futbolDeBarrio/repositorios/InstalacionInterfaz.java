@@ -27,6 +27,6 @@ public interface InstalacionInterfaz extends JpaRepository<InstalacionEntidad, L
 	 */
 	void deleteByIdInstalacion(Long idInstalacion);
 	
-	Optional<InstalacionEntidad> findByEmailInstalacionAndPasswordInstalacion(String email, String password);
+	Optional<InstalacionEntidad> findByEmailInstalacion(String email);
 
 }

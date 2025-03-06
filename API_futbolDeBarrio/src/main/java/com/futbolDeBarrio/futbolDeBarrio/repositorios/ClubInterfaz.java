@@ -31,5 +31,7 @@ public interface ClubInterfaz extends JpaRepository<ClubEntidad, Long> {
 	 */
 	void deleteByIdClub(long idClub);
 	
-	 Optional<ClubEntidad> findByEmailClubAndPasswordClub(String email, String password);
+	 Optional<ClubEntidad> findByEmailClub(String email); 
+	 
 }
+ 

@@ -18,7 +18,7 @@ public interface UsuarioInterfaz extends JpaRepository<UsuarioEntidad, Long> {
 	 * @param idUsuario
 	 * @return
 	 */
-	UsuarioEntidad findByIdUsuario(Long idUsuario);
+	UsuarioEntidad findByIdUsuario(long idUsuario);
 	
 	/**
 	 * metodo que elimina un usuario dado su id.
@@ -29,5 +29,6 @@ public interface UsuarioInterfaz extends JpaRepository<UsuarioEntidad, Long> {
 	void deleteByIdUsuario(Long isUsuario);
 	
 	
-	 Optional<UsuarioEntidad> findByEmailUsuarioAndPasswordUsuario(String email, String password);
+	Optional<UsuarioEntidad> findByEmailUsuario(String email);
+
 }

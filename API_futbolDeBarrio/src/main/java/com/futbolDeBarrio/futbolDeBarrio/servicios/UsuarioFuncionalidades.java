@@ -1,17 +1,17 @@
 	package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
+
+import jakarta.transaction.Transactional;
 
 /**
  * Clase que se encarga de la lógica interna de los métodos CRUD para Usuario
@@ -23,8 +23,8 @@ public class UsuarioFuncionalidades {
     UsuarioInterfaz usuarioInterfaz;
 
     
-    public Optional<UsuarioEntidad> buscarPorEmailYPassword(String email, String password) {
-        return usuarioInterfaz.findByEmailUsuarioAndPasswordUsuario(email, password);
+    public Optional<UsuarioEntidad> buscarUsuarioPorEmail(String email) {
+        return usuarioInterfaz.findByEmailUsuario(email);
     }
     // Otros métodos existentes...
 
@@ -35,10 +35,10 @@ public class UsuarioFuncionalidades {
         UsuarioDto usuarioDto = new UsuarioDto();
         usuarioDto.setIdUsuario(usuarioEntidad.getIdUsuario());
         usuarioDto.setNombreCompletoUsuario(usuarioEntidad.getNombreCompletoUsuario());
-        usuarioEntidad.setAliasUsuario(usuarioDto.getAliasUsuario());
+        usuarioDto.setAliasUsuario(usuarioEntidad.getAliasUsuario());
         usuarioDto.setFechaNacimientoUsuario(usuarioEntidad.getFechaNacimientoUsuario());
         usuarioDto.setEmailUsuario(usuarioEntidad.getEmailUsuario());
-        
+        usuarioDto.setPasswordUsuario(usuarioEntidad.getPasswordUsuario());
         usuarioDto.setTelefonoUsuario(usuarioEntidad.getTelefonoUsuario());
         usuarioDto.setDescripcionUsuario(usuarioEntidad.getDescripcionUsuario());
         usuarioDto.setImagenUsuario(usuarioEntidad.getImagenUsuario());
@@ -57,7 +57,7 @@ public class UsuarioFuncionalidades {
         usuarioEntidad.setAliasUsuario(usuarioDto.getAliasUsuario());
         usuarioEntidad.setFechaNacimientoUsuario(usuarioDto.getFechaNacimientoUsuario());
         usuarioEntidad.setEmailUsuario(usuarioDto.getEmailUsuario());
-      
+        usuarioEntidad.setPasswordUsuario(usuarioDto.getPasswordUsuario());
         usuarioEntidad.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
         usuarioEntidad.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
         usuarioEntidad.setImagenUsuario(usuarioDto.getImagenUsuario());
@@ -92,7 +92,9 @@ public class UsuarioFuncionalidades {
 
         // Encriptamos la contraseña antes de guardar
         usuarioEntidad.setPasswordUsuario(encriptarContrasenya(usuarioDto.getPasswordUsuario()));
-
+        if (usuarioDto.getPasswordUsuario() == null || usuarioDto.getPasswordUsuario().isEmpty()) {
+            throw new IllegalArgumentException("La contraseña no puede ser nula o vacía.");
+        }
         // Guardamos la entidad en la base de datos
         return usuarioInterfaz.save(usuarioEntidad);
     }
@@ -100,6 +102,8 @@ public class UsuarioFuncionalidades {
     /**
      * Método que se encarga de modificar un usuario en la base de datos
      */
+   
+    
     public boolean modificarUsuario(String id, UsuarioDto usuarioDto) {
         boolean esModificado = false;
         try {
@@ -115,7 +119,7 @@ public class UsuarioFuncionalidades {
                 usuario.setFechaNacimientoUsuario(usuarioDto.getFechaNacimientoUsuario());
                 usuario.setEmailUsuario(usuarioDto.getEmailUsuario());
                 usuario.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
-                usuario.setPasswordUsuario(encriptarContrasenya(usuarioDto.getPasswordUsuario())); 
+                usuario.setPasswordUsuario(usuarioDto.getPasswordUsuario());
                 usuario.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
                 usuario.setImagenUsuario(usuarioDto.getImagenUsuario());
                 usuario.setEstadoUsuario(usuarioDto.getEstadoUsuario());
@@ -131,10 +135,12 @@ public class UsuarioFuncionalidades {
             System.out.println("Error: El ID proporcionado no es válido. " + nfe.getMessage());
         } catch (Exception e) {
             System.out.println("Se ha producido un error al modificar el usuario. " + e.getMessage());
+            e.printStackTrace(); // Imprime el stack trace para obtener más detalles del error
         }
 
         return esModificado;
     }
+
 
     /**
      * Método que encripta una contraseña antes de guardarla
@@ -143,23 +149,19 @@ public class UsuarioFuncionalidades {
         if (contraseña == null || contraseña.isEmpty()) {
             throw new IllegalArgumentException("La contraseña no puede ser nula o vacía.");
         }
-
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(contraseña.getBytes());
-            StringBuilder hexString = new StringBuilder();
-
-            for (byte b : hash) {
-                String hex = String.format("%02x", b);
-                hexString.append(hex);
-            }
-
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error al encriptar la contraseña", e);
-        }
+        
+        // Genera el hash de la contraseña usando BCrypt
+        return BCrypt.hashpw(contraseña, BCrypt.gensalt());
     }
-
+    
+    public boolean verificarContrasena(String contraseñaIngresada, String hashAlmacenado) {
+        // Verifica que la contraseña ingresada coincide con el hash almacenado
+        return BCrypt.checkpw(contraseñaIngresada, hashAlmacenado);
+    }
+    
+    
+  
+   
     /**
      * Método que borra un usuario por su ID
      */

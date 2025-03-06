@@ -20,7 +20,7 @@ import com.futbolDeBarrio.futbolDeBarrio.dtos.EquipoTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.LoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.MiembroClubDto;
-import com.futbolDeBarrio.futbolDeBarrio.dtos.TipoUsuarioLoginDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.RespuestaLoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.TorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
@@ -29,10 +29,10 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.servicios.AutentificacionFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.ClubFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.EquipoTorneoFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.InstalacionFuncionalidades;
+import com.futbolDeBarrio.futbolDeBarrio.servicios.LoginFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.MiembroClubFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.TorneoFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.UsuarioFuncionalidades;
@@ -58,24 +58,23 @@ public class Controlador {
 	@Autowired
 	UsuarioFuncionalidades usuarioFuncionalidades;
 	@Autowired
-	AutentificacionFuncionalidades autentificacionFuncionalidades;
+	LoginFuncionalidades loginFuncionalidades;
 
-	
-	
 	@CrossOrigin(origins = "http://localhost:4200")
-	
-	
-	
-	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
-	    // Llamada al servicio para hacer el login
-	    ResponseEntity<TipoUsuarioLoginDto> response = autentificacionFuncionalidades.login(loginDto);
 
-	    // Si el usuario no se ha encontrado, ya lo hemos gestionado dentro del servicio
-	    return response;
-	}
-	
-	
+	@PostMapping("/api/login")
+	public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
+		// Validar las credenciales del usuario
+		String token = loginFuncionalidades.autenticarUsuario(loginDto);
+
+		if (token != null) {
+			// Si las credenciales son válidas, devolver el token
+			return ResponseEntity.ok(new RespuestaLoginDto(token));
+		} else {
+			// Si las credenciales son incorrectas, devolver un error
+			return ResponseEntity.status(401).body("Credenciales incorrectas");
+		}
+	} 
 
 	/* METODOS CRUD DE LA TABLA CLUB */
 
@@ -126,8 +125,6 @@ public class Controlador {
 	public boolean modificarClub(@PathVariable("id_club") String idClub, @RequestBody ClubDto clubDto) {
 		return this.clubFuncionalidades.modificarClub(idClub, clubDto);
 	}
-
-	
 
 	/* METODOS CRUD DE LA TABLA EQUIPO_TORNEO */
 
@@ -301,12 +298,11 @@ public class Controlador {
 	/**
 	 * Método GET para obtener todos los usuarios como una lista de DTOs.
 	 */
-	@GetMapping("/mostrarUsuarios") 
+	@GetMapping("/mostrarUsuarios")
 	public ArrayList<UsuarioDto> mostrarUsuarios() {
-	    // Devolver la lista de DTOs
-	    return usuarioFuncionalidades.obtenerUsuariosDto();
+		// Devolver la lista de DTOs
+		return usuarioFuncionalidades.obtenerUsuariosDto();
 	}
- 
 
 	/**
 	 * Método POST para crear un nuevo usuario. Recibe un DTO de Usuario y lo guarda
@@ -314,9 +310,14 @@ public class Controlador {
 	 */
 	@PostMapping("/guardarUsuario")
 	public UsuarioDto guardarUsuario(@RequestBody UsuarioDto usuarioDto) {
-	    System.out.println("Datos recibidos: " + usuarioDto.getEmailUsuario() + " " + usuarioDto.getPasswordUsuario());  // Verifica si los datos son correctos
-	    UsuarioEntidad usuarioEntidad = usuarioFuncionalidades.guardarUsuario(usuarioDto);
-	    return usuarioFuncionalidades.mapearAUsuarioDto(usuarioEntidad);
+		System.out.println("Datos recibidos: " + usuarioDto.getEmailUsuario() + " " + usuarioDto.getPasswordUsuario()); // Verifica
+																														// si
+																														// los
+																														// datos
+																														// son
+																														// correctos
+		UsuarioEntidad usuarioEntidad = usuarioFuncionalidades.guardarUsuario(usuarioDto);
+		return usuarioFuncionalidades.mapearAUsuarioDto(usuarioEntidad);
 	}
 
 	/**
@@ -332,8 +333,8 @@ public class Controlador {
 	 * Método PUT para actualizar un usuario por su ID. Recibe un DTO y lo
 	 * actualiza.
 	 */
-	@PutMapping("/modificarUsuario/{id_usuario}")
-	public boolean modificarUsuario(@PathVariable("id_usuario") String idUsuario, @RequestBody UsuarioDto usuarioDto) {
+	@PutMapping("/modificarUsuario/{id_Usuario}")
+	public boolean modificarUsuario(@PathVariable("id_Usuario") String idUsuario, @RequestBody UsuarioDto usuarioDto) {
 		// Modificar el usuario y devolver si fue exitoso
 		return usuarioFuncionalidades.modificarUsuario(idUsuario, usuarioDto);
 	}
