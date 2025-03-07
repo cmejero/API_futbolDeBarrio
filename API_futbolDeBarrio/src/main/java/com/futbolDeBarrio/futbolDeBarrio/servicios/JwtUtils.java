@@ -10,7 +10,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtUtils {
 
-    private  String secretKey = "mi_clave_secreta"; // Esta clave debe ser secreta y segura
+    private  String secretKey = "altair"; // Esta clave debe ser secreta y segura
 
     // Método para generar el token
     public  String generateToken(String email) {

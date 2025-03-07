@@ -16,6 +16,8 @@ public class LoginFuncionalidades {
 	
 	 @Autowired
 	    private UsuarioInterfaz usuarioInterfaz;
+	 @Autowired
+	 private UsuarioFuncionalidades usuarioFuncionalidades;
 	 
 	 @Autowired
 	 private JwtUtils jwtUtils;
@@ -23,23 +25,25 @@ public class LoginFuncionalidades {
 
 	    // Método para autenticar al usuario
 	 public String autenticarUsuario(LoginDto loginDto) {
-	        // Buscar el usuario por su email
-	        Optional<UsuarioEntidad> optionalUsuario = usuarioInterfaz.findByEmailUsuario(loginDto.getEmail());
+		    // Buscar el usuario por su email
+		    Optional<UsuarioEntidad> optionalUsuario = usuarioInterfaz.findByEmailUsuario(loginDto.getEmail());
 
-	        // Si el usuario existe
-	        if (optionalUsuario.isPresent()) {
-	            UsuarioEntidad usuarioEntidad = optionalUsuario.get();
-	            // Crear el DTO a partir de la entidad
-	            UsuarioDto usuarioDto = new UsuarioDto();
-	            usuarioDto.setEmailUsuario(usuarioEntidad.getEmailUsuario());
-	            usuarioDto.setPasswordUsuario(usuarioEntidad.getPasswordUsuario());
+		    // Si el usuario existe
+		    if (optionalUsuario.isPresent()) {
+		        UsuarioEntidad usuarioEntidad = optionalUsuario.get();
+		        
+		        // Crear el DTO a partir de la entidad
+		        UsuarioDto usuarioDto = new UsuarioDto();
+		        usuarioDto.setEmailUsuario(usuarioEntidad.getEmailUsuario());
+		        usuarioDto.setPasswordUsuario(usuarioEntidad.getPasswordUsuario());
 
-	            // Verificar si las contraseñas coinciden
-	            if (usuarioDto.getPasswordUsuario().equals(loginDto.getPassword())) {
-	                // Generar el token si las credenciales son correctas
-	                return jwtUtils.generateToken(usuarioDto.getEmailUsuario());
-	            }
-	        }
-	        return null; // Si las credenciales no son correctas o el usuario no existe
-	    }
+		        // Verificar si las contraseñas coinciden utilizando BCrypt
+		        if (usuarioFuncionalidades.verificarContrasena(loginDto.getPassword(), usuarioDto.getPasswordUsuario())) {
+		            // Generar el token si las credenciales son correctas
+		            return jwtUtils.generateToken(usuarioDto.getEmailUsuario());
+		        }
+		    }
+		    return null; // Si las credenciales no son correctas o el usuario no existe
+		}
+
 }

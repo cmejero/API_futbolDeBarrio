@@ -62,7 +62,7 @@ public class Controlador {
 
 	@CrossOrigin(origins = "http://localhost:4200")
 
-	@PostMapping("/api/login")
+	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
 		// Validar las credenciales del usuario
 		String token = loginFuncionalidades.autenticarUsuario(loginDto);
