@@ -21,7 +21,8 @@ public class TorneoFuncionalidades {
 
     @Autowired
     private InstalacionInterfaz instalacionInterfaz;
-
+    
+   
     // Método para mapear de entidad a DTO
     public TorneoDto mapearATorneoDto(TorneoEntidad torneoEntidad) {
         TorneoDto torneoDto = new TorneoDto();

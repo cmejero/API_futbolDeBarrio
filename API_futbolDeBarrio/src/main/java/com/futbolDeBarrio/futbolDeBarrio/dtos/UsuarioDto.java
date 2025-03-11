@@ -1,5 +1,6 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
+import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Estado;
 import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
 
@@ -38,6 +39,19 @@ public class UsuarioDto {
 		this.estadoUsuario = estadoUsuario;
 	}
 	
+	public UsuarioDto(UsuarioEntidad usuarioEntidad) {
+        this.idUsuario = usuarioEntidad.getIdUsuario();
+        this.nombreCompletoUsuario = usuarioEntidad.getNombreCompletoUsuario();
+        this.aliasUsuario = usuarioEntidad.getAliasUsuario();
+        this.fechaNacimientoUsuario = usuarioEntidad.getFechaNacimientoUsuario();
+        this.emailUsuario = usuarioEntidad.getEmailUsuario();
+        this.telefonoUsuario = usuarioEntidad.getTelefonoUsuario();
+        this.passwordUsuario = usuarioEntidad.getPasswordUsuario();
+        this.rolUsuario = usuarioEntidad.getRolUsuario();
+        this.descripcionUsuario = usuarioEntidad.getDescripcionUsuario();
+        this.imagenUsuario = usuarioEntidad.getImagenUsuario();
+        this.estadoUsuario = usuarioEntidad.getEstadoUsuario();
+    }
 	
 	public long getIdUsuario() {
 		return idUsuario;

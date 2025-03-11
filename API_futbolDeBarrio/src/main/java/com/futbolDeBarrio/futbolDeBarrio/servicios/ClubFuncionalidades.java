@@ -17,6 +17,9 @@ public class ClubFuncionalidades {
 
     @Autowired
     ClubInterfaz clubInterfaz;
+    
+    @Autowired
+    Utilidades utilidades;
 
     public Optional<ClubEntidad> buscarClubPorEmail(String email) {
         return clubInterfaz.findByEmailClub(email);
@@ -84,7 +87,7 @@ public class ClubFuncionalidades {
      */
     public ClubEntidad guardarClub(ClubDto clubDto) {
         ClubEntidad clubEntidad = mapearADtoAEntidad(clubDto);
-        clubEntidad.setPasswordClub(encriptarContrasenya(clubDto.getPasswordClub()));
+        clubEntidad.setPasswordClub(utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
         return clubInterfaz.save(clubEntidad);
     }
 
@@ -110,7 +113,7 @@ public class ClubFuncionalidades {
                 club.setLogoClub(clubDto.getLogoClub());
                 club.setEmailClub(clubDto.getEmailClub());
                 club.setTelefonoClub(clubDto.getTelefonoClub());
-                club.setPasswordClub(encriptarContrasenya(clubDto.getPasswordClub()));
+                club.setPasswordClub(clubDto.getPasswordClub());
                 clubInterfaz.save(club);
                 esModificado = true;
             }
@@ -124,22 +127,7 @@ public class ClubFuncionalidades {
         return esModificado;
     }
 
-    /**
-     * Método que encripta una contraseña antes de guardarla
-     */
-    public String encriptarContrasenya(String contraseña) {
-        if (contraseña == null || contraseña.isEmpty()) {
-            throw new IllegalArgumentException("La contraseña no puede ser nula o vacía.");
-        }
-        
-        // Genera el hash de la contraseña usando BCrypt
-        return BCrypt.hashpw(contraseña, BCrypt.gensalt());
-    }
-    
-    public boolean verificarContrasena(String contraseñaIngresada, String hashAlmacenado) {
-        // Verifica que la contraseña ingresada coincide con el hash almacenado
-        return BCrypt.checkpw(contraseñaIngresada, hashAlmacenado);
-    }
+
 
     /**
      * Método que borra un club por su ID

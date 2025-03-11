@@ -5,45 +5,49 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.futbolDeBarrio.futbolDeBarrio.dtos.LoginDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.RespuestaLoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
 
 @Service
 public class LoginFuncionalidades {
 
-	
-	 @Autowired
-	    private UsuarioInterfaz usuarioInterfaz;
-	 @Autowired
-	 private UsuarioFuncionalidades usuarioFuncionalidades;
-	 
-	 @Autowired
-	 private JwtUtils jwtUtils;
-	 
+    @Autowired
+    private UsuarioInterfaz usuarioInterfaz;
+    @Autowired
+    private ClubInterfaz clubInterfaz;
+    @Autowired
+    private InstalacionInterfaz instalacionInterfaz;
+    @Autowired
+    private Utilidades utilidades;
 
-	    // Método para autenticar al usuario
-	 public String autenticarUsuario(LoginDto loginDto) {
-		    // Buscar el usuario por su email
-		    Optional<UsuarioEntidad> optionalUsuario = usuarioInterfaz.findByEmailUsuario(loginDto.getEmail());
+    public RespuestaLoginDto verificarCredenciales(String email, String password) {
+        // Buscar en Usuarios
+        Optional<UsuarioEntidad> usuario = usuarioInterfaz.findByEmailUsuario(email);
+        if (usuario.isPresent() && utilidades.verificarContrasena(password, usuario.get().getPasswordUsuario())) {
+            return new RespuestaLoginDto("usuario", new UsuarioDto(usuario.get())); // Solo el DTO
+        }
 
-		    // Si el usuario existe
-		    if (optionalUsuario.isPresent()) {
-		        UsuarioEntidad usuarioEntidad = optionalUsuario.get();
-		        
-		        // Crear el DTO a partir de la entidad
-		        UsuarioDto usuarioDto = new UsuarioDto();
-		        usuarioDto.setEmailUsuario(usuarioEntidad.getEmailUsuario());
-		        usuarioDto.setPasswordUsuario(usuarioEntidad.getPasswordUsuario());
+        // Buscar en Clubes
+        Optional<ClubEntidad> club = clubInterfaz.findByEmailClub(email);
+        if (club.isPresent() && utilidades.verificarContrasena(password, club.get().getPasswordClub())) {
+            return new RespuestaLoginDto("club", new ClubDto(club.get())); // Solo el DTO
+        }
 
-		        // Verificar si las contraseñas coinciden utilizando BCrypt
-		        if (usuarioFuncionalidades.verificarContrasena(loginDto.getPassword(), usuarioDto.getPasswordUsuario())) {
-		            // Generar el token si las credenciales son correctas
-		            return jwtUtils.generateToken(usuarioDto.getEmailUsuario());
-		        }
-		    }
-		    return null; // Si las credenciales no son correctas o el usuario no existe
-		}
+        // Buscar en Instalaciones
+        Optional<InstalacionEntidad> instalacion = instalacionInterfaz.findByEmailInstalacion(email);
+        if (instalacion.isPresent() && utilidades.verificarContrasena(password, instalacion.get().getPasswordInstalacion())) {
+            return new RespuestaLoginDto("instalacion", new InstalacionDto(instalacion.get())); // Solo el DTO
+        }
 
+        // Si no se encontró nada
+        return null;
+    }
 }

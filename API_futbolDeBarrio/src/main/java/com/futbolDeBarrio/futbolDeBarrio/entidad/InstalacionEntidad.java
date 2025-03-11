@@ -2,6 +2,7 @@ package com.futbolDeBarrio.futbolDeBarrio.entidad;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.futbolDeBarrio.futbolDeBarrio.enums.Estado;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Modalidad;
@@ -67,6 +68,12 @@ public class InstalacionEntidad {
     
     @OneToMany(mappedBy = "instalacion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TorneoEntidad> torneo = new ArrayList<>();
+    
+    public List<Long> getTorneoIds() {
+        return torneo.stream()
+                     .map(TorneoEntidad::getIdTorneo) 
+                     .collect(Collectors.toList());
+    }
 
     // Getters y Setters
     public long getIdInstalacion() {

@@ -1,5 +1,7 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
+import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
+
 public class ClubDto {
 
     private long idClub;
@@ -14,6 +16,22 @@ public class ClubDto {
     private String emailClub;
     private String passwordClub;
     private String telefonoClub;
+
+    // Constructor que recibe una entidad de Club
+    public ClubDto(ClubEntidad clubEntidad) {
+        this.idClub = clubEntidad.getIdClub();
+        this.nombreClub = clubEntidad.getNombreClub();
+        this.abreviaturaClub = clubEntidad.getAbreviaturaClub();
+        this.descripcionClub = clubEntidad.getDescripcionClub();
+        this.fechaCreacionClub = clubEntidad.getFechaCreacionClub();
+        this.fechaFundacionClub = clubEntidad.getFechaFundacionClub();
+        this.localidadClub = clubEntidad.getLocalidadClub();
+        this.paisClub = clubEntidad.getPaisClub();
+        this.logoClub = clubEntidad.getLogoClub();
+        this.emailClub = clubEntidad.getEmailClub();
+        this.passwordClub = clubEntidad.getPasswordClub();
+        this.telefonoClub = clubEntidad.getTelefonoClub();
+    }
 
     // Getters y Setters
     public long getIdClub() {
@@ -111,4 +129,11 @@ public class ClubDto {
     public void setTelefonoClub(String telefonoClub) {
         this.telefonoClub = telefonoClub;
     }
+
+	public ClubDto() {
+		super();
+		
+	}
+    
+    
 }

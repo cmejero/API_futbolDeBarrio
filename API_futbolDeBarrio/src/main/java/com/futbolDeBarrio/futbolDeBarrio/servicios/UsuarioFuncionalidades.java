@@ -21,6 +21,9 @@ public class UsuarioFuncionalidades {
 
     @Autowired
     UsuarioInterfaz usuarioInterfaz;
+    
+    @Autowired
+    Utilidades utilidades;
 
     
     public Optional<UsuarioEntidad> buscarUsuarioPorEmail(String email) {
@@ -91,7 +94,7 @@ public class UsuarioFuncionalidades {
         UsuarioEntidad usuarioEntidad = mapearADtoAEntidad(usuarioDto);
 
         // Encriptamos la contraseña antes de guardar
-        usuarioEntidad.setPasswordUsuario(encriptarContrasenya(usuarioDto.getPasswordUsuario()));
+        usuarioEntidad.setPasswordUsuario(utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
         if (usuarioDto.getPasswordUsuario() == null || usuarioDto.getPasswordUsuario().isEmpty()) {
             throw new IllegalArgumentException("La contraseña no puede ser nula o vacía.");
         }
@@ -140,24 +143,6 @@ public class UsuarioFuncionalidades {
 
         return esModificado;
     }
-
-
-    /**
-     * Método que encripta una contraseña antes de guardarla
-     */
-    public String encriptarContrasenya(String contraseña) {
-        if (contraseña == null || contraseña.isEmpty()) {
-            throw new IllegalArgumentException("La contraseña no puede ser nula o vacía.");
-        }
-        
-        // Genera el hash de la contraseña usando BCrypt
-        return BCrypt.hashpw(contraseña, BCrypt.gensalt());
-    }
-    
-    public boolean verificarContrasena(String contraseñaIngresada, String hashAlmacenado) {
-        // Verifica que la contraseña ingresada coincide con el hash almacenado
-        return BCrypt.checkpw(contraseñaIngresada, hashAlmacenado);
-    }
     
     
   
@@ -188,4 +173,5 @@ public class UsuarioFuncionalidades {
 
         return estaBorrado;
     }
+    
 }

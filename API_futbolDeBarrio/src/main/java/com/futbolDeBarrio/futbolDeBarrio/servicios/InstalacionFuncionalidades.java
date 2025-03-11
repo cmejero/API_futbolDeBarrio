@@ -25,6 +25,9 @@ public class InstalacionFuncionalidades {
 	@Autowired
 	InstalacionInterfaz instalacionInterfaz;
 	
+	@Autowired
+	Utilidades utilidades;
+	
 	 public Optional<InstalacionEntidad> buscarInstalacionPorEmail(String email) {
 	        return instalacionInterfaz.findByEmailInstalacion(email);
 	    }
@@ -93,7 +96,7 @@ public class InstalacionFuncionalidades {
      */
     public InstalacionEntidad guardarInstalacion(InstalacionDto instalacionDto) {
         InstalacionEntidad instalacionEntidad = mapearADtoAEntidad(instalacionDto);
-        instalacionEntidad.setPasswordInstalacion(encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
+        instalacionEntidad.setPasswordInstalacion(utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
         return instalacionInterfaz.save(instalacionEntidad);
     }
 
@@ -118,7 +121,7 @@ public class InstalacionFuncionalidades {
                 instalacion.setTipoCampo3(instalacionDto.getTipoCampo3());
                 instalacion.setServiciosInstalacion(instalacionDto.getServiciosInstalacion());
                 instalacion.setEstadoInstalacion(instalacionDto.getEstadoInstalacion());
-                instalacion.setPasswordInstalacion(encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
+                instalacion.setPasswordInstalacion(instalacionDto.getPasswordInstalacion());
                 instalacion.setImagenInstalacion(instalacionDto.getImagenInstalacion());
 
                 instalacionInterfaz.save(instalacion);
@@ -135,24 +138,6 @@ public class InstalacionFuncionalidades {
         return esModificado;
     }
 
-    /**
-     * Método que encripta una contraseña utilizando SHA-256
-     * @param contraseña La contraseña en texto plano
-     * @return La contraseña encriptada en formato hexadecimal
-     */
-    public String encriptarContrasenya(String contraseña) {
-        if (contraseña == null || contraseña.isEmpty()) {
-            throw new IllegalArgumentException("La contraseña no puede ser nula o vacía.");
-        }
-        
-        // Genera el hash de la contraseña usando BCrypt
-        return BCrypt.hashpw(contraseña, BCrypt.gensalt());
-    }
-    
-    public boolean verificarContrasena(String contraseñaIngresada, String hashAlmacenado) {
-        // Verifica que la contraseña ingresada coincide con el hash almacenado
-        return BCrypt.checkpw(contraseñaIngresada, hashAlmacenado);
-    }
     
     
     /**
