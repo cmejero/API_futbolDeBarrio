@@ -65,7 +65,7 @@ public class InstalacionFuncionalidades {
         instalacionEntidad.setTipoCampo2(instalacionDto.getTipoCampo2());
         instalacionEntidad.setTipoCampo3(instalacionDto.getTipoCampo3());
         instalacionEntidad.setServiciosInstalacion(instalacionDto.getServiciosInstalacion());
-        instalacionDto.setPasswordInstalacion(instalacionEntidad.getPasswordInstalacion());
+        instalacionEntidad.setPasswordInstalacion(instalacionDto.getPasswordInstalacion());
         instalacionEntidad.setEstadoInstalacion(instalacionDto.getEstadoInstalacion());
         instalacionEntidad.setImagenInstalacion(instalacionDto.getImagenInstalacion());
         return instalacionEntidad;

@@ -58,7 +58,7 @@ public class ClubFuncionalidades {
         clubEntidad.setFechaFundacionClub(clubDto.getFechaFundacionClub());
         clubEntidad.setLocalidadClub(clubDto.getLocalidadClub());
         clubEntidad.setPaisClub(clubDto.getPaisClub());
-        clubDto.setPasswordClub(clubEntidad.getPasswordClub());
+        clubEntidad.setPasswordClub(clubDto.getPasswordClub());
         clubEntidad.setLogoClub(clubDto.getLogoClub());
         clubEntidad.setEmailClub(clubDto.getEmailClub());
         clubEntidad.setTelefonoClub(clubDto.getTelefonoClub());
@@ -86,8 +86,17 @@ public class ClubFuncionalidades {
      * Método para guardar un club en la base de datos, recibiendo un DTO
      */
     public ClubEntidad guardarClub(ClubDto clubDto) {
+        // Mapeamos el DTO a una entidad
         ClubEntidad clubEntidad = mapearADtoAEntidad(clubDto);
+
+        // ✅ Validamos que la contraseña no sea nula ni vacía antes de encriptarla
+        if (clubDto.getPasswordClub() == null || clubDto.getPasswordClub().isEmpty()) {
+            throw new IllegalArgumentException("La contraseña del club no puede ser nula o vacía.");
+        }
+
+        // Encriptamos la contraseña antes de guardarla
         clubEntidad.setPasswordClub(utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
+
         return clubInterfaz.save(clubEntidad);
     }
 
@@ -113,7 +122,13 @@ public class ClubFuncionalidades {
                 club.setLogoClub(clubDto.getLogoClub());
                 club.setEmailClub(clubDto.getEmailClub());
                 club.setTelefonoClub(clubDto.getTelefonoClub());
-                club.setPasswordClub(clubDto.getPasswordClub());
+                if (clubDto.getPasswordClub() != null && !clubDto.getPasswordClub().isEmpty()) {
+                    // Si la contraseña se modificó, la encriptamos
+                    club.setPasswordClub(utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
+                } else {
+                    // Si la contraseña no se modificó, no tocamos la contraseña encriptada actual
+                    System.out.println("La contraseña no ha sido modificada. Se mantiene la actual.");
+                }
                 clubInterfaz.save(club);
                 esModificado = true;
             }

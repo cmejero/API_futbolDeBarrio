@@ -1,16 +1,14 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
 public class RespuestaLoginDto {
-    private String tipoUsuario; 
-    private Object tipoUsuarioDto;  // Contendrá el DTO correspondiente al tipo de usuario
+    private String tipoUsuario;
+    private String token; 
 
-    // Constructor
-    public RespuestaLoginDto(String tipoUsuario, Object usuarioDto) {
+    public RespuestaLoginDto(String tipoUsuario, String token) {
         this.tipoUsuario = tipoUsuario;
-        this.tipoUsuarioDto = usuarioDto;
+        this.token = token;
     }
 
-    // Getters y setters
     public String getTipoUsuario() {
         return tipoUsuario;
     }
@@ -19,11 +17,11 @@ public class RespuestaLoginDto {
         this.tipoUsuario = tipoUsuario;
     }
 
-    public Object getUsuarioDto() {
-        return tipoUsuarioDto;
+    public String getToken() {
+        return token;
     }
 
-    public void setUsuarioDto(Object usuarioDto) {
-        this.tipoUsuarioDto = usuarioDto;
+    public void setToken(String token) {
+        this.token = token;
     }
 }

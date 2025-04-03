@@ -2,10 +2,8 @@ package com.futbolDeBarrio.futbolDeBarrio.controladores;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,14 +13,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.EquipoTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
-import com.futbolDeBarrio.futbolDeBarrio.dtos.LoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.MiembroClubDto;
-import com.futbolDeBarrio.futbolDeBarrio.dtos.RespuestaLoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.TorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
@@ -31,9 +28,11 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.servicios.AuthService;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.ClubFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.EquipoTorneoFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.InstalacionFuncionalidades;
+import com.futbolDeBarrio.futbolDeBarrio.servicios.JwtUtil;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.LoginFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.MiembroClubFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.TorneoFuncionalidades;
@@ -61,22 +60,31 @@ public class Controlador {
 	UsuarioFuncionalidades usuarioFuncionalidades;
 	@Autowired
 	LoginFuncionalidades loginFuncionalidades;
+	@Autowired
+	JwtUtil jwtUtil;
+	@Autowired
+	AuthService authService;
 
 	@CrossOrigin(origins = "http://localhost:4200")
 
 	
-	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
-	    System.out.println("Email recibido: " + loginDto.getEmail());  
-	    System.out.println("Password recibido: " + loginDto.getPassword());  
-	    RespuestaLoginDto respuesta = loginFuncionalidades.verificarCredenciales(loginDto.getEmail(), loginDto.getPassword());
+	 // Endpoint para iniciar sesión
+    @PostMapping("/login")
+    public String login(@RequestParam String username, @RequestParam String password) {
+        return authService.login(username, password);
+    }
 
-	    if (respuesta != null) {
-	        return ResponseEntity.ok(respuesta);
-	    } else {
-	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales incorrectas");
-	    }
-	}
+    // Endpoint para verificar la validez del token
+    @GetMapping("/validate")
+    public boolean validateToken(@RequestParam String token) {
+        return authService.validateToken(token);
+    }
+
+    // Endpoint para obtener el nombre de usuario desde el token
+    @GetMapping("/username")
+    public String getUsername(@RequestParam String token) {
+        return authService.getUsernameFromToken(token);
+    }
 
 	/* METODOS CRUD DE LA TABLA CLUB */
 

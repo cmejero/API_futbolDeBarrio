@@ -122,7 +122,13 @@ public class UsuarioFuncionalidades {
                 usuario.setFechaNacimientoUsuario(usuarioDto.getFechaNacimientoUsuario());
                 usuario.setEmailUsuario(usuarioDto.getEmailUsuario());
                 usuario.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
-                usuario.setPasswordUsuario(usuarioDto.getPasswordUsuario());
+                if (usuarioDto.getPasswordUsuario() != null && !usuarioDto.getPasswordUsuario().isEmpty()) {
+                    // Si la contraseña se modificó, la encriptamos
+                    usuario.setPasswordUsuario((utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario())));
+                } else {
+                    // Si la contraseña no se modificó, no tocamos la contraseña encriptada actual
+                    System.out.println("La contraseña no ha sido modificada. Se mantiene la actual.");
+                }
                 usuario.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
                 usuario.setImagenUsuario(usuarioDto.getImagenUsuario());
                 usuario.setEstadoUsuario(usuarioDto.getEstadoUsuario());
