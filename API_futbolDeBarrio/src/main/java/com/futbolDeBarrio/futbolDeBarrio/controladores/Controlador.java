@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.EquipoTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.LoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.MiembroClubDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.RespuestaLoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.TorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
@@ -28,22 +30,23 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.servicios.AuthService;
+import com.futbolDeBarrio.futbolDeBarrio.servicios.AuthFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.ClubFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.EquipoTorneoFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.InstalacionFuncionalidades;
-import com.futbolDeBarrio.futbolDeBarrio.servicios.JwtUtil;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.LoginFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.MiembroClubFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.TorneoFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.UsuarioFuncionalidades;
+
+import lombok.RequiredArgsConstructor;
 
 /*
  * Clase que se encarga de los metodos CRUD de la API
  */
 @RestController
 @RequestMapping("/api")
-
+@RequiredArgsConstructor
 public class Controlador {
 
 	@Autowired
@@ -61,29 +64,23 @@ public class Controlador {
 	@Autowired
 	LoginFuncionalidades loginFuncionalidades;
 	@Autowired
-	JwtUtil jwtUtil;
-	@Autowired
-	AuthService authService;
+	AuthFuncionalidades authService;
+	
 
 	@CrossOrigin(origins = "http://localhost:4200")
 
-	
-	 // Endpoint para iniciar sesión
-    @PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password) {
-        return authService.login(username, password);
-    }
+	@PostMapping("/login")
+	 public ResponseEntity<RespuestaLoginDto> login(@RequestBody LoginDto loginDto) {
+        // Llamamos al servicio para verificar las credenciales y obtener el token
+        RespuestaLoginDto respuestaLogin = loginFuncionalidades.verificarCredenciales(loginDto);
 
-    // Endpoint para verificar la validez del token
-    @GetMapping("/validate")
-    public boolean validateToken(@RequestParam String token) {
-        return authService.validateToken(token);
-    }
+        // Si las credenciales son incorrectas, devolvemos un error 401 (Unauthorized)
+        if (respuestaLogin == null) {
+            return ResponseEntity.status(401).body(null);
+        }
 
-    // Endpoint para obtener el nombre de usuario desde el token
-    @GetMapping("/username")
-    public String getUsername(@RequestParam String token) {
-        return authService.getUsernameFromToken(token);
+        // Si las credenciales son correctas, devolvemos el token en la respuesta
+        return ResponseEntity.ok(respuestaLogin);
     }
 
 	/* METODOS CRUD DE LA TABLA CLUB */

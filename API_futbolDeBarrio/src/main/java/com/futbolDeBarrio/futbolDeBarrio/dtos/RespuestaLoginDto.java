@@ -1,27 +1,34 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
 public class RespuestaLoginDto {
-    private String tipoUsuario;
-    private String token; 
-
-    public RespuestaLoginDto(String tipoUsuario, String token) {
-        this.tipoUsuario = tipoUsuario;
+    
+    private String token;
+    private String mensaje;
+    
+    // Constructor con parámetros
+    public RespuestaLoginDto(String token, String mensaje) {
         this.token = token;
+        this.mensaje = mensaje;
     }
 
-    public String getTipoUsuario() {
-        return tipoUsuario;
+    // Constructor vacío (opcional, si lo necesitas)
+    public RespuestaLoginDto() {
     }
 
-    public void setTipoUsuario(String tipoUsuario) {
-        this.tipoUsuario = tipoUsuario;
-    }
-
+    // Getters y setters
     public String getToken() {
         return token;
     }
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getMensaje() {
+        return mensaje;
+    }
+
+    public void setMensaje(String mensaje) {
+        this.mensaje = mensaje;
     }
 }

@@ -27,17 +27,17 @@ public class LoginFuncionalidades {
     @Autowired
     private Utilidades utilidades;
     @Autowired
-    private JwtUtil jwtUtil; // Para generar el token JWT
+    private JwtFuncionalidades jwtUtil; // Para generar el token JWT
 
     // Método modificado para verificar credenciales y generar un token JWT
     public RespuestaLoginDto verificarCredenciales(LoginDto loginDto) {
         // Primero, buscar en Usuarios
         Optional<UsuarioEntidad> usuario = usuarioInterfaz.findByEmailUsuario(loginDto.getEmail());
         if (usuario.isPresent() && utilidades.verificarContrasena(loginDto.getPassword(), usuario.get().getPasswordUsuario())) {
-            // Asignar el rol usando el enum
+            // Asignar el rol usando el enum (ya está usando el nombre en español para el rol)
             String role = Rol.Usuario.name();  // Usar el enum para el rol
             // Generar token JWT para el usuario con su rol
-            String token = jwtUtil.generarToken(loginDto.getEmail(), Rol.Usuario);
+            String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Usuario); // Método de JwtFuncionalidades modificado
             return new RespuestaLoginDto("usuario", token);
         }
 
@@ -47,7 +47,7 @@ public class LoginFuncionalidades {
             // Asignar el rol usando el enum
             String role = Rol.Club.name();  // Usar el enum para el rol
             // Generar token JWT para el club con su rol
-            String token = jwtUtil.generarToken(loginDto.getEmail(), Rol.Club);
+            String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Club); // Método de JwtFuncionalidades modificado
             return new RespuestaLoginDto("club", token);
         }
 
@@ -57,7 +57,7 @@ public class LoginFuncionalidades {
             // Asignar el rol usando el enum
             String role = Rol.Instalacion.name();  // Usar el enum para el rol
             // Generar token JWT para la instalación con su rol
-            String token = jwtUtil.generarToken(loginDto.getEmail(), Rol.Instalacion);
+            String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Instalacion); // Método de JwtFuncionalidades modificado
             return new RespuestaLoginDto("instalacion", token);
         }
 
