@@ -1,4 +1,4 @@
-package com.futbolDeBarrio.futbolDeBarrio.dtos;
+	package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 

@@ -7,10 +7,12 @@ import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.LoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.RespuestaLoginDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Rol;
+import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
@@ -27,41 +29,36 @@ public class LoginFuncionalidades {
     @Autowired
     private Utilidades utilidades;
     @Autowired
-    private JwtFuncionalidades jwtUtil; // Para generar el token JWT
+    private JwtFuncionalidades jwtUtil;
 
-    // Método modificado para verificar credenciales y generar un token JWT
     public RespuestaLoginDto verificarCredenciales(LoginDto loginDto) {
-        // Primero, buscar en Usuarios
-        Optional<UsuarioEntidad> usuario = usuarioInterfaz.findByEmailUsuario(loginDto.getEmail());
-        if (usuario.isPresent() && utilidades.verificarContrasena(loginDto.getPassword(), usuario.get().getPasswordUsuario())) {
-            // Asignar el rol usando el enum (ya está usando el nombre en español para el rol)
-            String role = Rol.Usuario.name();  // Usar el enum para el rol
-            // Generar token JWT para el usuario con su rol
-            String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Usuario); // Método de JwtFuncionalidades modificado
-            return new RespuestaLoginDto("usuario", token);
-        }
+        // Buscar en Usuarios
+    	Optional<UsuarioEntidad> usuario = usuarioInterfaz.findByEmailUsuario(loginDto.getEmail());
+    	if (usuario.isPresent() && utilidades.verificarContrasena(loginDto.getPassword(), usuario.get().getPasswordUsuario())) {
+    	    String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Usuario);
+
+    	    // Usamos el RolUsuario del UsuarioEntidad
+    	    String tipo = usuario.get().getRolUsuario() == RolUsuario.Administrador ? "administrador" : "jugador";
+    	    
+    	    UsuarioDto usuarioDto = new UsuarioDto(usuario.get());
+    	    return new RespuestaLoginDto(tipo, token, usuarioDto);
+    	}
+
 
         // Buscar en Clubes
         Optional<ClubEntidad> club = clubInterfaz.findByEmailClub(loginDto.getEmail());
         if (club.isPresent() && utilidades.verificarContrasena(loginDto.getPassword(), club.get().getPasswordClub())) {
-            // Asignar el rol usando el enum
-            String role = Rol.Club.name();  // Usar el enum para el rol
-            // Generar token JWT para el club con su rol
-            String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Club); // Método de JwtFuncionalidades modificado
-            return new RespuestaLoginDto("club", token);
+            String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Club);
+            return new RespuestaLoginDto("club", token, club.get());
         }
 
         // Buscar en Instalaciones
         Optional<InstalacionEntidad> instalacion = instalacionInterfaz.findByEmailInstalacion(loginDto.getEmail());
         if (instalacion.isPresent() && utilidades.verificarContrasena(loginDto.getPassword(), instalacion.get().getPasswordInstalacion())) {
-            // Asignar el rol usando el enum
-            String role = Rol.Instalacion.name();  // Usar el enum para el rol
-            // Generar token JWT para la instalación con su rol
-            String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Instalacion); // Método de JwtFuncionalidades modificado
-            return new RespuestaLoginDto("instalacion", token);
+            String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Instalacion);
+            return new RespuestaLoginDto("instalacion", token, instalacion.get());
         }
 
-        // Si no se encuentran las credenciales en ninguna de las entidades
         return null;
     }
 }
