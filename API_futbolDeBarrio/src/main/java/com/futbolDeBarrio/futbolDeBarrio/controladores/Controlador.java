@@ -2,8 +2,10 @@ package com.futbolDeBarrio.futbolDeBarrio.controladores;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubDto;
@@ -112,9 +113,18 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion post a tabla club
 	 */
 	@PostMapping("/guardarClub")
-	public ClubDto guardarClub(@RequestBody ClubDto club) {
-		ClubEntidad clubEntidad = clubFuncionalidades.guardarClub(club);
-		return clubFuncionalidades.mapearAClubDto(clubEntidad);
+	public ResponseEntity<ClubDto> guardarClub(@RequestBody ClubDto clubDto) {
+	    try {
+	        System.out.println("Datos recibidos: " + clubDto.getEmailClub() + " " + clubDto.getPasswordClub());
+	        ClubEntidad clubEntidad = clubFuncionalidades.guardarClub(clubDto);
+	        return ResponseEntity.ok(clubFuncionalidades.mapearAClubDto(clubEntidad));
+	    } catch (IllegalArgumentException e) {
+	        // Si el email ya está en uso, capturamos la excepción y retornamos un error
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+	    } catch (Exception e) {
+	        // Captura de otras excepciones
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	    }
 	}
 
 	/**
@@ -195,10 +205,26 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion post a tabla instalacion
 	 */
 	@PostMapping("/guardarInstalacion")
-	public InstalacionDto guardarInstalacion(@RequestBody InstalacionDto instalacionDto) {
-		InstalacionEntidad instalacionEntidad = instalacionFuncionalidades.guardarInstalacion(instalacionDto);
-		return instalacionFuncionalidades.mapearAInstalacionDto(instalacionEntidad);
+	public ResponseEntity<InstalacionDto> guardarInstalacion(@RequestBody InstalacionDto instalacionDto) {
+	    try {
+	        // Imprimir los datos recibidos para depuración
+	        System.out.println("Datos recibidos: " + instalacionDto.getEmailInstalacion() + " " + instalacionDto.getPasswordInstalacion());
+
+	        // Llamamos al servicio para guardar la instalación
+	        InstalacionEntidad instalacionEntidad = instalacionFuncionalidades.guardarInstalacion(instalacionDto);
+	        
+	        // Devolvemos el DTO de la instalación recién creada
+	        return Respons	eEntity.ok(instalacionFuncionalidades.mapearAInstalacionDto(instalacionEntidad));
+	        
+	    } catch (IllegalArgumentException e) {
+	        // Si hay un error de validación (como un email ya existente o contraseña vacía), devolvemos un error 400 (Bad Request)
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+	    } catch (Exception e) {
+	        // Capturamos cualquier otra excepción y devolvemos un error 500 (Internal Server Error)
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	    }
 	}
+
 
 	/**
 	 * Metodo que se encarga de realizar un peticion delete a tabla instalacion
@@ -316,15 +342,18 @@ public class Controlador {
 	 * en la base de datos.
 	 */
 	@PostMapping("/guardarUsuario")
-	public UsuarioDto guardarUsuario(@RequestBody UsuarioDto usuarioDto) {
-		System.out.println("Datos recibidos: " + usuarioDto.getEmailUsuario() + " " + usuarioDto.getPasswordUsuario()); // Verifica
-																														// si
-																														// los
-																														// datos
-																														// son
-																														// correctos
-		UsuarioEntidad usuarioEntidad = usuarioFuncionalidades.guardarUsuario(usuarioDto);
-		return usuarioFuncionalidades.mapearAUsuarioDto(usuarioEntidad);
+	public ResponseEntity<UsuarioDto> guardarUsuario(@RequestBody UsuarioDto usuarioDto) {
+	    try {
+	        System.out.println("Datos recibidos: " + usuarioDto.getEmailUsuario() + " " + usuarioDto.getPasswordUsuario());
+	        UsuarioEntidad usuarioEntidad = usuarioFuncionalidades.guardarUsuario(usuarioDto);
+	        return ResponseEntity.ok(usuarioFuncionalidades.mapearAUsuarioDto(usuarioEntidad));
+	    } catch (IllegalArgumentException e) {
+	        // Si el email ya está en uso, capturamos la excepción y retornamos un error
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+	    } catch (Exception e) {
+	        // Captura de otras excepciones
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	    }
 	}
 
 	/**

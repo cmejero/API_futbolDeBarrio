@@ -62,7 +62,7 @@ public class InstalacionEntidad {
     private String passwordInstalacion;
 
     @Column(name = "imagen_instalacion")
-    private String imagenInstalacion;
+    private byte[] imagenInstalacion;
 
    
     
@@ -166,11 +166,11 @@ public class InstalacionEntidad {
         this.passwordInstalacion = passwordInstalacion;
     }
 
-    public String getImagenInstalacion() {
+    public byte[] getImagenInstalacion() {
         return imagenInstalacion;
     }
 
-    public void setImagenInstalacion(String imagenInstalacion) {
+    public void setImagenInstalacion(byte[] imagenInstalacion) {
         this.imagenInstalacion = imagenInstalacion;
     }
 

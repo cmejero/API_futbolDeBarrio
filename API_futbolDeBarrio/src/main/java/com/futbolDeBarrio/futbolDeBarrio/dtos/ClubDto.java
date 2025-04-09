@@ -1,5 +1,7 @@
 	package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
+import java.util.Base64;
+
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 
 public class ClubDto {
@@ -26,8 +28,10 @@ public class ClubDto {
         this.fechaCreacionClub = clubEntidad.getFechaCreacionClub();
         this.fechaFundacionClub = clubEntidad.getFechaFundacionClub();
         this.localidadClub = clubEntidad.getLocalidadClub();
-        this.paisClub = clubEntidad.getPaisClub();
-        this.logoClub = clubEntidad.getLogoClub();
+        this.paisClub = clubEntidad.getPaisClub();        
+        if (clubEntidad.getLogoClub() != null) {
+            this.logoClub = Base64.getEncoder().encodeToString(clubEntidad.getLogoClub());
+        }
         this.emailClub = clubEntidad.getEmailClub();
         this.passwordClub = clubEntidad.getPasswordClub();
         this.telefonoClub = clubEntidad.getTelefonoClub();

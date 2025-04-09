@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 @Table(name = "club", schema = "sch")
 public class ClubEntidad {
 
+	
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_club")
@@ -43,7 +44,7 @@ public class ClubEntidad {
     private String paisClub;
 
     @Column(name = "logo_club")
-    private String logoClub;
+    private byte[] logoClub;
 
     @Column(name = "email_club")
     private String emailClub;
@@ -130,11 +131,11 @@ public class ClubEntidad {
         this.paisClub = paisClub;
     }
 
-    public String getLogoClub() {
+    public byte[] getLogoClub() {
         return logoClub;
     }
 
-    public void setLogoClub(String logoClub) {
+    public void setLogoClub(byte[] logoClub) {
         this.logoClub = logoClub;
     }
 

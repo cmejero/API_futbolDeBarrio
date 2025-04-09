@@ -1,5 +1,7 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
+import java.util.Base64;
+
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Estado;
 import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
@@ -15,7 +17,7 @@ public class UsuarioDto {
 	String passwordUsuario = "aaaaa";
 	RolUsuario rolUsuario;
 	String descripcionUsuario ="aaaaaa";
-	byte[] imagenUsuario;
+	String imagenUsuario;
 	Estado estadoUsuario;
 	
 	
@@ -24,7 +26,7 @@ public class UsuarioDto {
 	
 	public UsuarioDto(long idUsuario, String nombreCompletoUsuario, String aliasusuario, String fechaNacimientoUsuario,
 			String emailUsuario, String telefonoUsuario, String passwordUsuario, RolUsuario rolUsuario,
-			String descripcionUsuario, byte[] imagenUsuario, Estado estadoUsuario) {
+			String descripcionUsuario, String imagenUsuario, Estado estadoUsuario) {
 		super();
 		this.idUsuario = idUsuario;
 		this.nombreCompletoUsuario = nombreCompletoUsuario;
@@ -39,6 +41,7 @@ public class UsuarioDto {
 		this.estadoUsuario = estadoUsuario;
 	}
 	
+	
 	public UsuarioDto(UsuarioEntidad usuarioEntidad) {
         this.idUsuario = usuarioEntidad.getIdUsuario();
         this.nombreCompletoUsuario = usuarioEntidad.getNombreCompletoUsuario();
@@ -49,7 +52,9 @@ public class UsuarioDto {
         this.passwordUsuario = usuarioEntidad.getPasswordUsuario();
         this.rolUsuario = usuarioEntidad.getRolUsuario();
         this.descripcionUsuario = usuarioEntidad.getDescripcionUsuario();
-        this.imagenUsuario = usuarioEntidad.getImagenUsuario();
+	        if (usuarioEntidad.getImagenUsuario() != null) {
+	            this.imagenUsuario = Base64.getEncoder().encodeToString(usuarioEntidad.getImagenUsuario());
+	        }
         this.estadoUsuario = usuarioEntidad.getEstadoUsuario();
     }
 	
@@ -112,10 +117,10 @@ public class UsuarioDto {
 	public void setDescripcionUsuario(String descripcionUsuario) {
 		this.descripcionUsuario = descripcionUsuario;
 	}
-	public byte[] getImagenUsuario() {
+	public String getImagenUsuario() {
 		return imagenUsuario;
 	}
-	public void setImagenUsuario(byte[] imagenUsuario) {
+	public void setImagenUsuario(String imagenUsuario) {
 		this.imagenUsuario = imagenUsuario;
 	}
 	public Estado getEstadoUsuario() {

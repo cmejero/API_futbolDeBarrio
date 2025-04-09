@@ -1,10 +1,10 @@
 package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
-import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +39,10 @@ public class ClubFuncionalidades {
         clubDto.setLocalidadClub(clubEntidad.getLocalidadClub());
         clubDto.setPaisClub(clubEntidad.getPaisClub());
         clubDto.setPasswordClub(clubEntidad.getPasswordClub());
-        clubDto.setLogoClub(clubEntidad.getLogoClub());
+        if (clubEntidad.getLogoClub() != null) {
+            String imagenBase64 = Base64.getEncoder().encodeToString(clubEntidad.getLogoClub());
+            clubDto.setLogoClub(imagenBase64);
+        }
         clubDto.setEmailClub(clubEntidad.getEmailClub());
         clubDto.setTelefonoClub(clubEntidad.getTelefonoClub());
         return clubDto;
@@ -59,7 +62,10 @@ public class ClubFuncionalidades {
         clubEntidad.setLocalidadClub(clubDto.getLocalidadClub());
         clubEntidad.setPaisClub(clubDto.getPaisClub());
         clubEntidad.setPasswordClub(clubDto.getPasswordClub());
-        clubEntidad.setLogoClub(clubDto.getLogoClub());
+        if (clubDto.getLogoClub() != null) {
+            byte[] imagenBytes = Base64.getDecoder().decode(clubDto.getLogoClub());
+            clubEntidad.setLogoClub(imagenBytes);
+        }
         clubEntidad.setEmailClub(clubDto.getEmailClub());
         clubEntidad.setTelefonoClub(clubDto.getTelefonoClub());
         return clubEntidad;
@@ -86,19 +92,28 @@ public class ClubFuncionalidades {
      * Método para guardar un club en la base de datos, recibiendo un DTO
      */
     public ClubEntidad guardarClub(ClubDto clubDto) {
+        // Verificamos si el email ya existe en la base de datos
+        Optional<ClubEntidad> clubExistente = clubInterfaz.findByEmailClub(clubDto.getEmailClub());
+        if (clubExistente.isPresent()) {
+            throw new IllegalArgumentException("El email proporcionado ya está siendo utilizado por otro club.");
+        }
+
         // Mapeamos el DTO a una entidad
         ClubEntidad clubEntidad = mapearADtoAEntidad(clubDto);
 
-        // ✅ Validamos que la contraseña no sea nula ni vacía antes de encriptarla
+        // Verificamos que la contraseña no sea nula ni vacía
         if (clubDto.getPasswordClub() == null || clubDto.getPasswordClub().isEmpty()) {
             throw new IllegalArgumentException("La contraseña del club no puede ser nula o vacía.");
         }
 
-        // Encriptamos la contraseña antes de guardarla
+        // Encriptamos la contraseña antes de guardar
         clubEntidad.setPasswordClub(utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
 
+        // Guardamos la entidad en la base de datos
         return clubInterfaz.save(clubEntidad);
     }
+
+
 
     /**
      * Método que modifica un club en la base de datos
@@ -119,8 +134,10 @@ public class ClubFuncionalidades {
                 club.setFechaFundacionClub(clubDto.getFechaFundacionClub());
                 club.setLocalidadClub(clubDto.getLocalidadClub());
                 club.setPaisClub(clubDto.getPaisClub());
-                club.setLogoClub(clubDto.getLogoClub());
-                club.setEmailClub(clubDto.getEmailClub());
+                if (clubDto.getLogoClub() != null) {
+                    byte[] imagenBytes = Base64.getDecoder().decode(clubDto.getLogoClub());
+                    club.setLogoClub(imagenBytes);
+                }                club.setEmailClub(clubDto.getEmailClub());
                 club.setTelefonoClub(clubDto.getTelefonoClub());
                 if (clubDto.getPasswordClub() != null && !clubDto.getPasswordClub().isEmpty()) {
                     // Si la contraseña se modificó, la encriptamos

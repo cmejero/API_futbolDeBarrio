@@ -1,5 +1,6 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
+import java.util.Base64;
 import java.util.List;
 
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
@@ -40,7 +41,9 @@ public class InstalacionDto {
         this.serviciosInstalacion = instalacionEntidad.getServiciosInstalacion();
         this.estadoInstalacion = instalacionEntidad.getEstadoInstalacion();
         this.passwordInstalacion = instalacionEntidad.getPasswordInstalacion();
-        this.imagenInstalacion = instalacionEntidad.getImagenInstalacion();
+        if (instalacionEntidad.getImagenInstalacion() != null) {
+            this.imagenInstalacion = Base64.getEncoder().encodeToString(instalacionEntidad.getImagenInstalacion());
+        }
         this.torneoIds = instalacionEntidad.getTorneoIds(); 
     }
 

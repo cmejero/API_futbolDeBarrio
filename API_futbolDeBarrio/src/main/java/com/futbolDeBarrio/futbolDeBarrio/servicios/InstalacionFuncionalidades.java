@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,9 +48,13 @@ public class InstalacionFuncionalidades {
         instalacionDto.setServiciosInstalacion(instalacionEntidad.getServiciosInstalacion());
         instalacionDto.setPasswordInstalacion(instalacionEntidad.getPasswordInstalacion());
         instalacionDto.setEstadoInstalacion(instalacionEntidad.getEstadoInstalacion());
-        instalacionDto.setImagenInstalacion(instalacionEntidad.getImagenInstalacion());
+        if (instalacionEntidad.getImagenInstalacion() != null) {
+            String imagenBase64 = Base64.getEncoder().encodeToString(instalacionEntidad.getImagenInstalacion());
+            instalacionDto.setImagenInstalacion(imagenBase64);
+        }
         return instalacionDto;
     }
+    
 
     /**
      * Método que mapea de DTO a entidad
@@ -67,7 +72,10 @@ public class InstalacionFuncionalidades {
         instalacionEntidad.setServiciosInstalacion(instalacionDto.getServiciosInstalacion());
         instalacionEntidad.setPasswordInstalacion(instalacionDto.getPasswordInstalacion());
         instalacionEntidad.setEstadoInstalacion(instalacionDto.getEstadoInstalacion());
-        instalacionEntidad.setImagenInstalacion(instalacionDto.getImagenInstalacion());
+        if (instalacionDto.getImagenInstalacion() != null) {
+            byte[] imagenBytes = Base64.getDecoder().decode(instalacionDto.getImagenInstalacion());
+            instalacionEntidad.setImagenInstalacion(imagenBytes);
+        }
         return instalacionEntidad;
     }
 
@@ -95,10 +103,27 @@ public class InstalacionFuncionalidades {
      * Método para guardar una instalación en la base de datos, recibiendo un DTO
      */
     public InstalacionEntidad guardarInstalacion(InstalacionDto instalacionDto) {
+        // Verificamos si el email ya existe en la base de datos
+        Optional<InstalacionEntidad> instalacionExistente = instalacionInterfaz.findByEmailInstalacion(instalacionDto.getEmailInstalacion());
+        if (instalacionExistente.isPresent()) {
+            throw new IllegalArgumentException("El email proporcionado ya está siendo utilizado por otra instalación.");
+        }
+
+        // Mapeamos el DTO a una entidad
         InstalacionEntidad instalacionEntidad = mapearADtoAEntidad(instalacionDto);
+
+        // Verificamos que la contraseña no sea nula ni vacía
+        if (instalacionDto.getPasswordInstalacion() == null || instalacionDto.getPasswordInstalacion().isEmpty()) {
+            throw new IllegalArgumentException("La contraseña de la instalación no puede ser nula o vacía.");
+        }
+
+        // Encriptamos la contraseña antes de guardar
         instalacionEntidad.setPasswordInstalacion(utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
+
+        // Guardamos la entidad en la base de datos
         return instalacionInterfaz.save(instalacionEntidad);
     }
+
 
     /**
      * Método que modifica una instalación en la base de datos
@@ -122,7 +147,17 @@ public class InstalacionFuncionalidades {
                 instalacion.setServiciosInstalacion(instalacionDto.getServiciosInstalacion());
                 instalacion.setEstadoInstalacion(instalacionDto.getEstadoInstalacion());
                 instalacion.setPasswordInstalacion(instalacionDto.getPasswordInstalacion());
-                instalacion.setImagenInstalacion(instalacionDto.getImagenInstalacion());
+                if (instalacionDto.getPasswordInstalacion() != null && !instalacionDto.getPasswordInstalacion().isEmpty()) {
+                    // Si la contraseña se modificó, la encriptamos
+                    instalacion.setPasswordInstalacion((utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion())));
+                } else {
+                    // Si la contraseña no se modificó, no tocamos la contraseña encriptada actual
+                    System.out.println("La contraseña no ha sido modificada. Se mantiene la actual.");
+                }
+                if (instalacionDto.getImagenInstalacion() != null) {
+                    byte[] imagenBytes = Base64.getDecoder().decode(instalacionDto.getImagenInstalacion());
+                    instalacion.setImagenInstalacion(imagenBytes);
+                }
 
                 instalacionInterfaz.save(instalacion);
                 System.out.println("La instalación: " + instalacion.getNombreInstalacion() + " ha sido modificada.");

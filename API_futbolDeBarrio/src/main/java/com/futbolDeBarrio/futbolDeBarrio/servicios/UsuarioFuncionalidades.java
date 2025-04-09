@@ -1,17 +1,15 @@
 	package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Optional;
 
-import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
-
-import jakarta.transaction.Transactional;
 
 /**
  * Clase que se encarga de la lógica interna de los métodos CRUD para Usuario
@@ -44,12 +42,14 @@ public class UsuarioFuncionalidades {
         usuarioDto.setPasswordUsuario(usuarioEntidad.getPasswordUsuario());
         usuarioDto.setTelefonoUsuario(usuarioEntidad.getTelefonoUsuario());
         usuarioDto.setDescripcionUsuario(usuarioEntidad.getDescripcionUsuario());
-        usuarioDto.setImagenUsuario(usuarioEntidad.getImagenUsuario());
+        if (usuarioEntidad.getImagenUsuario() != null) {
+            String imagenBase64 = Base64.getEncoder().encodeToString(usuarioEntidad.getImagenUsuario());
+            usuarioDto.setImagenUsuario(imagenBase64);
+        }
         usuarioDto.setEstadoUsuario(usuarioEntidad.getEstadoUsuario());
         usuarioDto.setRolUsuario(usuarioEntidad.getRolUsuario());
         return usuarioDto;
     }
-
     /**
      * Método que mapea de DTO a entidad
      */
@@ -63,7 +63,10 @@ public class UsuarioFuncionalidades {
         usuarioEntidad.setPasswordUsuario(usuarioDto.getPasswordUsuario());
         usuarioEntidad.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
         usuarioEntidad.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
-        usuarioEntidad.setImagenUsuario(usuarioDto.getImagenUsuario());
+        if (usuarioDto.getImagenUsuario() != null) {
+            byte[] imagenBytes = Base64.getDecoder().decode(usuarioDto.getImagenUsuario());
+            usuarioEntidad.setImagenUsuario(imagenBytes);
+        }
         usuarioEntidad.setEstadoUsuario(usuarioDto.getEstadoUsuario());
         usuarioEntidad.setRolUsuario(usuarioDto.getRolUsuario());
         return usuarioEntidad;
@@ -90,6 +93,12 @@ public class UsuarioFuncionalidades {
      * Método para guardar un usuario a la base de datos, recibiendo un DTO
      */
     public UsuarioEntidad guardarUsuario(UsuarioDto usuarioDto) {
+        // Verificar si el email ya existe en la base de datos
+        Optional<UsuarioEntidad> usuarioExistente = buscarUsuarioPorEmail(usuarioDto.getEmailUsuario());
+        if (usuarioExistente.isPresent()) {
+            throw new IllegalArgumentException("El email proporcionado ya está siendo utilizado por otro usuario.");
+        }
+
         // Mapeamos el DTO a una entidad
         UsuarioEntidad usuarioEntidad = mapearADtoAEntidad(usuarioDto);
 
@@ -98,6 +107,7 @@ public class UsuarioFuncionalidades {
         if (usuarioDto.getPasswordUsuario() == null || usuarioDto.getPasswordUsuario().isEmpty()) {
             throw new IllegalArgumentException("La contraseña no puede ser nula o vacía.");
         }
+
         // Guardamos la entidad en la base de datos
         return usuarioInterfaz.save(usuarioEntidad);
     }
@@ -130,10 +140,12 @@ public class UsuarioFuncionalidades {
                     System.out.println("La contraseña no ha sido modificada. Se mantiene la actual.");
                 }
                 usuario.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
-                usuario.setImagenUsuario(usuarioDto.getImagenUsuario());
+                if (usuarioDto.getImagenUsuario() != null) {
+                    byte[] imagenBytes = Base64.getDecoder().decode(usuarioDto.getImagenUsuario());
+                    usuario.setImagenUsuario(imagenBytes);
                 usuario.setEstadoUsuario(usuarioDto.getEstadoUsuario());
                 usuario.setRolUsuario(usuarioDto.getRolUsuario());
-
+                }
                 // Guardamos la entidad modificada en la base de datos
                 usuarioInterfaz.save(usuario);
                 System.out.println("El usuario: " + usuario.getNombreCompletoUsuario() + " ha sido modificado.");
