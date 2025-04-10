@@ -2,7 +2,6 @@ package com.futbolDeBarrio.futbolDeBarrio.controladores;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -207,23 +206,18 @@ public class Controlador {
 	@PostMapping("/guardarInstalacion")
 	public ResponseEntity<InstalacionDto> guardarInstalacion(@RequestBody InstalacionDto instalacionDto) {
 	    try {
-	        // Imprimir los datos recibidos para depuración
 	        System.out.println("Datos recibidos: " + instalacionDto.getEmailInstalacion() + " " + instalacionDto.getPasswordInstalacion());
-
-	        // Llamamos al servicio para guardar la instalación
 	        InstalacionEntidad instalacionEntidad = instalacionFuncionalidades.guardarInstalacion(instalacionDto);
-	        
-	        // Devolvemos el DTO de la instalación recién creada
-	        return Respons	eEntity.ok(instalacionFuncionalidades.mapearAInstalacionDto(instalacionEntidad));
-	        
+	        return ResponseEntity.ok(instalacionFuncionalidades.mapearAInstalacionDto(instalacionEntidad));
 	    } catch (IllegalArgumentException e) {
-	        // Si hay un error de validación (como un email ya existente o contraseña vacía), devolvemos un error 400 (Bad Request)
+	        // Si el email ya está en uso, capturamos la excepción y retornamos un error
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 	    } catch (Exception e) {
-	        // Capturamos cualquier otra excepción y devolvemos un error 500 (Internal Server Error)
+	        // Captura de otras excepciones
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 	    }
 	}
+
 
 
 	/**
