@@ -13,16 +13,18 @@ public class FutbolDeBarrioApplication {
 		SpringApplication.run(FutbolDeBarrioApplication.class, args);
 	}
 
-	  @Bean
-	    public WebMvcConfigurer corsConfigurer() {
-	        return new WebMvcConfigurer() {
-	            @Override
-	            public void addCorsMappings(CorsRegistry registry) {
-	                registry.addMapping("/api/**") // Se aplica a los endpoints que comienzan con /api/
-	                        .allowedOrigins("http://localhost:4200") // Permitir solicitudes desde tu frontend (Angular en este caso)
-	                        .allowedMethods("GET", "POST", "PUT", "DELETE") // Métodos permitidos
-	                        .allowedHeaders("Content-Type", "Authorization"); // Encabezados permitidos
-	            }
-	        };
-	    }
+	
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+	    return new WebMvcConfigurer() {
+	        @Override
+	        public void addCorsMappings(CorsRegistry registry) {
+	            registry.addMapping("/api/**")
+	                    .allowedOrigins("http://localhost:4200", "http://localhost:8080")
+	                    .allowedMethods("GET", "POST", "PUT", "DELETE")
+	                    .allowedHeaders("Content-Type", "Authorization");
+	        }
+	    };
+	}
+
 }

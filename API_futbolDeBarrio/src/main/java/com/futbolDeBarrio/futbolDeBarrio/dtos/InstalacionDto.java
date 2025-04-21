@@ -1,5 +1,7 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -8,8 +10,6 @@ import com.futbolDeBarrio.futbolDeBarrio.enums.Estado;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Modalidad;
 
 public class InstalacionDto {
-
-	InstalacionEntidad instalacionEntidad = new InstalacionEntidad();
 
     private long idInstalacion;
     private String nombreInstalacion;
@@ -23,10 +23,8 @@ public class InstalacionDto {
     private Estado estadoInstalacion;
     private String passwordInstalacion;
     private String imagenInstalacion;
-    List<Long> torneoIds = instalacionEntidad.getTorneoIds(); // Esto es correcto
-
-    
-
+    private List<Long> torneoIds;
+    private List<String> tipoDeCampo;
 
     // Constructor que recibe una entidad de Instalacion
     public InstalacionDto(InstalacionEntidad instalacionEntidad) {
@@ -44,10 +42,12 @@ public class InstalacionDto {
         if (instalacionEntidad.getImagenInstalacion() != null) {
             this.imagenInstalacion = Base64.getEncoder().encodeToString(instalacionEntidad.getImagenInstalacion());
         }
-        this.torneoIds = instalacionEntidad.getTorneoIds(); 
+        this.torneoIds = instalacionEntidad.getTorneoIds();
+
+        this.tipoDeCampo = instalacionEntidad.getTipoDeCampo();
     }
 
-    // Getters and Setters
+    // Getters y Setters
     public long getIdInstalacion() {
         return idInstalacion;
     }
@@ -148,14 +148,20 @@ public class InstalacionDto {
         return torneoIds;
     }
 
-    public void setTorneoIds(List<Long> torneoId) {
-        this.torneoIds = torneoId;
+    public void setTorneoIds(List<Long> torneoIds) {
+        this.torneoIds = torneoIds;
+    }
+
+    public List<String> getTipoDeCampo() {
+        return tipoDeCampo;
+    }
+
+    public void setTipoDeCampo(List<String> tipoDeCampo) {
+        this.tipoDeCampo = tipoDeCampo;
     }
 
 	public InstalacionDto() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
-    
     
 }

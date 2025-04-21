@@ -64,14 +64,15 @@ public class InstalacionEntidad {
     @Column(name = "imagen_instalacion")
     private byte[] imagenInstalacion;
 
-   
-    
+    @Column(name = "tipo_de_campo")
+    private String tipoDeCampo;  // Aquí almacenamos la lista como una cadena delimitada por comas
+
     @OneToMany(mappedBy = "instalacion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TorneoEntidad> torneo = new ArrayList<>();
-    
+
     public List<Long> getTorneoIds() {
         return torneo.stream()
-                     .map(TorneoEntidad::getIdTorneo) 
+                     .map(TorneoEntidad::getIdTorneo)
                      .collect(Collectors.toList());
     }
 
@@ -148,7 +149,6 @@ public class InstalacionEntidad {
         this.serviciosInstalacion = serviciosInstalacion;
     }
 
-
     public Estado getEstadoInstalacion() {
         return estadoInstalacion;
     }
@@ -156,7 +156,6 @@ public class InstalacionEntidad {
     public void setEstadoInstalacion(Estado estadoInstalacion) {
         this.estadoInstalacion = estadoInstalacion;
     }
-    
 
     public String getPasswordInstalacion() {
         return passwordInstalacion;
@@ -174,5 +173,28 @@ public class InstalacionEntidad {
         this.imagenInstalacion = imagenInstalacion;
     }
 
-  
+    // Convertir la cadena delimitada en una lista
+    public List<String> getTipoDeCampo() {
+        if (tipoDeCampo != null && !tipoDeCampo.isEmpty()) {
+            return List.of(tipoDeCampo.split(","));
+        }
+        return new ArrayList<>();
+    }
+
+    // Convertir la lista a una cadena delimitada por comas
+    public void setTipoDeCampo(List<String> tipoDeCampo) {
+        if (tipoDeCampo != null) {
+            this.tipoDeCampo = String.join(",", tipoDeCampo);
+        } else {
+            this.tipoDeCampo = "";
+        }
+    }
+
+    public List<TorneoEntidad> getTorneo() {
+        return torneo;
+    }
+
+    public void setTorneo(List<TorneoEntidad> torneo) {
+        this.torneo = torneo;
+    }
 }

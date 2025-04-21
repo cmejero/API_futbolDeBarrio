@@ -93,22 +93,22 @@ public class UsuarioFuncionalidades {
      * Método para guardar un usuario a la base de datos, recibiendo un DTO
      */
     public UsuarioEntidad guardarUsuario(UsuarioDto usuarioDto) {
+    	 System.out.println("Rol recibido: " + usuarioDto.getRolUsuario());
+    	    // Verificar si rolUsuario está nulo o inválido
+    	    if (usuarioDto.getRolUsuario() == null) {
+    	        throw new IllegalArgumentException("El rol del usuario es obligatorio.");
+    	    }
+
         // Verificar si el email ya existe en la base de datos
         Optional<UsuarioEntidad> usuarioExistente = buscarUsuarioPorEmail(usuarioDto.getEmailUsuario());
         if (usuarioExistente.isPresent()) {
+            // Lanzamos directamente la excepción con el mensaje
             throw new IllegalArgumentException("El email proporcionado ya está siendo utilizado por otro usuario.");
         }
 
-        // Mapeamos el DTO a una entidad
+        // Resto del código para guardar el usuario
         UsuarioEntidad usuarioEntidad = mapearADtoAEntidad(usuarioDto);
-
-        // Encriptamos la contraseña antes de guardar
         usuarioEntidad.setPasswordUsuario(utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
-        if (usuarioDto.getPasswordUsuario() == null || usuarioDto.getPasswordUsuario().isEmpty()) {
-            throw new IllegalArgumentException("La contraseña no puede ser nula o vacía.");
-        }
-
-        // Guardamos la entidad en la base de datos
         return usuarioInterfaz.save(usuarioEntidad);
     }
 

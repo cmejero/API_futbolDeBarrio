@@ -1,20 +1,15 @@
 package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
-import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 
 /**
@@ -52,6 +47,7 @@ public class InstalacionFuncionalidades {
             String imagenBase64 = Base64.getEncoder().encodeToString(instalacionEntidad.getImagenInstalacion());
             instalacionDto.setImagenInstalacion(imagenBase64);
         }
+        instalacionDto.setTipoDeCampo(instalacionEntidad.getTipoDeCampo());
         return instalacionDto;
     }
     
@@ -76,6 +72,7 @@ public class InstalacionFuncionalidades {
             byte[] imagenBytes = Base64.getDecoder().decode(instalacionDto.getImagenInstalacion());
             instalacionEntidad.setImagenInstalacion(imagenBytes);
         }
+        instalacionEntidad.setTipoDeCampo(instalacionDto.getTipoDeCampo());
         return instalacionEntidad;
     }
 
@@ -106,6 +103,7 @@ public class InstalacionFuncionalidades {
         // Verificamos si el email ya existe en la base de datos
         Optional<InstalacionEntidad> instalacionExistente = instalacionInterfaz.findByEmailInstalacion(instalacionDto.getEmailInstalacion());
         if (instalacionExistente.isPresent()) {
+            // Lanzamos la excepción con el mensaje de error
             throw new IllegalArgumentException("El email proporcionado ya está siendo utilizado por otra instalación.");
         }
 
@@ -123,6 +121,7 @@ public class InstalacionFuncionalidades {
         // Guardamos la entidad en la base de datos
         return instalacionInterfaz.save(instalacionEntidad);
     }
+
 
 
     /**
@@ -158,6 +157,9 @@ public class InstalacionFuncionalidades {
                     byte[] imagenBytes = Base64.getDecoder().decode(instalacionDto.getImagenInstalacion());
                     instalacion.setImagenInstalacion(imagenBytes);
                 }
+                instalacion.setTipoDeCampo(instalacionDto.getTipoDeCampo());
+                
+               
 
                 instalacionInterfaz.save(instalacion);
                 System.out.println("La instalación: " + instalacion.getNombreInstalacion() + " ha sido modificada.");

@@ -67,19 +67,15 @@ public class Controlador {
 	AuthFuncionalidades authService;
 	
 
-	@CrossOrigin(origins = "http://localhost:4200")
+	@CrossOrigin(origins = "http://localhost:8080")
+	
 
 	@PostMapping("/login")
 	 public ResponseEntity<RespuestaLoginDto> login(@RequestBody LoginDto loginDto) {
-        // Llamamos al servicio para verificar las credenciales y obtener el token
         RespuestaLoginDto respuestaLogin = loginFuncionalidades.verificarCredenciales(loginDto);
-
-        // Si las credenciales son incorrectas, devolvemos un error 401 (Unauthorized)
         if (respuestaLogin == null) {
             return ResponseEntity.status(401).body(null);
         }
-
-        // Si las credenciales son correctas, devolvemos el token en la respuesta
         return ResponseEntity.ok(respuestaLogin);
     }
 
@@ -112,19 +108,20 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion post a tabla club
 	 */
 	@PostMapping("/guardarClub")
-	public ResponseEntity<ClubDto> guardarClub(@RequestBody ClubDto clubDto) {
+	public ResponseEntity<?> guardarClub(@RequestBody ClubDto clubDto) {
 	    try {
 	        System.out.println("Datos recibidos: " + clubDto.getEmailClub() + " " + clubDto.getPasswordClub());
 	        ClubEntidad clubEntidad = clubFuncionalidades.guardarClub(clubDto);
 	        return ResponseEntity.ok(clubFuncionalidades.mapearAClubDto(clubEntidad));
 	    } catch (IllegalArgumentException e) {
-	        // Si el email ya está en uso, capturamos la excepción y retornamos un error
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+	        // Si el email ya está en uso, capturamos la excepción y retornamos el mensaje de error
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 	    } catch (Exception e) {
-	        // Captura de otras excepciones
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	        // Captura de otras excepciones y retorna un mensaje genérico
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
 	    }
 	}
+
 
 	/**
 	 * Metodo que se encarga de realizar un peticion delete a tabla club
@@ -204,19 +201,20 @@ public class Controlador {
 	 * Metodo que se encarga de realizar una peticion post a tabla instalacion
 	 */
 	@PostMapping("/guardarInstalacion")
-	public ResponseEntity<InstalacionDto> guardarInstalacion(@RequestBody InstalacionDto instalacionDto) {
+	public ResponseEntity<?> guardarInstalacion(@RequestBody InstalacionDto instalacionDto) {
 	    try {
 	        System.out.println("Datos recibidos: " + instalacionDto.getEmailInstalacion() + " " + instalacionDto.getPasswordInstalacion());
 	        InstalacionEntidad instalacionEntidad = instalacionFuncionalidades.guardarInstalacion(instalacionDto);
 	        return ResponseEntity.ok(instalacionFuncionalidades.mapearAInstalacionDto(instalacionEntidad));
 	    } catch (IllegalArgumentException e) {
-	        // Si el email ya está en uso, capturamos la excepción y retornamos un error
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+	        // Si el email ya está en uso, capturamos la excepción y retornamos el mensaje de error
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 	    } catch (Exception e) {
-	        // Captura de otras excepciones
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	        // Captura de otras excepciones y retorna un mensaje genérico
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
 	    }
 	}
+
 
 
 
@@ -336,19 +334,20 @@ public class Controlador {
 	 * en la base de datos.
 	 */
 	@PostMapping("/guardarUsuario")
-	public ResponseEntity<UsuarioDto> guardarUsuario(@RequestBody UsuarioDto usuarioDto) {
+	public ResponseEntity<?> guardarUsuario(@RequestBody UsuarioDto usuarioDto) {
 	    try {
-	        System.out.println("Datos recibidos: " + usuarioDto.getEmailUsuario() + " " + usuarioDto.getPasswordUsuario());
+	        // Llamada al servicio
 	        UsuarioEntidad usuarioEntidad = usuarioFuncionalidades.guardarUsuario(usuarioDto);
 	        return ResponseEntity.ok(usuarioFuncionalidades.mapearAUsuarioDto(usuarioEntidad));
 	    } catch (IllegalArgumentException e) {
-	        // Si el email ya está en uso, capturamos la excepción y retornamos un error
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+	        // Devolver directamente el mensaje de error como un String
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 	    } catch (Exception e) {
-	        // Captura de otras excepciones
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+	        // En caso de cualquier otro error
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
 	    }
 	}
+
 
 	/**
 	 * Método DELETE para eliminar un usuario por su ID.
