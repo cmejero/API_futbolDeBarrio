@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 
 @Service
 public class ClubFuncionalidades {
@@ -18,8 +19,6 @@ public class ClubFuncionalidades {
 	@Autowired
 	ClubInterfaz clubInterfaz;
 
-	@Autowired
-	Utilidades utilidades;
 
 	public Optional<ClubEntidad> buscarClubPorEmail(String email) {
 		return clubInterfaz.findByEmailClub(email);
@@ -109,7 +108,7 @@ public class ClubFuncionalidades {
 		}
 
 		// Encriptamos la contraseña antes de guardar
-		clubEntidad.setPasswordClub(utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
+		clubEntidad.setPasswordClub(Utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
 
 		// Guardamos la entidad en la base de datos
 		return clubInterfaz.save(clubEntidad);
@@ -142,7 +141,7 @@ public class ClubFuncionalidades {
 				club.setTelefonoClub(clubDto.getTelefonoClub());
 				if (clubDto.getPasswordClub() != null && !clubDto.getPasswordClub().isEmpty()) {
 					// Si la contraseña se modificó, la encriptamos
-					club.setPasswordClub(utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
+					club.setPasswordClub(Utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
 				} else {
 					// Si la contraseña no se modificó, no tocamos la contraseña encriptada actual
 					System.out.println("La contraseña no ha sido modificada. Se mantiene la actual.");

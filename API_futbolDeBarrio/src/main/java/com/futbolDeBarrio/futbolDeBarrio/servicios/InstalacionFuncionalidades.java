@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 
 /**
  * Clase que se encarga de la logica interna de los metodos CRUD
@@ -21,8 +22,6 @@ public class InstalacionFuncionalidades {
 	@Autowired
 	InstalacionInterfaz instalacionInterfaz;
 	
-	@Autowired
-	Utilidades utilidades;
 	
 	 public Optional<InstalacionEntidad> buscarInstalacionPorEmail(String email) {
 	        return instalacionInterfaz.findByEmailInstalacion(email);
@@ -116,7 +115,7 @@ public class InstalacionFuncionalidades {
         }
 
         // Encriptamos la contraseña antes de guardar
-        instalacionEntidad.setPasswordInstalacion(utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
+        instalacionEntidad.setPasswordInstalacion(Utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
 
         // Guardamos la entidad en la base de datos
         return instalacionInterfaz.save(instalacionEntidad);
@@ -148,7 +147,7 @@ public class InstalacionFuncionalidades {
                 instalacion.setPasswordInstalacion(instalacionDto.getPasswordInstalacion());
                 if (instalacionDto.getPasswordInstalacion() != null && !instalacionDto.getPasswordInstalacion().isEmpty()) {
                     // Si la contraseña se modificó, la encriptamos
-                    instalacion.setPasswordInstalacion((utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion())));
+                    instalacion.setPasswordInstalacion((Utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion())));
                 } else {
                     // Si la contraseña no se modificó, no tocamos la contraseña encriptada actual
                     System.out.println("La contraseña no ha sido modificada. Se mantiene la actual.");

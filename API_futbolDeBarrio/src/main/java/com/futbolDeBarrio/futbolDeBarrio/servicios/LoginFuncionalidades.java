@@ -16,6 +16,7 @@ import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 
 @Service
 public class LoginFuncionalidades {
@@ -26,15 +27,14 @@ public class LoginFuncionalidades {
     private ClubInterfaz clubInterfaz;
     @Autowired
     private InstalacionInterfaz instalacionInterfaz;
-    @Autowired
-    private Utilidades utilidades;
+   
     @Autowired
     private JwtFuncionalidades jwtUtil;
 
     public RespuestaLoginDto verificarCredenciales(LoginDto loginDto) {
         // Buscar en Usuarios
     	Optional<UsuarioEntidad> usuario = usuarioInterfaz.findByEmailUsuario(loginDto.getEmail());
-    	if (usuario.isPresent() && utilidades.verificarContrasena(loginDto.getPassword(), usuario.get().getPasswordUsuario())) {
+    	if (usuario.isPresent() && Utilidades.verificarContrasena(loginDto.getPassword(), usuario.get().getPasswordUsuario())) {
     	    String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Usuario);
 
     	    // Usamos el RolUsuario del UsuarioEntidad
@@ -47,14 +47,14 @@ public class LoginFuncionalidades {
 
         // Buscar en Clubes
         Optional<ClubEntidad> club = clubInterfaz.findByEmailClub(loginDto.getEmail());
-        if (club.isPresent() && utilidades.verificarContrasena(loginDto.getPassword(), club.get().getPasswordClub())) {
+        if (club.isPresent() && Utilidades.verificarContrasena(loginDto.getPassword(), club.get().getPasswordClub())) {
             String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Club);
             return new RespuestaLoginDto("club", token, club.get());
         }
 
         // Buscar en Instalaciones
         Optional<InstalacionEntidad> instalacion = instalacionInterfaz.findByEmailInstalacion(loginDto.getEmail());
-        if (instalacion.isPresent() && utilidades.verificarContrasena(loginDto.getPassword(), instalacion.get().getPasswordInstalacion())) {
+        if (instalacion.isPresent() && Utilidades.verificarContrasena(loginDto.getPassword(), instalacion.get().getPasswordInstalacion())) {
             String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Instalacion);
             return new RespuestaLoginDto("instalacion", token, instalacion.get());
         }

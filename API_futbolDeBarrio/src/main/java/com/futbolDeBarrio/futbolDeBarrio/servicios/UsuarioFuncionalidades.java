@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 
 /**
  * Clase que se encarga de la lógica interna de los métodos CRUD para Usuario
@@ -20,8 +21,6 @@ public class UsuarioFuncionalidades {
     @Autowired
     UsuarioInterfaz usuarioInterfaz;
     
-    @Autowired
-    Utilidades utilidades;
 
     
     public Optional<UsuarioEntidad> buscarUsuarioPorEmail(String email) {
@@ -108,7 +107,7 @@ public class UsuarioFuncionalidades {
 
         // Resto del código para guardar el usuario
         UsuarioEntidad usuarioEntidad = mapearADtoAEntidad(usuarioDto);
-        usuarioEntidad.setPasswordUsuario(utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
+        usuarioEntidad.setPasswordUsuario(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
         return usuarioInterfaz.save(usuarioEntidad);
     }
 
@@ -134,7 +133,7 @@ public class UsuarioFuncionalidades {
                 usuario.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
                 if (usuarioDto.getPasswordUsuario() != null && !usuarioDto.getPasswordUsuario().isEmpty()) {
                     // Si la contraseña se modificó, la encriptamos
-                    usuario.setPasswordUsuario((utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario())));
+                    usuario.setPasswordUsuario((Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario())));
                 } else {
                     // Si la contraseña no se modificó, no tocamos la contraseña encriptada actual
                     System.out.println("La contraseña no ha sido modificada. Se mantiene la actual.");
