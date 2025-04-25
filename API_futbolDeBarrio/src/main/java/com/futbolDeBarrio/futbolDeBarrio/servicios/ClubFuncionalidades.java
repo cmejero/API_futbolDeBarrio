@@ -118,46 +118,55 @@ public class ClubFuncionalidades {
 	 * Método que modifica un club en la base de datos
 	 */
 	public boolean modificarClub(String id, ClubDto clubDto) {
-		boolean esModificado = false;
-		try {
-			Long idClub = Long.parseLong(id);
-			ClubEntidad club = clubInterfaz.findByIdClub(idClub);
+	    boolean esModificado = false;
+	    try {
+	        Long idClub = Long.parseLong(id);
+	        ClubEntidad club = clubInterfaz.findByIdClub(idClub);
 
-			if (club == null) {
-				System.out.println("El ID proporcionado no existe");
-			} else {
-				club.setNombreClub(clubDto.getNombreClub());
-				club.setAbreviaturaClub(clubDto.getAbreviaturaClub());
-				club.setDescripcionClub(clubDto.getDescripcionClub());
-				club.setFechaCreacionClub(clubDto.getFechaCreacionClub());
-				club.setFechaFundacionClub(clubDto.getFechaFundacionClub());
-				club.setLocalidadClub(clubDto.getLocalidadClub());
-				club.setPaisClub(clubDto.getPaisClub());
-				if (clubDto.getLogoClub() != null) {
-					byte[] imagenBytes = Base64.getDecoder().decode(clubDto.getLogoClub());
-					club.setLogoClub(imagenBytes);
-				}
-				club.setEmailClub(clubDto.getEmailClub());
-				club.setTelefonoClub(clubDto.getTelefonoClub());
-				if (clubDto.getPasswordClub() != null && !clubDto.getPasswordClub().isEmpty()) {
-					// Si la contraseña se modificó, la encriptamos
-					club.setPasswordClub(Utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
-				} else {
-					// Si la contraseña no se modificó, no tocamos la contraseña encriptada actual
-					System.out.println("La contraseña no ha sido modificada. Se mantiene la actual.");
-				}
-				clubInterfaz.save(club);
-				esModificado = true;
-			}
+	        if (club == null) {
+	            System.out.println("El ID proporcionado no existe");
+	        } else {
+	            // Actualización de los demás campos
+	            club.setNombreClub(clubDto.getNombreClub());
+	            club.setAbreviaturaClub(clubDto.getAbreviaturaClub());
+	            club.setDescripcionClub(clubDto.getDescripcionClub());
+	            club.setFechaCreacionClub(clubDto.getFechaCreacionClub());
+	            club.setFechaFundacionClub(clubDto.getFechaFundacionClub());
+	            club.setLocalidadClub(clubDto.getLocalidadClub());
+	            club.setPaisClub(clubDto.getPaisClub());
+	            if (clubDto.getLogoClub() != null) {
+	                byte[] imagenBytes = Base64.getDecoder().decode(clubDto.getLogoClub());
+	                club.setLogoClub(imagenBytes);
+	            }
+	            club.setEmailClub(clubDto.getEmailClub());
+	            club.setTelefonoClub(clubDto.getTelefonoClub());
 
-		} catch (NumberFormatException nfe) {
-			System.out.println("Error: El ID proporcionado no es válido. " + nfe.getMessage());
-		} catch (Exception e) {
-			System.out.println("Se ha producido un error al modificar el club. " + e.getMessage());
-		}
+	            // Comprobamos si la contraseña es diferente y no vacía
+	            if (clubDto.getPasswordClub() != null && !clubDto.getPasswordClub().isEmpty()) {
+	                // Verificamos si la contraseña nueva es diferente de la actual (que está encriptada)
+	                if (!Utilidades.verificarContrasena(clubDto.getPasswordClub(), club.getPasswordClub())) {
+	                    // Solo encriptamos la nueva contraseña si es diferente
+	                    club.setPasswordClub(Utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
+	                } else {
+	                    // Si la contraseña es la misma, no se modifica
+	                    System.out.println("La contraseña ingresada coincide con la actual. No se modifica.");
+	                }
+	            }
 
-		return esModificado;
+	            // Guardamos los cambios en la base de datos
+	            clubInterfaz.save(club);
+	            esModificado = true;
+	        }
+
+	    } catch (NumberFormatException nfe) {
+	        System.out.println("Error: El ID proporcionado no es válido. " + nfe.getMessage());
+	    } catch (Exception e) {
+	        System.out.println("Se ha producido un error al modificar el club. " + e.getMessage());
+	    }
+
+	    return esModificado;
 	}
+
 
 	/**
 	 * Método que borra un club por su ID
