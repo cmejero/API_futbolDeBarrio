@@ -1,9 +1,9 @@
 package com.futbolDeBarrio.futbolDeBarrio.entidad;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Modalidad;
 
 import jakarta.persistence.CascadeType;
@@ -35,11 +35,11 @@ public class TorneoEntidad {
 
     @NotNull
     @Column(name = "fecha_inicio_torneo")
-    private LocalDate fechaInicioTorneo;
+    private String fechaInicioTorneo;
 
     @NotNull
     @Column(name = "fecha_fin_torneo")
-    private LocalDate fechaFinTorneo;
+    private String fechaFinTorneo;
 
     @Column(name = "descripcion_torneo")
     private String descripcionTorneo;
@@ -52,6 +52,7 @@ public class TorneoEntidad {
     @NotNull
     @ManyToOne
     @JoinColumn(name = "instalacion_id", referencedColumnName = "id_instalacion", nullable = false)
+    @JsonBackReference
     private InstalacionEntidad instalacion;
     
     @OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -79,19 +80,19 @@ public class TorneoEntidad {
         this.nombreTorneo = nombreTorneo;
     }
 
-    public LocalDate getFechaInicioTorneo() {
+    public String getFechaInicioTorneo() {
         return fechaInicioTorneo;
     }
 
-    public void setFechaInicioTorneo(LocalDate fechaInicioTorneo) {
+    public void setFechaInicioTorneo(String fechaInicioTorneo) {
         this.fechaInicioTorneo = fechaInicioTorneo;
     }
 
-    public LocalDate getFechaFinTorneo() {
+    public String getFechaFinTorneo() {
         return fechaFinTorneo;
     }
 
-    public void setFechaFinTorneo(LocalDate fechaFinTorneo) {
+    public void setFechaFinTorneo(String fechaFinTorneo) {
         this.fechaFinTorneo = fechaFinTorneo;
     }
 

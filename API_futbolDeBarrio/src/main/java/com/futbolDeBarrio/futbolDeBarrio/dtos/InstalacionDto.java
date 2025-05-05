@@ -22,7 +22,7 @@ public class InstalacionDto {
     private String passwordInstalacion;
     private String imagenInstalacion;
     private List<Long> torneoIds;
-    private List<String> tipoDeCampo;
+   
 
     // Constructor que recibe una entidad de Instalacion
     public InstalacionDto(InstalacionEntidad instalacionEntidad) {
@@ -42,7 +42,7 @@ public class InstalacionDto {
         }
         this.torneoIds = instalacionEntidad.getTorneoIds();
 
-        this.tipoDeCampo = instalacionEntidad.getTipoDeCampo();
+       
     }
 
     // Getters y Setters
@@ -150,13 +150,7 @@ public class InstalacionDto {
         this.torneoIds = torneoIds;
     }
 
-    public List<String> getTipoDeCampo() {
-        return tipoDeCampo;
-    }
-
-    public void setTipoDeCampo(List<String> tipoDeCampo) {
-        this.tipoDeCampo = tipoDeCampo;
-    }
+  
 
 	public InstalacionDto() {
 		super();

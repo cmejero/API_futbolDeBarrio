@@ -62,10 +62,13 @@ public class TorneoFuncionalidades {
     }
 
     // Obtener un torneo por ID
-    public TorneoDto obtenerTorneoPorId(Long idTorneo) {
-        Optional<TorneoEntidad> torneoEntidadOpt = torneoInterfaz.findById(idTorneo);
-        return torneoEntidadOpt.map(this::mapearATorneoDto).orElse(null);
+    public List<TorneoDto> obtenerTorneosPorInstalacion(Long instalacionId) {
+        List<TorneoEntidad> torneosEntidad = torneoInterfaz.findByInstalacion_IdInstalacion(instalacionId);
+        return torneosEntidad.stream()
+                             .map(this::mapearATorneoDto)
+                             .collect(Collectors.toList());
     }
+
 
     // Guardar un nuevo torneo
     public TorneoEntidad guardarTorneo(TorneoDto torneoDto) {

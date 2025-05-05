@@ -1,19 +1,34 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
-import java.time.LocalDate;
+import java.util.Base64;
 
+import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Modalidad;
 
 public class TorneoDto {
 
     private long idTorneo;
     private String nombreTorneo;
-    private LocalDate fechaInicioTorneo;
-    private LocalDate fechaFinTorneo;
+    private String fechaInicioTorneo;
+    private String fechaFinTorneo;
     private String descripcionTorneo;
     private Modalidad modalidad;
     private long instalacionId;
 
+    public TorneoDto(TorneoEntidad torneoEntidad) {
+        this.idTorneo = torneoEntidad.getIdTorneo();
+        this.nombreTorneo = torneoEntidad.getNombreTorneo();
+        this.fechaInicioTorneo = torneoEntidad.getFechaInicioTorneo();
+        this.fechaFinTorneo = torneoEntidad.getFechaFinTorneo();
+        this.descripcionTorneo = torneoEntidad.getDescripcionTorneo();
+        this.modalidad = torneoEntidad.getModalidad();
+        if (torneoEntidad.getInstalacion() != null) {
+            this.instalacionId = torneoEntidad.getInstalacion().getIdInstalacion();
+        }
+  
+    }
+    
+    
     // Getters and Setters
     public long getIdTorneo() {
         return idTorneo;
@@ -31,19 +46,19 @@ public class TorneoDto {
         this.nombreTorneo = nombreTorneo;
     }
 
-    public LocalDate getFechaInicioTorneo() {
+    public String getFechaInicioTorneo() {
         return fechaInicioTorneo;
     }
 
-    public void setFechaInicioTorneo(LocalDate fechaInicioTorneo) {
+    public void setFechaInicioTorneo(String fechaInicioTorneo) {
         this.fechaInicioTorneo = fechaInicioTorneo;
     }
 
-    public LocalDate getFechaFinTorneo() {
+    public String getFechaFinTorneo() {
         return fechaFinTorneo;
     }
 
-    public void setFechaFinTorneo(LocalDate fechaFinTorneo) {
+    public void setFechaFinTorneo(String fechaFinTorneo) {
         this.fechaFinTorneo = fechaFinTorneo;
     }
 
@@ -70,4 +85,11 @@ public class TorneoDto {
     public void setInstalacionId(long instalacionId) {
         this.instalacionId = instalacionId;
     }
+
+
+	public TorneoDto() {
+		super();
+	}
+    
+    
 }

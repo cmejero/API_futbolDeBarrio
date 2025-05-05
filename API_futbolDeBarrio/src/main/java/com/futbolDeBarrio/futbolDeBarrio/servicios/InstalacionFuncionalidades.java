@@ -46,7 +46,7 @@ public class InstalacionFuncionalidades {
             String imagenBase64 = Base64.getEncoder().encodeToString(instalacionEntidad.getImagenInstalacion());
             instalacionDto.setImagenInstalacion(imagenBase64);
         }
-        instalacionDto.setTipoDeCampo(instalacionEntidad.getTipoDeCampo());
+       
         return instalacionDto;
     }
     
@@ -71,7 +71,7 @@ public class InstalacionFuncionalidades {
             byte[] imagenBytes = Base64.getDecoder().decode(instalacionDto.getImagenInstalacion());
             instalacionEntidad.setImagenInstalacion(imagenBytes);
         }
-        instalacionEntidad.setTipoDeCampo(instalacionDto.getTipoDeCampo());
+      
         return instalacionEntidad;
     }
 
@@ -156,7 +156,7 @@ public class InstalacionFuncionalidades {
                     byte[] imagenBytes = Base64.getDecoder().decode(instalacionDto.getImagenInstalacion());
                     instalacion.setImagenInstalacion(imagenBytes);
                 }
-                instalacion.setTipoDeCampo(instalacionDto.getTipoDeCampo());
+               
                 
                
 

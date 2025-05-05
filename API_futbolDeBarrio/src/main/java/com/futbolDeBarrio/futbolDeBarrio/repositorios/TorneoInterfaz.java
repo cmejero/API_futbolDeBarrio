@@ -1,5 +1,7 @@
 package com.futbolDeBarrio.futbolDeBarrio.repositorios;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
@@ -25,4 +27,7 @@ public interface TorneoInterfaz extends JpaRepository<TorneoEntidad, Long> {
 	 * @return
 	 */
 	void deleteByIdTorneo(Long idTorneo);
+	
+	List<TorneoEntidad> findByInstalacion_IdInstalacion(Long instalacionId);
+
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubDto;
@@ -316,18 +317,17 @@ public class Controlador {
 
 	/* METODOS CRUD DE LA TABLA TORNEO */
 
-	@GetMapping("/torneo/{id_torneo}")
-	public ResponseEntity<TorneoDto> obtenerTorneoPorId(@PathVariable("id_torneo") Long idTorneo) {
-	    Logs.ficheroLog("Buscando torneo con ID: " + idTorneo);
-	    TorneoDto torneoDto = torneoFuncionalidades.obtenerTorneoPorId(idTorneo);
-	    if (torneoDto != null) {
-	        Logs.ficheroLog("Torneo encontrado con ID: " + idTorneo);
-	        return ResponseEntity.ok(torneoDto);
+	@GetMapping("/torneo")
+	public List<TorneoDto> obtenerTorneos(@RequestParam(value = "instalacionId", required = false) Long instalacionId) {
+	    if (instalacionId != null) {
+	        Logs.ficheroLog("Mostrando torneos para instalación ID: " + instalacionId);
+	        return torneoFuncionalidades.obtenerTorneosPorInstalacion(instalacionId);
 	    } else {
-	        Logs.ficheroLog("No se encontró torneo con ID: " + idTorneo);
-	        return ResponseEntity.notFound().build();
+	        Logs.ficheroLog("Mostrando todos los torneos");
+	        return torneoFuncionalidades.obtenerTodosLosTorneos();
 	    }
 	}
+
 
 	@GetMapping("/mostrarTorneo")
 	public List<TorneoDto> mostrarTorneos() {

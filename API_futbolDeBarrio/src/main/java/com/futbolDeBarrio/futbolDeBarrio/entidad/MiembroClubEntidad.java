@@ -22,10 +22,10 @@ public class MiembroClubEntidad {
 
     @NotNull
     @Column(name = "fecha_alta_usuario", nullable = false)
-    private LocalDate fechaAltaUsuario; // Fecha en que el usuario se unió al club
+    private String fechaAltaUsuario; // Fecha en que el usuario se unió al club
 
     @Column(name = "fecha_baja_usuario")
-    private LocalDate fechaBajaUsuario; // Fecha en que el usuario dejó de ser parte del club (si aplica)
+    private String fechaBajaUsuario; // Fecha en que el usuario dejó de ser parte del club (si aplica)
 
     @NotNull
     @ManyToOne
@@ -51,19 +51,19 @@ public class MiembroClubEntidad {
         this.idMiembroClub = idMiembroClub;
     }
 
-    public LocalDate getFechaAltaUsuario() {
+    public String getFechaAltaUsuario() {
         return fechaAltaUsuario;
     }
 
-    public void setFechaAltaUsuario(LocalDate fechaAltaUsuario) {
+    public void setFechaAltaUsuario(String fechaAltaUsuario) {
         this.fechaAltaUsuario = fechaAltaUsuario;
     }
 
-    public LocalDate getFechaBajaUsuario() {
+    public String getFechaBajaUsuario() {
         return fechaBajaUsuario;
     }
 
-    public void setFechaBajaUsuario(LocalDate fechaBajaUsuario) {
+    public void setFechaBajaUsuario(String fechaBajaUsuario) {
         this.fechaBajaUsuario = fechaBajaUsuario;
     }
 
