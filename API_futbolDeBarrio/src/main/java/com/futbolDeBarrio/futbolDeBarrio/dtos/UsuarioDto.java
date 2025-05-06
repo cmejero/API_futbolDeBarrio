@@ -24,21 +24,14 @@ public class UsuarioDto {
 	
 	
 	
-	public UsuarioDto(long idUsuario, String nombreCompletoUsuario, String aliasusuario, String fechaNacimientoUsuario,
-			String emailUsuario, String telefonoUsuario, String passwordUsuario, RolUsuario rolUsuario,
-			String descripcionUsuario, String imagenUsuario, Estado estadoUsuario) {
+	public UsuarioDto(String nombreCompletoUsuario, String aliasusuario,
+			String emailUsuario) {
 		super();
-		this.idUsuario = idUsuario;
+	
 		this.nombreCompletoUsuario = nombreCompletoUsuario;
 		this.aliasUsuario = aliasusuario;
-		this.fechaNacimientoUsuario = fechaNacimientoUsuario;
 		this.emailUsuario = emailUsuario;
-		this.telefonoUsuario = telefonoUsuario;
-		this.passwordUsuario = passwordUsuario;
-		this.rolUsuario = rolUsuario;
-		this.descripcionUsuario = descripcionUsuario;
-		this.imagenUsuario = imagenUsuario;
-		this.estadoUsuario = estadoUsuario;
+		
 	}
 	
 	

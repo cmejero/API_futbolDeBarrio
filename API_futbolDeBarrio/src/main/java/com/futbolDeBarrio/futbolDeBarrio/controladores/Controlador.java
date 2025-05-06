@@ -283,19 +283,39 @@ public class Controlador {
 	    }
 	}
 
-	@GetMapping("mostrarMiembrosClub")
-	public List<MiembroClubDto> mostrarMiembroClub() {
-	    Logs.ficheroLog("Mostrando todos los miembros del club");
-	    return miembroClubFuncionalidades.obtenerMiembrosClubDto();
+	// Nuevo método para obtener los miembros del club (filtrado por clubId)
+	@GetMapping("/miembroClub/porClub/{clubId}")
+	public ResponseEntity<List<MiembroClubDto>> obtenerMiembrosPorClub(@PathVariable("clubId") Long clubId) {
+	    Logs.ficheroLog("Buscando miembros del club con ID: " + clubId);
+	    List<MiembroClubDto> miembrosClub = miembroClubFuncionalidades.obtenerMiembrosPorClub(clubId);
+	    if (!miembrosClub.isEmpty()) {
+	        Logs.ficheroLog("Miembros del club encontrados con ID: " + clubId);
+	        return ResponseEntity.ok(miembrosClub);
+	    } else {
+	        Logs.ficheroLog("No se encontraron miembros del club con ID: " + clubId);
+	        return ResponseEntity.notFound().build();
+	    }
+	}
+	
+	@PostMapping("/guardarMiembroClub")
+	public ResponseEntity<MiembroClubDto> guardarMiembroClub(@RequestBody MiembroClubDto miembroClubDto) {
+	    Logs.ficheroLog("Solicitud para guardar miembro del club con datos: " + miembroClubDto.toString());
+	    
+	    try {
+	        // Guardamos el miembro
+	        MiembroClubEntidad miembroClubEntidad = miembroClubFuncionalidades.guardarMiembroClub(miembroClubDto);
+	        
+	        // Mapeamos la entidad a DTO antes de devolver la respuesta
+	        MiembroClubDto miembroClubDtoResult = miembroClubFuncionalidades.mapearAMiembroClubDto(miembroClubEntidad);
+	        
+	        Logs.ficheroLog("Miembro del club guardado exitosamente con ID: " + miembroClubDtoResult.getIdMiembroClub());
+	        return ResponseEntity.status(HttpStatus.CREATED).body(miembroClubDtoResult);
+	    } catch (RuntimeException e) {
+	        Logs.ficheroLog("Error al guardar miembro del club: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body(null); // 409 Conflict si ya existe
+	    }
 	}
 
-	@PostMapping("/guardarMiembroClub")
-	public MiembroClubDto guardarMiembroClub(@RequestBody MiembroClubDto miembroClubDto) {
-	    Logs.ficheroLog("Solicitud para guardar miembro del club con datos: " + miembroClubDto.toString());
-	    MiembroClubEntidad miembroClubEntidad = miembroClubFuncionalidades.guardarMiembroClub(miembroClubDto);
-	    Logs.ficheroLog("Miembro del club guardado exitosamente con ID: " + miembroClubEntidad.getIdMiembroClub());
-	    return miembroClubFuncionalidades.mapearAMiembroClubDto(miembroClubEntidad);
-	}
 
 	@DeleteMapping("/eliminarMiembroClub/{id_miembroClub}")
 	public boolean eliminarMiembroClub(@PathVariable("id_miembroClub") String id_miembroClub) {

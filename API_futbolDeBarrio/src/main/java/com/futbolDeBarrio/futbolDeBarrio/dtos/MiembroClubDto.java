@@ -7,36 +7,42 @@ public class MiembroClubDto {
     private long idMiembroClub;
     private String fechaAltaUsuario;
     private String fechaBajaUsuario;
-    private long clubId;  
-    private long usuarioId;  
+    private long idClub;
+    private long usuarioId;
+    private UsuarioDto usuario;
 
-    
+    // Constructor sin parámetros
+    public MiembroClubDto() {
+        super();
+    }
 
-	public MiembroClubDto(long idMiembroClub, String fechaAltaUsuario, String fechaBajaUsuario, long clubId,
-			long usuarioId) {
-		super();
-		this.idMiembroClub = idMiembroClub;
-		this.fechaAltaUsuario = fechaAltaUsuario;
-		this.fechaBajaUsuario = fechaBajaUsuario;
-		this.clubId = clubId;
-		this.usuarioId = usuarioId;
-	}
+    // Constructor con parámetros
+    public MiembroClubDto(long idMiembroClub, String fechaAltaUsuario, String fechaBajaUsuario, long idClub, long usuarioId) {
+        super();
+        this.idMiembroClub = idMiembroClub;
+        this.fechaAltaUsuario = fechaAltaUsuario;
+        this.fechaBajaUsuario = fechaBajaUsuario;
+        this.idClub = idClub;
+        this.usuarioId = usuarioId;
+    }
 
-    
+    // Constructor a partir de la entidad
     public MiembroClubDto(MiembroClubEntidad miembroClubEntidad) {
         this.idMiembroClub = miembroClubEntidad.getIdMiembroClub();
         this.fechaAltaUsuario = miembroClubEntidad.getFechaAltaUsuario();
         this.fechaBajaUsuario = miembroClubEntidad.getFechaBajaUsuario();
+        
         if (miembroClubEntidad.getClub() != null) {
-            this.clubId = miembroClubEntidad.getClub().getIdClub();
+            this.idClub = miembroClubEntidad.getClub().getIdClub();
         }
+        
         if (miembroClubEntidad.getUsuario() != null) {
             this.usuarioId = miembroClubEntidad.getUsuario().getIdUsuario();
+            // Asegúrate de convertir la entidad de usuario a DTO
+            this.usuario = new UsuarioDto(miembroClubEntidad.getUsuario());
         }
     }
-    
-    
-    
+
     // Getters and Setters
     public long getIdMiembroClub() {
         return idMiembroClub;
@@ -62,12 +68,12 @@ public class MiembroClubDto {
         this.fechaBajaUsuario = fechaBajaUsuario;
     }
 
-    public long getClubId() {
-        return clubId;
+    public long getIdClub() {
+        return idClub;
     }
 
-    public void setClubId(long clubId) {
-        this.clubId = clubId;
+    public void setIdClub(long idClub) {
+        this.idClub = idClub;
     }
 
     public long getUsuarioId() {
@@ -78,14 +84,37 @@ public class MiembroClubDto {
         this.usuarioId = usuarioId;
     }
 
+    public UsuarioDto getUsuario() {
+        return usuario;
+    }
 
+    public void setUsuario(UsuarioDto usuario) {
+        this.usuario = usuario;
+    }
 
+    // Métodos adicionales: toString, hashCode y equals
+    @Override
+    public String toString() {
+        return "MiembroClubDto{" +
+                "idMiembroClub=" + idMiembroClub +
+                ", fechaAltaUsuario='" + fechaAltaUsuario + '\'' +
+                ", fechaBajaUsuario='" + fechaBajaUsuario + '\'' +
+                ", idClub=" + idClub +
+                ", usuarioId=" + usuarioId +
+                ", usuario=" + usuario +
+                '}';
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MiembroClubDto that = (MiembroClubDto) o;
+        return idMiembroClub == that.idMiembroClub;
+    }
 
-	public MiembroClubDto() {
-		super();
-	}
-    
-    
-    
+    @Override
+    public int hashCode() {
+        return Long.hashCode(idMiembroClub);
+    }
 }
