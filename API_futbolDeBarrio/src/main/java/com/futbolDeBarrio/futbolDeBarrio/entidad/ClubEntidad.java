@@ -55,15 +55,27 @@ public class ClubEntidad {
     @Column(name = "telefono_club")
     private String telefonoClub;
 
-  
-    
-
     // Relación con los clubes
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EquipoTorneoEntidad> equipoTorneo = new ArrayList<>();
     
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MiembroClubEntidad> miembroClub = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "clubLocal", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ActaPartidoEntidad> actasComoLocal = new ArrayList<>();
+
+    @OneToMany(mappedBy = "clubVisitante", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ActaPartidoEntidad> actasComoVisitante = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventoPartidoEntidad> eventoPartido = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "clubGlobal", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClubEstadisticaGlobalEntidad> clubEstadisticaGlobal = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClubEstadisticaTorneoEntidad> clubEstadisticaTorneo = new ArrayList<>();
 
     // Getters y Setters
     public long getIdClub() {
@@ -162,6 +174,62 @@ public class ClubEntidad {
     public void setTelefonoClub(String telefonoClub) {
         this.telefonoClub = telefonoClub;
     }
+
+	public List<EquipoTorneoEntidad> getEquipoTorneo() {
+		return equipoTorneo;
+	}
+
+	public void setEquipoTorneo(List<EquipoTorneoEntidad> equipoTorneo) {
+		this.equipoTorneo = equipoTorneo;
+	}
+
+	public List<MiembroClubEntidad> getMiembroClub() {
+		return miembroClub;
+	}
+
+	public void setMiembroClub(List<MiembroClubEntidad> miembroClub) {
+		this.miembroClub = miembroClub;
+	}
+
+	public List<ActaPartidoEntidad> getActasComoLocal() {
+		return actasComoLocal;
+	}
+
+	public void setActasComoLocal(List<ActaPartidoEntidad> actasComoLocal) {
+		this.actasComoLocal = actasComoLocal;
+	}
+
+	public List<ActaPartidoEntidad> getActasComoVisitante() {
+		return actasComoVisitante;
+	}
+
+	public void setActasComoVisitante(List<ActaPartidoEntidad> actasComoVisitante) {
+		this.actasComoVisitante = actasComoVisitante;
+	}
+
+	public List<EventoPartidoEntidad> getEventoPartido() {
+		return eventoPartido;
+	}
+
+	public void setEventoPartido(List<EventoPartidoEntidad> eventoPartido) {
+		this.eventoPartido = eventoPartido;
+	}
+
+	public List<ClubEstadisticaGlobalEntidad> getClubEstadisticaGlobal() {
+		return clubEstadisticaGlobal;
+	}
+
+	public void setClubEstadisticaGlobal(List<ClubEstadisticaGlobalEntidad> clubEstadisticaGlobal) {
+		this.clubEstadisticaGlobal = clubEstadisticaGlobal;
+	}
+
+	public List<ClubEstadisticaTorneoEntidad> getClubEstadisticaTorneo() {
+		return clubEstadisticaTorneo;
+	}
+
+	public void setClubEstadisticaTorneo(List<ClubEstadisticaTorneoEntidad> clubEstadisticaTorneo) {
+		this.clubEstadisticaTorneo = clubEstadisticaTorneo;
+	}
 
    
 }

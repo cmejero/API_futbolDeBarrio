@@ -1,0 +1,16 @@
+@startuml
+
+!include ../src/com/futbolDeBarrio/futbolDeBarrio/*.java
+!include ../src/com/futbolDeBarrio/futbolDeBarrio/configuracion/*.java
+!include ../src/com/futbolDeBarrio/futbolDeBarrio/controladores/*.java
+!include ../src/com/futbolDeBarrio/futbolDeBarrio/dtos/*.java
+!include ../src/com/futbolDeBarrio/futbolDeBarrio/entidad/*.java
+!include ../src/com/futbolDeBarrio/futbolDeBarrio/enums/*.java
+!include ../src/com/futbolDeBarrio/futbolDeBarrio/jwt/*.java
+!include ../src/com/futbolDeBarrio/futbolDeBarrio/logs/*.java
+!include ../src/com/futbolDeBarrio/futbolDeBarrio/repositorios/*.java
+!include ../src/com/futbolDeBarrio/futbolDeBarrio/servicios/*.java
+!include ../src/com/futbolDeBarrio/futbolDeBarrio/utilidades/*.java
+
+@enduml
+

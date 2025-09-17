@@ -18,6 +18,9 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.MiembroClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
 
 @Service
+/**
+ * Clase que se encarga de la lógica de los metodos CRUD de miembro club
+ */
 public class MiembroClubFuncionalidades {
 
     @Autowired
@@ -29,8 +32,12 @@ public class MiembroClubFuncionalidades {
     @Autowired
     private UsuarioInterfaz usuarioInterfaz;
 
+
     /**
-     * Mapea una entidad MiembroClubEntidad a un DTO MiembroClubDto.
+     * Mapea una entidad {@link MiembroClubEntidad} a un DTO {@link MiembroClubDto}.
+     * 
+     * @param miembroClubEntidad La entidad del miembro del club que se va a mapear.
+     * @return Un DTO de tipo {@link MiembroClubDto} con los datos mapeados.
      */
     public MiembroClubDto mapearAMiembroClubDto(MiembroClubEntidad miembroClubEntidad) {
         MiembroClubDto miembroClubDto = new MiembroClubDto();
@@ -55,7 +62,10 @@ public class MiembroClubFuncionalidades {
     }
 
     /**
-     * Mapea un DTO MiembroClubDto a una entidad MiembroClubEntidad.
+     * Mapea un DTO {@link MiembroClubDto} a una entidad {@link MiembroClubEntidad}.
+     * 
+     * @param miembroClubDto El DTO del miembro del club a mapear.
+     * @return La entidad {@link MiembroClubEntidad} correspondiente.
      */
     private MiembroClubEntidad mapearADtoAEntidad(MiembroClubDto miembroClubDto) {
         MiembroClubEntidad miembroClubEntidad = new MiembroClubEntidad();
@@ -73,7 +83,9 @@ public class MiembroClubFuncionalidades {
     }
 
     /**
-     * Obtiene una lista de todos los MiembroClubDto.
+     * Obtiene una lista de todos los miembros del club en formato DTO.
+     * 
+     * @return Una lista de objetos {@link MiembroClubDto} con los miembros del club.
      */
     public List<MiembroClubDto> obtenerMiembrosClubDto() {
         List<MiembroClubEntidad> miembrosClubEntidad = (List<MiembroClubEntidad>) miembroClubInterfaz.findAll();
@@ -85,7 +97,10 @@ public class MiembroClubFuncionalidades {
     }
 
     /**
-     * Obtiene un MiembroClubDto por su ID.
+     * Obtiene un miembro del club por su ID en formato DTO.
+     * 
+     * @param idMiembroClub El ID del miembro del club a buscar.
+     * @return El {@link MiembroClubDto} correspondiente al miembro del club, o null si no se encuentra.
      */
     public MiembroClubDto obtenerMiembroClubDtoPorId(Long idMiembroClub) {
         Optional<MiembroClubEntidad> miembroClubEntidad = miembroClubInterfaz.findById(idMiembroClub);
@@ -93,7 +108,10 @@ public class MiembroClubFuncionalidades {
     }
     
     /**
-     * Obtiene la lista de miembros de un club según el clubId.
+     * Obtiene la lista de miembros de un club según el ID del club.
+     * 
+     * @param idClub El ID del club del cual obtener los miembros.
+     * @return Una lista de {@link MiembroClubDto} de los miembros del club.
      */
     public List<MiembroClubDto> obtenerMiembrosPorClub(Long idClub) {
         List<MiembroClubEntidad> miembrosClubEntidad = miembroClubInterfaz.findByClub_IdClub(idClub);
@@ -107,6 +125,10 @@ public class MiembroClubFuncionalidades {
 
     /**
      * Guarda un nuevo miembro del club en la base de datos.
+     * 
+     * @param miembroClubDto El DTO del miembro del club que se desea guardar.
+     * @return La entidad {@link MiembroClubEntidad} del miembro del club guardado.
+     * @throws RuntimeException Si el miembro ya existe en el club.
      */
     public MiembroClubEntidad guardarMiembroClub(MiembroClubDto miembroClubDto) {
         Logs.ficheroLog("Verificando si el miembro ya existe en el club con usuario ID " + miembroClubDto.getUsuarioId() + " y club ID " + miembroClubDto.getIdClub());
@@ -120,19 +142,18 @@ public class MiembroClubFuncionalidades {
                                        " ya pertenece al club con ID " + miembroClubDto.getIdClub());
         }
 
-        // Si no existe, continuar con el proceso de guardar el miembro
         MiembroClubEntidad miembroClubEntidad = mapearADtoAEntidad(miembroClubDto);
         Logs.ficheroLog("Guardando miembro del club...");
         return miembroClubInterfaz.save(miembroClubEntidad);
     }
 
 
-
-
-
-
     /**
      * Modifica un miembro del club existente en la base de datos.
+     * 
+     * @param idMiembroClubString El ID del miembro del club a modificar.
+     * @param miembroClubDto El DTO con los nuevos datos del miembro del club.
+     * @return true si el miembro fue modificado con éxito, false si no se encuentra el miembro.
      */
     public boolean modificarMiembroClub(String idMiembroClubString, MiembroClubDto miembroClubDto) {
     	 Long idMiembroClub = Long.parseLong(idMiembroClubString);
@@ -151,23 +172,26 @@ public class MiembroClubFuncionalidades {
             miembroClubInterfaz.save(miembroClub);
             return true;
         } else {
-            System.out.println("El ID proporcionado no existe");
+            // System.out.println("El ID proporcionado no existe");
             return false;
         }
     }
 
     /**
      * Borra un miembro del club por su ID.
+     * 
+     * @param idMiembroClubString El ID del miembro del club a borrar.
+     * @return true si el miembro fue borrado con éxito, false si no se encuentra el miembro.
      */
     public boolean borrarMiembroClub(String idMiembroClubString) {
     	 Long idMiembroClub = Long.parseLong(idMiembroClubString);
          Optional<MiembroClubEntidad> miembroClubOpt = miembroClubInterfaz.findById(idMiembroClub);
         if (miembroClubOpt.isPresent()) {
             miembroClubInterfaz.delete(miembroClubOpt.get());
-            System.out.println("El miembro del club ha sido borrado con éxito");
+            // System.out.println("El miembro del club ha sido borrado con éxito");
             return true;
         } else {
-            System.out.println("El id del miembro del club no existe");
+            // System.out.println("El id del miembro del club no existe");
             return false;
         }
     }

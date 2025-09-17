@@ -19,40 +19,44 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 
 @Service
+/**
+ * Clase que se encarga del login
+ */
 public class LoginFuncionalidades {
 
     @Autowired
     private UsuarioInterfaz usuarioInterfaz;
+    
     @Autowired
     private ClubInterfaz clubInterfaz;
+    
     @Autowired
     private InstalacionInterfaz instalacionInterfaz;
    
     @Autowired
     private JwtFuncionalidades jwtUtil;
 
+    /**
+     * Método que verifica las credenciales del usuario, club o instalación.
+     * @param loginDto Objeto con el email y la contraseña introducidos
+     * @return Objeto RespuestaLoginDto si las credenciales son válidas, o null si no lo son
+     */
     public RespuestaLoginDto verificarCredenciales(LoginDto loginDto) {
-        // Buscar en Usuarios
+      
     	Optional<UsuarioEntidad> usuario = usuarioInterfaz.findByEmailUsuario(loginDto.getEmail());
     	if (usuario.isPresent() && Utilidades.verificarContrasena(loginDto.getPassword(), usuario.get().getPasswordUsuario())) {
     	    String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Usuario);
-
-    	    // Usamos el RolUsuario del UsuarioEntidad
-    	    String tipo = usuario.get().getRolUsuario() == RolUsuario.Administrador ? "administrador" : "jugador";
-    	    
+    	    String tipo = usuario.get().getRolUsuario() == RolUsuario.Administrador ? "administrador" : "jugador";   	    
     	    UsuarioDto usuarioDto = new UsuarioDto(usuario.get());
     	    return new RespuestaLoginDto(tipo, token, usuarioDto);
     	}
 
-
-        // Buscar en Clubes
         Optional<ClubEntidad> club = clubInterfaz.findByEmailClub(loginDto.getEmail());
         if (club.isPresent() && Utilidades.verificarContrasena(loginDto.getPassword(), club.get().getPasswordClub())) {
             String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Club);
             return new RespuestaLoginDto("club", token, club.get());
         }
 
-        // Buscar en Instalaciones
         Optional<InstalacionEntidad> instalacion = instalacionInterfaz.findByEmailInstalacion(loginDto.getEmail());
         if (instalacion.isPresent() && Utilidades.verificarContrasena(loginDto.getPassword(), instalacion.get().getPasswordInstalacion())) {
             String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Instalacion);

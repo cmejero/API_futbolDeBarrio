@@ -22,10 +22,10 @@ public class MiembroClubEntidad {
 
     @NotNull
     @Column(name = "fecha_alta_usuario", nullable = false)
-    private String fechaAltaUsuario; // Fecha en que el usuario se unió al club
+    private String fechaAltaUsuario; 
 
     @Column(name = "fecha_baja_usuario")
-    private String fechaBajaUsuario; // Fecha en que el usuario dejó de ser parte del club (si aplica)
+    private String fechaBajaUsuario; 
 
     @NotNull
     @ManyToOne
@@ -37,11 +37,11 @@ public class MiembroClubEntidad {
     @JoinColumn(name = "usuario_id", referencedColumnName = "id_usuario", nullable = false)
     private UsuarioEntidad usuario;
 
-    // Constructor por defecto
+    
     public MiembroClubEntidad() {
     }
 
-    // Getters y Setters
+   
 
     public long getIdMiembroClub() {
         return idMiembroClub;

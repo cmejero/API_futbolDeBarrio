@@ -14,105 +14,143 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
 
 @Service
+/**
+ * Clase que se encarga de la lógica de los metodos CRUD de torneo
+ */
 public class TorneoFuncionalidades {
 
-    @Autowired
-    private TorneoInterfaz torneoInterfaz;
+	@Autowired
+	private TorneoInterfaz torneoInterfaz;
 
-    @Autowired
-    private InstalacionInterfaz instalacionInterfaz;
-    
-   
-    // Método para mapear de entidad a DTO
-    public TorneoDto mapearATorneoDto(TorneoEntidad torneoEntidad) {
-        TorneoDto torneoDto = new TorneoDto();
-        torneoDto.setIdTorneo(torneoEntidad.getIdTorneo());
-        torneoDto.setNombreTorneo(torneoEntidad.getNombreTorneo());
-        torneoDto.setFechaInicioTorneo(torneoEntidad.getFechaInicioTorneo());
-        torneoDto.setFechaFinTorneo(torneoEntidad.getFechaFinTorneo());
-        torneoDto.setDescripcionTorneo(torneoEntidad.getDescripcionTorneo());
-        torneoDto.setModalidad(torneoEntidad.getModalidad());
-        torneoDto.setInstalacionId(torneoEntidad.getInstalacion().getIdInstalacion());
-        return torneoDto;
-    }
+	@Autowired
+	private InstalacionInterfaz instalacionInterfaz;
 
-    // Método para mapear de DTO a entidad
-    public TorneoEntidad mapearADtoAEntidad(TorneoDto torneoDto) {
-        TorneoEntidad torneoEntidad = new TorneoEntidad();
-        torneoEntidad.setIdTorneo(torneoDto.getIdTorneo());
-        torneoEntidad.setNombreTorneo(torneoDto.getNombreTorneo());
-        torneoEntidad.setFechaInicioTorneo(torneoDto.getFechaInicioTorneo());
-        torneoEntidad.setFechaFinTorneo(torneoDto.getFechaFinTorneo());
-        torneoEntidad.setDescripcionTorneo(torneoDto.getDescripcionTorneo());
-        torneoEntidad.setModalidad(torneoDto.getModalidad());
+	/**
+	 * Mapea una entidad TorneoEntidad a un DTO TorneoDto.
+	 * 
+	 * @param torneoEntidad la entidad del torneo
+	 * @return el DTO correspondiente al torneo
+	 */
+	public TorneoDto mapearATorneoDto(TorneoEntidad torneoEntidad) {
+		TorneoDto torneoDto = new TorneoDto();
+		torneoDto.setIdTorneo(torneoEntidad.getIdTorneo());
+		torneoDto.setNombreTorneo(torneoEntidad.getNombreTorneo());
+		torneoDto.setFechaInicioTorneo(torneoEntidad.getFechaInicioTorneo());
+		torneoDto.setFechaFinTorneo(torneoEntidad.getFechaFinTorneo());
+		torneoDto.setDescripcionTorneo(torneoEntidad.getDescripcionTorneo());
+		torneoDto.setClubesInscritos(torneoEntidad.getClubesInscritos());
+		torneoDto.setModalidad(torneoEntidad.getModalidad());
+		torneoDto.setEstaActivo(torneoEntidad.isEstaActivo());
+		torneoDto.setInstalacionId(torneoEntidad.getInstalacion().getIdInstalacion());
+		return torneoDto;
+	}
 
-        // Obtener la instalación por ID
-        Optional<InstalacionEntidad> instalacionOpt = instalacionInterfaz.findById(torneoDto.getInstalacionId());
-        instalacionOpt.ifPresent(torneoEntidad::setInstalacion);
+	/**
+	 * Mapea un DTO TorneoDto a una entidad TorneoEntidad.
+	 * 
+	 * @param torneoDto el DTO del torneo
+	 * @return la entidad correspondiente al torneo
+	 */
+	public TorneoEntidad mapearADtoAEntidad(TorneoDto torneoDto) {
+		TorneoEntidad torneoEntidad = new TorneoEntidad();
+		torneoEntidad.setIdTorneo(torneoDto.getIdTorneo());
+		torneoEntidad.setNombreTorneo(torneoDto.getNombreTorneo());
+		torneoEntidad.setFechaInicioTorneo(torneoDto.getFechaInicioTorneo());
+		torneoEntidad.setFechaFinTorneo(torneoDto.getFechaFinTorneo());
+		torneoEntidad.setDescripcionTorneo(torneoDto.getDescripcionTorneo());
+		torneoEntidad.setClubesInscritos(torneoDto.getClubesInscritos());
 
-        return torneoEntidad;
-    }
+		torneoEntidad.setModalidad(torneoDto.getModalidad());
+		torneoEntidad.setEstaActivo(torneoDto.isEstaActivo());
 
-    // Obtener todos los torneos
-    public List<TorneoDto> obtenerTodosLosTorneos() {
-        List<TorneoEntidad> torneosEntidad = torneoInterfaz.findAll();
-        return torneosEntidad.stream()
-                             .map(this::mapearATorneoDto)
-                             .collect(Collectors.toList());
-    }
+		Optional<InstalacionEntidad> instalacionOpt = instalacionInterfaz.findById(torneoDto.getInstalacionId());
+		instalacionOpt.ifPresent(torneoEntidad::setInstalacion);
 
-    // Obtener un torneo por ID
-    public List<TorneoDto> obtenerTorneosPorInstalacion(Long instalacionId) {
-        List<TorneoEntidad> torneosEntidad = torneoInterfaz.findByInstalacion_IdInstalacion(instalacionId);
-        return torneosEntidad.stream()
-                             .map(this::mapearATorneoDto)
-                             .collect(Collectors.toList());
-    }
+		return torneoEntidad;
+	}
 
+	/**
+	 * Obtiene una lista de todos los torneos.
+	 * 
+	 * @return la lista de todos los DTOs de torneos
+	 */
+	public List<TorneoDto> obtenerTodosLosTorneos() {
+		List<TorneoEntidad> torneosEntidad = torneoInterfaz.findAll();
+		return torneosEntidad.stream().map(this::mapearATorneoDto).collect(Collectors.toList());
+	}
 
-    // Guardar un nuevo torneo
-    public TorneoEntidad guardarTorneo(TorneoDto torneoDto) {
-        TorneoEntidad torneoEntidad = mapearADtoAEntidad(torneoDto);
-        return torneoInterfaz.save(torneoEntidad);
-    }
+	/**
+	 * Obtiene una lista de torneos por el ID de la instalación.
+	 * 
+	 * @param instalacionId el ID de la instalación
+	 * @return la lista de los DTOs de torneos asociados con la instalación
+	 */
+	public List<TorneoDto> obtenerTorneosPorInstalacion(Long instalacionId) {
+		List<TorneoEntidad> torneosEntidad = torneoInterfaz.findByInstalacion_IdInstalacion(instalacionId);
+		return torneosEntidad.stream().map(this::mapearATorneoDto).collect(Collectors.toList());
+	}
 
-    // Modificar un torneo existente
-    public boolean modificarTorneo(String id, TorneoDto torneoDto) {
-    	 Long idTorneo = Long.parseLong(id);
-        Optional<TorneoEntidad> torneoOpt = torneoInterfaz.findById(idTorneo);
+	/**
+	 * Guarda un nuevo torneo.
+	 * 
+	 * @param torneoDto el DTO del torneo a guardar
+	 * @return la entidad del torneo guardada
+	 */
+	public TorneoEntidad guardarTorneo(TorneoDto torneoDto) {
+		TorneoEntidad torneoEntidad = mapearADtoAEntidad(torneoDto);
+		return torneoInterfaz.save(torneoEntidad);
+	}
 
-        if (torneoOpt.isPresent()) {
-            TorneoEntidad torneoEntidad = torneoOpt.get();
-            torneoEntidad.setNombreTorneo(torneoDto.getNombreTorneo());
-            torneoEntidad.setFechaInicioTorneo(torneoDto.getFechaInicioTorneo());
-            torneoEntidad.setFechaFinTorneo(torneoDto.getFechaFinTorneo());
-            torneoEntidad.setDescripcionTorneo(torneoDto.getDescripcionTorneo());
-            torneoEntidad.setModalidad(torneoDto.getModalidad());
+	/**
+	 * Modifica un torneo existente.
+	 * 
+	 * @param id        el ID del torneo a modificar
+	 * @param torneoDto el DTO actualizado del torneo
+	 * @return true si la modificación fue exitosa, false en caso contrario
+	 */
+	public boolean modificarTorneo(String id, TorneoDto torneoDto) {
+		Long idTorneo = Long.parseLong(id);
+		Optional<TorneoEntidad> torneoOpt = torneoInterfaz.findById(idTorneo);
 
-            // Actualizar la instalación si es necesario
-            Optional<InstalacionEntidad> instalacionOpt = instalacionInterfaz.findById(torneoDto.getInstalacionId());
-            instalacionOpt.ifPresent(torneoEntidad::setInstalacion);
+		if (torneoOpt.isPresent()) {
+			TorneoEntidad torneoEntidad = torneoOpt.get();
+			torneoEntidad.setNombreTorneo(torneoDto.getNombreTorneo());
+			torneoEntidad.setFechaInicioTorneo(torneoDto.getFechaInicioTorneo());
+			torneoEntidad.setFechaFinTorneo(torneoDto.getFechaFinTorneo());
+			torneoEntidad.setDescripcionTorneo(torneoDto.getDescripcionTorneo());
+			torneoEntidad.setClubesInscritos(torneoDto.getClubesInscritos());
+			torneoEntidad.setModalidad(torneoDto.getModalidad());
+			torneoEntidad.setEstaActivo(torneoDto.isEstaActivo());
 
-            torneoInterfaz.save(torneoEntidad);
-            return true;
-        } else {
-            System.out.println("El ID proporcionado no existe");
-            return false;
-        }
-    }
+			// Actualizar la instalación si es necesario
+			Optional<InstalacionEntidad> instalacionOpt = instalacionInterfaz.findById(torneoDto.getInstalacionId());
+			instalacionOpt.ifPresent(torneoEntidad::setInstalacion);
 
-    // Borrar un torneo por ID
-    public boolean borrarTorneo(String idTorneoString) {
-    	  Long idTorneo = Long.parseLong(idTorneoString);
-        Optional<TorneoEntidad> torneoOpt = torneoInterfaz.findById(idTorneo);
+			torneoInterfaz.save(torneoEntidad);
+			return true;
+		} else {
+			// System.out.println("El ID proporcionado no existe");
+			return false;
+		}
+	}
 
-        if (torneoOpt.isPresent()) {
-            torneoInterfaz.delete(torneoOpt.get());
-            System.out.println("El torneo ha sido borrado con éxito");
-            return true;
-        } else {
-            System.out.println("El id del Torneo no existe");
-            return false;
-        }
-    }
+	/**
+	 * Borra un torneo por su ID.
+	 * 
+	 * @param idTorneoString el ID del torneo como cadena
+	 * @return true si el torneo fue borrado, false si el torneo no existe
+	 */
+	public boolean borrarTorneo(String idTorneoString) {
+		Long idTorneo = Long.parseLong(idTorneoString);
+		Optional<TorneoEntidad> torneoOpt = torneoInterfaz.findById(idTorneo);
+
+		if (torneoOpt.isPresent()) {
+			torneoInterfaz.delete(torneoOpt.get());
+			// System.out.println("El torneo ha sido borrado con éxito");
+			return true;
+		} else {
+			// System.out.println("El id del Torneo no existe");
+			return false;
+		}
+	}
 }

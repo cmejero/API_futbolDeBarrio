@@ -1,5 +1,8 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
+/**
+ * Clase que se encarga de los campos del login
+ */
 public class LoginDto {
 	 String email;
 	 String password;

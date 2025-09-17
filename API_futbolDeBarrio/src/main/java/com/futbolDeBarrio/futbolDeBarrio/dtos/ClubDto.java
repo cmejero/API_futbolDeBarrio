@@ -4,22 +4,51 @@ import java.util.Base64;
 
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+/**
+ * Clase que se encarga de los campos de club
+ */
 public class ClubDto {
 
-    private long idClub;
-    private String nombreClub;
-    private String abreviaturaClub;
-    private String descripcionClub;
-    private String fechaCreacionClub;
-    private String fechaFundacionClub;
-    private String localidadClub;
-    private String paisClub;
-    private String logoClub;
-    private String emailClub;
-    private String passwordClub;
-    private String telefonoClub;
+	   private long idClub;
 
-    // Constructor que recibe una entidad de Club
+	    @NotBlank(message = "El nombre del club es obligatorio") // Validación de campo no vacío
+	    private String nombreClub;
+
+	    @NotBlank(message = "La abreviatura del club es obligatoria") // Validación de campo no vacío
+	    private String abreviaturaClub;
+
+	    @NotBlank(message = "La descripción del club es obligatoria")
+	    private String descripcionClub;
+
+	    private String fechaCreacionClub;
+
+	    private String fechaFundacionClub;
+
+	    @NotBlank(message = "La localidad del club es obligatoria") 
+	    private String localidadClub;
+
+	    @NotBlank(message = "El país del club es obligatorio") 
+	    private String paisClub;
+
+	    private String logoClub;
+
+	    @Email(message = "El email debe tener un formato válido") 
+	    @NotBlank(message = "El email del club es obligatorio") 
+	    private String emailClub;
+
+	    @NotBlank(message = "La contraseña es obligatoria") 
+	    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres") 
+	    private String passwordClub;
+
+	    @Pattern(regexp = "^\\d{10}$", message = "El teléfono debe tener 10 dígitos") 
+	    private String telefonoClub;
+
+    
     public ClubDto(ClubEntidad clubEntidad) {
         this.idClub = clubEntidad.getIdClub();
         this.nombreClub = clubEntidad.getNombreClub();
@@ -37,7 +66,7 @@ public class ClubDto {
         this.telefonoClub = clubEntidad.getTelefonoClub();
     }
 
-    // Getters y Setters
+    
     public long getIdClub() {
         return idClub;
     }

@@ -7,21 +7,49 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Estado;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Modalidad;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+/**
+ * Clase que se encarga de los campos de instalacion
+ */
 public class InstalacionDto {
 
-    private long idInstalacion;
-    private String nombreInstalacion;
-    private String direccionInstalacion;
-    private String telefonoInstalacion;
-    private String emailInstalacion;
-    private Modalidad tipoCampo1;
-    private Modalidad tipoCampo2;
-    private Modalidad tipoCampo3;
-    private String serviciosInstalacion;
-    private Estado estadoInstalacion;
-    private String passwordInstalacion;
-    private String imagenInstalacion;
-    private List<Long> torneoIds;
+	 private long idInstalacion;
+
+	    @NotBlank(message = "El nombre de la instalación es obligatorio")
+	    private String nombreInstalacion;
+
+	    @NotBlank(message = "La dirección de la instalación es obligatoria")
+	    private String direccionInstalacion;
+
+	    @Pattern(regexp = "^\\d{10}$", message = "El teléfono debe tener 10 dígitos")
+	    private String telefonoInstalacion;
+
+	    @Email(message = "El email debe tener un formato válido")
+	    @NotBlank(message = "El email de la instalación es obligatorio")
+	    private String emailInstalacion;
+
+	    private Modalidad tipoCampo1;
+	    private Modalidad tipoCampo2;
+	    private Modalidad tipoCampo3;
+
+	    @NotBlank(message = "Los servicios de la instalación son obligatorios")
+	    private String serviciosInstalacion;
+
+	    private Estado estadoInstalacion;
+
+	    @NotBlank(message = "La contraseña es obligatoria")
+	    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
+	    private String passwordInstalacion;
+
+	    private String imagenInstalacion;
+
+	   
+	    private List<Long> torneoIds;
+
    
 
     // Constructor que recibe una entidad de Instalacion

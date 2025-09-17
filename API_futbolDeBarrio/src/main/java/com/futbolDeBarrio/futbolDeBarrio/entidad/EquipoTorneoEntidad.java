@@ -1,5 +1,12 @@
 package com.futbolDeBarrio.futbolDeBarrio.entidad;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.futbolDeBarrio.futbolDeBarrio.enums.EstadoParticipacion;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,11 +16,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-
-import java.util.Date;
-
-import com.futbolDeBarrio.futbolDeBarrio.enums.EstadoParticipacion;
 
 @Entity
 @Table(name = "equipo_torneo", schema = "sch")
@@ -25,10 +29,10 @@ public class EquipoTorneoEntidad {
     private long idEquipoTorneo;
 
     @Column(name = "fecha_inicio_participacion")
-    private Date fechaInicioParticipacion;
+    private String fechaInicioParticipacion;
 
     @Column(name = "fecha_fin_participacion")
-    private Date fechaFinParticipacion;
+    private String fechaFinParticipacion;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_participacion")
@@ -36,11 +40,22 @@ public class EquipoTorneoEntidad {
     
     @ManyToOne
     @JoinColumn(name = "torneo_id", referencedColumnName = "id_torneo", nullable = false)
+    @JsonBackReference
     private TorneoEntidad torneo;
 
     @ManyToOne
     @JoinColumn(name = "club_id", referencedColumnName = "id_club", nullable = false)
+    @JsonBackReference
     private ClubEntidad club;
+    
+    @OneToMany(mappedBy = "equipoLocal", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ActaPartidoEntidad> actasComoLocal = new ArrayList<>();
+
+    @OneToMany(mappedBy = "equipoVisitante", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ActaPartidoEntidad> actasComoVisitante = new ArrayList<>();
+
+    @OneToMany(mappedBy = "equipoTorneo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventoPartidoEntidad> eventoPartido = new ArrayList<>();
     
 	public long getIdEquipoTorneo() {
 		return idEquipoTorneo;
@@ -66,19 +81,19 @@ public class EquipoTorneoEntidad {
 		this.club = club;
 	}
 
-	public Date getFechaInicioParticipacion() {
+	public String getFechaInicioParticipacion() {
 		return fechaInicioParticipacion;
 	}
 
-	public void setFechaInicioParticipacion(Date fechaInicioParticipacion) {
+	public void setFechaInicioParticipacion(String fechaInicioParticipacion) {
 		this.fechaInicioParticipacion = fechaInicioParticipacion;
 	}
 
-	public Date getFechaFinParticipacion() {
+	public String getFechaFinParticipacion() {
 		return fechaFinParticipacion;
 	}
 
-	public void setFechaFinParticipacion(Date fechaFinParticipacion) {
+	public void setFechaFinParticipacion(String fechaFinParticipacion) {
 		this.fechaFinParticipacion = fechaFinParticipacion;
 	}
 
@@ -94,5 +109,30 @@ public class EquipoTorneoEntidad {
 
 	}
 
+	public List<ActaPartidoEntidad> getActasComoLocal() {
+		return actasComoLocal;
+	}
+
+	public void setActasComoLocal(List<ActaPartidoEntidad> actasComoLocal) {
+		this.actasComoLocal = actasComoLocal;
+	}
+
+	public List<ActaPartidoEntidad> getActasComoVisitante() {
+		return actasComoVisitante;
+	}
+
+	public void setActasComoVisitante(List<ActaPartidoEntidad> actasComoVisitante) {
+		this.actasComoVisitante = actasComoVisitante;
+	}
+
+	public List<EventoPartidoEntidad> getEventoPartido() {
+		return eventoPartido;
+	}
+
+	public void setEventoPartido(List<EventoPartidoEntidad> eventoPartido) {
+		this.eventoPartido = eventoPartido;
+	}
+
+	
     
 }

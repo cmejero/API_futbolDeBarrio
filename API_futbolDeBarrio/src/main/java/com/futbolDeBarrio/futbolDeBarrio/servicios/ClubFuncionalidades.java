@@ -14,19 +14,29 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 
 @Service
+/**
+ * Clase que se encarga de la lógica de los métodos CRUD relacionados con los clubes.
+ */
 public class ClubFuncionalidades {
 
 	@Autowired
 	ClubInterfaz clubInterfaz;
 
-
+	/**
+	 * Busca un club por su email.
+	 * 
+	 * @param email Email del club a buscar.
+	 * @return Optional con la entidad del club si existe.
+	 */
 	public Optional<ClubEntidad> buscarClubPorEmail(String email) {
 		return clubInterfaz.findByEmailClub(email);
 	}
 
-	
 	/**
-	 * Método que mapea de entidad a DTO
+	 * Mapea una entidad Club a un DTO ClubDto.
+	 * 
+	 * @param clubEntidad Entidad Club a mapear.
+	 * @return ClubDto correspondiente.
 	 */
 	public ClubDto mapearAClubDto(ClubEntidad clubEntidad) {
 		ClubDto clubDto = new ClubDto();
@@ -49,7 +59,10 @@ public class ClubFuncionalidades {
 	}
 
 	/**
-	 * Método que mapea de DTO a entidad
+	 * Mapea un DTO ClubDto a una entidad ClubEntidad.
+	 * 
+	 * @param clubDto DTO del club a mapear.
+	 * @return ClubEntidad correspondiente.
 	 */
 	public ClubEntidad mapearADtoAEntidad(ClubDto clubDto) {
 		ClubEntidad clubEntidad = new ClubEntidad();
@@ -72,7 +85,9 @@ public class ClubFuncionalidades {
 	}
 
 	/**
-	 * Método que obtiene la lista de clubes en DTO
+	 * Obtiene todos los clubes en formato DTO.
+	 * 
+	 * @return Lista de ClubDto.
 	 */
 	public List<ClubDto> obtenerClubesDto() {
 		List<ClubEntidad> clubesEntidad = (List<ClubEntidad>) clubInterfaz.findAll();
@@ -83,39 +98,43 @@ public class ClubFuncionalidades {
 		return clubesDto;
 	}
 
+	/**
+	 * Obtiene un ClubDto por su ID.
+	 * 
+	 * @param idClub ID del club.
+	 * @return ClubDto correspondiente o null si no existe.
+	 */
 	public ClubDto obtenerClubDtoPorId(Long idClub) {
-		ClubEntidad clubEntidad = clubInterfaz.findByIdClub(idClub);
+		ClubEntidad clubEntidad = clubInterfaz.findById(idClub).orElse(null);
 		return clubEntidad != null ? mapearAClubDto(clubEntidad) : null;
 	}
 
 	/**
-	 * Método para guardar un club en la base de datos, recibiendo un DTO
+	 * Guarda un nuevo club en la base de datos.
+	 * 
+	 * @param clubDto DTO del club a guardar.
+	 * @return ClubEntidad guardado.
+	 * @throws IllegalArgumentException si el email ya existe o la contraseña es inválida.
 	 */
-	public ClubEntidad guardarClub(ClubDto clubDto) {
-		// Verificamos si el email ya existe en la base de datos
+	public ClubEntidad guardarClub(ClubDto clubDto) {	
 		Optional<ClubEntidad> clubExistente = clubInterfaz.findByEmailClub(clubDto.getEmailClub());
 		if (clubExistente.isPresent()) {
-			// Lanzamos la excepción con el mensaje de error
 			throw new IllegalArgumentException("El email proporcionado ya está siendo utilizado por otro club.");
 		}
-
-		// Mapeamos el DTO a una entidad
 		ClubEntidad clubEntidad = mapearADtoAEntidad(clubDto);
-
-		// Verificamos que la contraseña no sea nula ni vacía
 		if (clubDto.getPasswordClub() == null || clubDto.getPasswordClub().isEmpty()) {
 			throw new IllegalArgumentException("La contraseña del club no puede ser nula o vacía.");
 		}
-
-		// Encriptamos la contraseña antes de guardar
 		clubEntidad.setPasswordClub(Utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
-
-		// Guardamos la entidad en la base de datos
 		return clubInterfaz.save(clubEntidad);
 	}
 
 	/**
-	 * Método que modifica un club en la base de datos
+	 * Modifica un club existente en la base de datos.
+	 * 
+	 * @param id ID del club como String.
+	 * @param clubDto DTO con los datos a modificar.
+	 * @return true si fue modificado correctamente, false en caso contrario.
 	 */
 	public boolean modificarClub(String id, ClubDto clubDto) {
 	    boolean esModificado = false;
@@ -123,10 +142,7 @@ public class ClubFuncionalidades {
 	        Long idClub = Long.parseLong(id);
 	        ClubEntidad club = clubInterfaz.findByIdClub(idClub);
 
-	        if (club == null) {
-	            System.out.println("El ID proporcionado no existe");
-	        } else {
-	            // Actualización de los demás campos
+	        if (club != null) {
 	            club.setNombreClub(clubDto.getNombreClub());
 	            club.setAbreviaturaClub(clubDto.getAbreviaturaClub());
 	            club.setDescripcionClub(clubDto.getDescripcionClub());
@@ -140,36 +156,28 @@ public class ClubFuncionalidades {
 	            }
 	            club.setEmailClub(clubDto.getEmailClub());
 	            club.setTelefonoClub(clubDto.getTelefonoClub());
-
-	            // Comprobamos si la contraseña es diferente y no vacía
 	            if (clubDto.getPasswordClub() != null && !clubDto.getPasswordClub().isEmpty()) {
-	                // Verificamos si la contraseña nueva es diferente de la actual (que está encriptada)
 	                if (!Utilidades.verificarContrasena(clubDto.getPasswordClub(), club.getPasswordClub())) {
-	                    // Solo encriptamos la nueva contraseña si es diferente
 	                    club.setPasswordClub(Utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
-	                } else {
-	                    // Si la contraseña es la misma, no se modifica
-	                    System.out.println("La contraseña ingresada coincide con la actual. No se modifica.");
 	                }
 	            }
-
-	            // Guardamos los cambios en la base de datos
 	            clubInterfaz.save(club);
 	            esModificado = true;
 	        }
 
 	    } catch (NumberFormatException nfe) {
-	        System.out.println("Error: El ID proporcionado no es válido. " + nfe.getMessage());
+	        // Error de formato del ID
 	    } catch (Exception e) {
-	        System.out.println("Se ha producido un error al modificar el club. " + e.getMessage());
+	        // Error general
 	    }
-
 	    return esModificado;
 	}
 
-
 	/**
-	 * Método que borra un club por su ID
+	 * Elimina un club por su ID.
+	 * 
+	 * @param idClubString ID del club en formato String.
+	 * @return true si se eliminó correctamente, false en caso contrario.
 	 */
 	public boolean borrarClub(String idClubString) {
 		boolean estaBorrado = false;
@@ -177,21 +185,15 @@ public class ClubFuncionalidades {
 			Long idClub = Long.parseLong(idClubString);
 			ClubEntidad clubEntidad = clubInterfaz.findByIdClub(idClub);
 
-			if (clubEntidad == null) {
-				estaBorrado = false;
-				System.out.println("El id del Club no existe");
-			} else {
+			if (clubEntidad != null) {
 				clubInterfaz.delete(clubEntidad);
 				estaBorrado = true;
-				System.out.println("El club " + clubEntidad.getNombreClub() + " ha sido borrado con éxito");
 			}
-
 		} catch (NumberFormatException nfe) {
-			System.out.println("Error: El ID proporcionado no es válido. " + nfe.getMessage());
+			// Error de formato
 		} catch (Exception e) {
-			System.out.println("Se ha producido un error al borrar el club. " + e.getMessage());
+			// Error general
 		}
-
 		return estaBorrado;
 	}
 }

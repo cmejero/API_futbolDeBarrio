@@ -58,17 +58,26 @@ public class UsuarioEntidad {
     @Column(name = "imagen_usuario")
     private  byte[] imagenUsuario;
 
-    @Enumerated(EnumType.STRING) // Enum mapeado como STRING
+    @Enumerated(EnumType.STRING) 
     @Column(name = "estado_usuario")
     private Estado estadoUsuario;
 
-    @Enumerated(EnumType.STRING) // Enum mapeado como STRING
+    @Enumerated(EnumType.STRING) 
     @Column(name = "rolUsuario")
     private RolUsuario rolUsuario;
     
     
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MiembroClubEntidad> miembroClub = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventoPartidoEntidad> eventoPartido = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "jugadorGlobalId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<JugadorEstadisticaGlobalEntidad> jugadorEstadisticaGlobal = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<JugadorEstadisticaTorneoEntidad> jugadorEstadisticaTorneo = new ArrayList<>();
 
 	public long getIdUsuario() {
 		return idUsuario;
@@ -169,5 +178,38 @@ public class UsuarioEntidad {
 	public UsuarioEntidad() {
 	}
 
+	public List<MiembroClubEntidad> getMiembroClub() {
+		return miembroClub;
+	}
+
+	public void setMiembroClub(List<MiembroClubEntidad> miembroClub) {
+		this.miembroClub = miembroClub;
+	}
+
+	public List<EventoPartidoEntidad> getEventoPartido() {
+		return eventoPartido;
+	}
+
+	public void setEventoPartido(List<EventoPartidoEntidad> eventoPartido) {
+		this.eventoPartido = eventoPartido;
+	}
+
+	public List<JugadorEstadisticaGlobalEntidad> getJugadorEstadisticaGlobal() {
+		return jugadorEstadisticaGlobal;
+	}
+
+	public void setJugadorEstadisticaGlobal(List<JugadorEstadisticaGlobalEntidad> jugadorEstadisticaGlobal) {
+		this.jugadorEstadisticaGlobal = jugadorEstadisticaGlobal;
+	}
+
+	public List<JugadorEstadisticaTorneoEntidad> getJugadorEstadisticaTorneo() {
+		return jugadorEstadisticaTorneo;
+	}
+
+	public void setJugadorEstadisticaTorneo(List<JugadorEstadisticaTorneoEntidad> jugadorEstadisticaTorneo) {
+		this.jugadorEstadisticaTorneo = jugadorEstadisticaTorneo;
+	}
+
+	
     
 }

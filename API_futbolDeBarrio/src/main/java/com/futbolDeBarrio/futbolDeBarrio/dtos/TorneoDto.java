@@ -1,95 +1,112 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
-import java.util.Base64;
-
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Modalidad;
 
+/**
+ * Clase que se encarga de los campos de torneo
+ */
 public class TorneoDto {
 
-    private long idTorneo;
-    private String nombreTorneo;
-    private String fechaInicioTorneo;
-    private String fechaFinTorneo;
-    private String descripcionTorneo;
-    private Modalidad modalidad;
-    private long instalacionId;
+	private long idTorneo;
+	private String nombreTorneo;
+	private String fechaInicioTorneo;
+	private String fechaFinTorneo;
+	private String descripcionTorneo;
+	private String clubesInscritos;
+	private Modalidad modalidad;
+	private boolean estaActivo;
+	private long instalacionId;
 
-    public TorneoDto(TorneoEntidad torneoEntidad) {
-        this.idTorneo = torneoEntidad.getIdTorneo();
-        this.nombreTorneo = torneoEntidad.getNombreTorneo();
-        this.fechaInicioTorneo = torneoEntidad.getFechaInicioTorneo();
-        this.fechaFinTorneo = torneoEntidad.getFechaFinTorneo();
-        this.descripcionTorneo = torneoEntidad.getDescripcionTorneo();
-        this.modalidad = torneoEntidad.getModalidad();
-        if (torneoEntidad.getInstalacion() != null) {
-            this.instalacionId = torneoEntidad.getInstalacion().getIdInstalacion();
-        }
-  
-    }
-    
-    
-    // Getters and Setters
-    public long getIdTorneo() {
-        return idTorneo;
-    }
+	public TorneoDto(TorneoEntidad torneoEntidad) {
+		this.idTorneo = torneoEntidad.getIdTorneo();
+		this.nombreTorneo = torneoEntidad.getNombreTorneo();
+		this.fechaInicioTorneo = torneoEntidad.getFechaInicioTorneo();
+		this.fechaFinTorneo = torneoEntidad.getFechaFinTorneo();
+		this.descripcionTorneo = torneoEntidad.getDescripcionTorneo();
+		this.clubesInscritos = torneoEntidad.getClubesInscritos();
+		this.modalidad = torneoEntidad.getModalidad();
+		this.estaActivo = torneoEntidad.isEstaActivo();
+		if (torneoEntidad.getInstalacion() != null) {
+			this.instalacionId = torneoEntidad.getInstalacion().getIdInstalacion();
+		}
 
-    public void setIdTorneo(long idTorneo) {
-        this.idTorneo = idTorneo;
-    }
+	}
 
-    public String getNombreTorneo() {
-        return nombreTorneo;
-    }
+	public long getIdTorneo() {
+		return idTorneo;
+	}
 
-    public void setNombreTorneo(String nombreTorneo) {
-        this.nombreTorneo = nombreTorneo;
-    }
+	public void setIdTorneo(long idTorneo) {
+		this.idTorneo = idTorneo;
+	}
 
-    public String getFechaInicioTorneo() {
-        return fechaInicioTorneo;
-    }
+	public String getNombreTorneo() {
+		return nombreTorneo;
+	}
 
-    public void setFechaInicioTorneo(String fechaInicioTorneo) {
-        this.fechaInicioTorneo = fechaInicioTorneo;
-    }
+	public void setNombreTorneo(String nombreTorneo) {
+		this.nombreTorneo = nombreTorneo;
+	}
 
-    public String getFechaFinTorneo() {
-        return fechaFinTorneo;
-    }
+	public String getFechaInicioTorneo() {
+		return fechaInicioTorneo;
+	}
 
-    public void setFechaFinTorneo(String fechaFinTorneo) {
-        this.fechaFinTorneo = fechaFinTorneo;
-    }
+	public void setFechaInicioTorneo(String fechaInicioTorneo) {
+		this.fechaInicioTorneo = fechaInicioTorneo;
+	}
 
-    public String getDescripcionTorneo() {
-        return descripcionTorneo;
-    }
+	public String getFechaFinTorneo() {
+		return fechaFinTorneo;
+	}
 
-    public void setDescripcionTorneo(String descripcionTorneo) {
-        this.descripcionTorneo = descripcionTorneo;
-    }
+	public void setFechaFinTorneo(String fechaFinTorneo) {
+		this.fechaFinTorneo = fechaFinTorneo;
+	}
 
-    public Modalidad getModalidad() {
-        return modalidad;
-    }
+	public String getDescripcionTorneo() {
+		return descripcionTorneo;
+	}
 
-    public void setModalidad(Modalidad modalidad) {
-        this.modalidad = modalidad;
-    }
+	public void setDescripcionTorneo(String descripcionTorneo) {
+		this.descripcionTorneo = descripcionTorneo;
+	}
 
-    public long getInstalacionId() {
-        return instalacionId;
-    }
+	public String getClubesInscritos() {
+		return clubesInscritos;
+	}
 
-    public void setInstalacionId(long instalacionId) {
-        this.instalacionId = instalacionId;
-    }
+	public void setClubesInscritos(String clubesInscritos) {
+		this.clubesInscritos = clubesInscritos;
+	}
 
+	public Modalidad getModalidad() {
+		return modalidad;
+	}
+
+	public void setModalidad(Modalidad modalidad) {
+		this.modalidad = modalidad;
+	}
+
+	public boolean isEstaActivo() {
+		return estaActivo;
+	}
+
+	public void setEstaActivo(boolean estaActivo) {
+		this.estaActivo = estaActivo;
+	}
+
+	public long getInstalacionId() {
+		return instalacionId;
+	}
+
+	public void setInstalacionId(long instalacionId) {
+		this.instalacionId = instalacionId;
+	}
 
 	public TorneoDto() {
 		super();
 	}
-    
-    
+
 }

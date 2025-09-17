@@ -22,14 +22,21 @@ public class UsuarioFuncionalidades {
     UsuarioInterfaz usuarioInterfaz;
     
 
-    
+    /**
+     * Método para buscar un usuario por su email.
+     * 
+     * @param email el email del usuario
+     * @return un Optional con el usuario encontrado
+     */
     public Optional<UsuarioEntidad> buscarUsuarioPorEmail(String email) {
         return usuarioInterfaz.findByEmailUsuario(email);
     }
-    // Otros métodos existentes...
-
+    
     /**
-     * Método que mapea de entidad a DTO
+     * Método que mapea de entidad a DTO.
+     * 
+     * @param usuarioEntidad la entidad del usuario
+     * @return el DTO correspondiente al usuario
      */
     public UsuarioDto mapearAUsuarioDto(UsuarioEntidad usuarioEntidad) {
         UsuarioDto usuarioDto = new UsuarioDto();
@@ -50,7 +57,10 @@ public class UsuarioFuncionalidades {
         return usuarioDto;
     }
     /**
-     * Método que mapea de DTO a entidad
+     * Método que mapea de DTO a entidad.
+     * 
+     * @param usuarioDto el DTO del usuario
+     * @return la entidad correspondiente al usuario
      */
     private UsuarioEntidad mapearADtoAEntidad(UsuarioDto usuarioDto) {
         UsuarioEntidad usuarioEntidad = new UsuarioEntidad();
@@ -72,7 +82,9 @@ public class UsuarioFuncionalidades {
     }
 
     /**
-     * Método que mapea una lista de entidades a DTOs
+     * Método que mapea una lista de entidades a DTOs.
+     * 
+     * @return la lista de DTOs de usuarios
      */
     public ArrayList<UsuarioDto> obtenerUsuariosDto() {
         ArrayList<UsuarioEntidad> usuariosEntidad = (ArrayList<UsuarioEntidad>) usuarioInterfaz.findAll();
@@ -83,39 +95,44 @@ public class UsuarioFuncionalidades {
         return usuariosDto;
     }
     
+    /**
+     * Método que obtiene un usuario por su ID.
+     * 
+     * @param idUsuario el ID del usuario
+     * @return el DTO del usuario o null si no se encuentra
+     */
     public UsuarioDto obtenerUsuarioDtoPorId(Long idUsuario) {
-        UsuarioEntidad usuarioEntidad = usuarioInterfaz.findByIdUsuario(idUsuario);
+        UsuarioEntidad usuarioEntidad = usuarioInterfaz.findById(idUsuario).orElse(null);
         return usuarioEntidad != null ? mapearAUsuarioDto(usuarioEntidad) : null;
     }
 
     /**
-     * Método para guardar un usuario a la base de datos, recibiendo un DTO
+     * Método para guardar un usuario en la base de datos, recibiendo un DTO.
+     * 
+     * @param usuarioDto el DTO del usuario
+     * @return la entidad del usuario guardada
      */
     public UsuarioEntidad guardarUsuario(UsuarioDto usuarioDto) {
-    	 System.out.println("Rol recibido: " + usuarioDto.getRolUsuario());
-    	    // Verificar si rolUsuario está nulo o inválido
+    	 // System.out.println("Rol recibido: " + usuarioDto.getRolUsuario());
     	    if (usuarioDto.getRolUsuario() == null) {
     	        throw new IllegalArgumentException("El rol del usuario es obligatorio.");
     	    }
-
-        // Verificar si el email ya existe en la base de datos
         Optional<UsuarioEntidad> usuarioExistente = buscarUsuarioPorEmail(usuarioDto.getEmailUsuario());
         if (usuarioExistente.isPresent()) {
-            // Lanzamos directamente la excepción con el mensaje
             throw new IllegalArgumentException("El email proporcionado ya está siendo utilizado por otro usuario.");
         }
-
-        // Resto del código para guardar el usuario
         UsuarioEntidad usuarioEntidad = mapearADtoAEntidad(usuarioDto);
         usuarioEntidad.setPasswordUsuario(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
         return usuarioInterfaz.save(usuarioEntidad);
     }
 
     /**
-     * Método que se encarga de modificar un usuario en la base de datos
+     * Método que se encarga de modificar un usuario en la base de datos.
+     * 
+     * @param id el ID del usuario a modificar
+     * @param usuarioDto el DTO con los nuevos datos del usuario
+     * @return true si el usuario fue modificado correctamente, false en caso contrario
      */
-   
-    
     public boolean modificarUsuario(String id, UsuarioDto usuarioDto) {
         boolean esModificado = false;
         try {
@@ -123,69 +140,63 @@ public class UsuarioFuncionalidades {
             UsuarioEntidad usuario = usuarioInterfaz.findByIdUsuario(idUsuario);
 
             if (usuario == null) {
-                System.out.println("El ID proporcionado no existe");
+                // El ID no existe, no hacemos nada
             } else {
-                // Mapeamos el DTO a entidad
                 usuario.setNombreCompletoUsuario(usuarioDto.getNombreCompletoUsuario());
                 usuario.setAliasUsuario(usuarioDto.getAliasUsuario());
                 usuario.setFechaNacimientoUsuario(usuarioDto.getFechaNacimientoUsuario());
                 usuario.setEmailUsuario(usuarioDto.getEmailUsuario());
                 usuario.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
+
                 if (usuarioDto.getPasswordUsuario() != null && !usuarioDto.getPasswordUsuario().isEmpty()) {
-                    // Si la contraseña se modificó, la encriptamos
-                    usuario.setPasswordUsuario((Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario())));
-                } else {
-                    // Si la contraseña no se modificó, no tocamos la contraseña encriptada actual
-                    System.out.println("La contraseña no ha sido modificada. Se mantiene la actual.");
-                }
+                    // Actualizar contraseña sólo si viene una nueva (encriptándola)
+                    usuario.setPasswordUsuario(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
+                } // sino dejamos la contraseña actual intacta
+
                 usuario.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
+
                 if (usuarioDto.getImagenUsuario() != null) {
                     byte[] imagenBytes = Base64.getDecoder().decode(usuarioDto.getImagenUsuario());
                     usuario.setImagenUsuario(imagenBytes);
+                }
+                
+                // Estado y rol siempre se actualizan aunque no haya imagen
                 usuario.setEstadoUsuario(usuarioDto.getEstadoUsuario());
                 usuario.setRolUsuario(usuarioDto.getRolUsuario());
-                }
-                // Guardamos la entidad modificada en la base de datos
+
                 usuarioInterfaz.save(usuario);
-                System.out.println("El usuario: " + usuario.getNombreCompletoUsuario() + " ha sido modificado.");
                 esModificado = true;
             }
-
         } catch (NumberFormatException nfe) {
-            System.out.println("Error: El ID proporcionado no es válido. " + nfe.getMessage());
+            // ID inválido
         } catch (Exception e) {
-            System.out.println("Se ha producido un error al modificar el usuario. " + e.getMessage());
-            e.printStackTrace(); // Imprime el stack trace para obtener más detalles del error
+            e.printStackTrace();
         }
-
         return esModificado;
     }
+
     
-    
-  
-   
     /**
-     * Método que borra un usuario por su ID
+     * Método que borra un usuario por su ID.
+     * 
+     * @param idUsuarioString el ID del usuario como cadena
+     * @return true si el usuario fue borrado correctamente, false en caso contrario
      */
     public boolean borrarUsuario(String idUsuarioString) {
         boolean estaBorrado = false;
         try {
             Long idUsuario = Long.parseLong(idUsuarioString);
-            UsuarioEntidad usuarioDto = usuarioInterfaz.findByIdUsuario(idUsuario);
+            UsuarioEntidad usuarioEntidad = usuarioInterfaz.findByIdUsuario(idUsuario);
 
-            if (usuarioDto == null) {
+            if (usuarioEntidad == null) {
                 estaBorrado = false;
-                System.out.println("El id del Usuario no existe");
+
             } else {
-                usuarioInterfaz.delete(usuarioDto);
-                estaBorrado = true;
-                System.out.println("El usuario " + usuarioDto.getNombreCompletoUsuario() + " ha sido borrado con éxito");
-            }
+                usuarioInterfaz.delete(usuarioEntidad);
+                estaBorrado = true;            }
 
         } catch (NumberFormatException nfe) {
-            System.out.println("Error: El ID proporcionado no es válido. " + nfe.getMessage());
         } catch (Exception e) {
-            System.out.println("Se ha producido un error al borrar el usuario. " + e.getMessage());
         }
 
         return estaBorrado;

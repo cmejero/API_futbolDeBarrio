@@ -1,18 +1,31 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
-import java.util.Date;
-
+import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.enums.EstadoParticipacion;
 
+/**
+ * Clase que se encarga de los campos de Equipo Torneo
+ */
 public class EquipoTorneoDto {
 
     private long idEquipoTorneo;
-    private Date fechaInicioParticipacion;
-    private Date fechaFinParticipacion;
+    private String fechaInicioParticipacion;
+    private String fechaFinParticipacion;
     private EstadoParticipacion estadoParticipacion;
     private long torneoId;  
     private long clubId;    
 
+    
+    public EquipoTorneoDto(EquipoTorneoEntidad equipoTorneoEntidad) {
+        this.idEquipoTorneo = equipoTorneoEntidad.getIdEquipoTorneo();
+        this.fechaInicioParticipacion = equipoTorneoEntidad.getFechaInicioParticipacion();
+        this.fechaFinParticipacion = equipoTorneoEntidad.getFechaFinParticipacion();
+        this.estadoParticipacion = equipoTorneoEntidad.getEstadoParticipacion();
+        this.torneoId = equipoTorneoEntidad.getTorneo().getIdTorneo();
+        this.clubId = equipoTorneoEntidad.getClub().getIdClub();
+    }
+    
+    
     // Getters and Setters
     public long getIdEquipoTorneo() {
         return idEquipoTorneo;
@@ -22,19 +35,19 @@ public class EquipoTorneoDto {
         this.idEquipoTorneo = idEquipoTorneo;
     }
 
-    public Date getFechaInicioParticipacion() {
+    public String getFechaInicioParticipacion() {
         return fechaInicioParticipacion;
     }
 
-    public void setFechaInicioParticipacion(Date fechaInicioParticipacion) {
+    public void setFechaInicioParticipacion(String fechaInicioParticipacion) {
         this.fechaInicioParticipacion = fechaInicioParticipacion;
     }
 
-    public Date getFechaFinParticipacion() {
+    public String getFechaFinParticipacion() {
         return fechaFinParticipacion;
     }
 
-    public void setFechaFinParticipacion(Date fechaFinParticipacion) {
+    public void setFechaFinParticipacion(String fechaFinParticipacion) {
         this.fechaFinParticipacion = fechaFinParticipacion;
     }
 
@@ -61,4 +74,11 @@ public class EquipoTorneoDto {
     public void setClubId(long clubId) {
         this.clubId = clubId;
     }
+
+
+	public EquipoTorneoDto() {
+		super();
+	}
+    
+    
 }

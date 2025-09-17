@@ -74,6 +74,11 @@ public class InstalacionEntidad {
                      .map(TorneoEntidad::getIdTorneo)
                      .collect(Collectors.toList());
     }
+    
+    @OneToMany(mappedBy = "instalacion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ActaPartidoEntidad> actasPartidos = new ArrayList<>();
+
 
     // Getters y Setters
     public long getIdInstalacion() {
@@ -181,4 +186,14 @@ public class InstalacionEntidad {
     public void setTorneo(List<TorneoEntidad> torneo) {
         this.torneo = torneo;
     }
+
+	public List<ActaPartidoEntidad> getActasPartidos() {
+		return actasPartidos;
+	}
+
+	public void setActasPartidos(List<ActaPartidoEntidad> actasPartidos) {
+		this.actasPartidos = actasPartidos;
+	}
+    
+    
 }

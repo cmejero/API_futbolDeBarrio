@@ -2,6 +2,9 @@ package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
 import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 
+/**
+ * Clase que se encarga de los campos de miembro club
+ */
 public class MiembroClubDto {
 
     private long idMiembroClub;

@@ -24,107 +24,161 @@ import jakarta.validation.constraints.NotNull;
 @Table(name = "torneo", schema = "sch")
 public class TorneoEntidad {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_torneo")
-    private long idTorneo;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_torneo")
+	private long idTorneo;
 
-    @NotNull
-    @Column(name = "nombre_torneo")
-    private String nombreTorneo;
+	@NotNull
+	@Column(name = "nombre_torneo")
+	private String nombreTorneo;
 
-    @NotNull
-    @Column(name = "fecha_inicio_torneo")
-    private String fechaInicioTorneo;
+	@NotNull
+	@Column(name = "fecha_inicio_torneo")
+	private String fechaInicioTorneo;
 
-    @NotNull
-    @Column(name = "fecha_fin_torneo")
-    private String fechaFinTorneo;
+	@NotNull
+	@Column(name = "fecha_fin_torneo")
+	private String fechaFinTorneo;
 
-    @Column(name = "descripcion_torneo")
-    private String descripcionTorneo;
+	@Column(name = "descripcion_torneo")
+	private String descripcionTorneo;
 
-    @NotNull
-    @Column(name = "modalidad")
-    @Enumerated(EnumType.STRING)
-    private Modalidad modalidad;  // Usando el Enum para modalidad
+	@Column(name = "clubesInscritos")
+	private String clubesInscritos;
 
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name = "instalacion_id", referencedColumnName = "id_instalacion", nullable = false)
-    @JsonBackReference
-    private InstalacionEntidad instalacion;
-    
-    @OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EquipoTorneoEntidad> equipoTorneo = new ArrayList<>();
+	@NotNull
+	@Column(name = "modalidad")
+	@Enumerated(EnumType.STRING)
+	private Modalidad modalidad;
+	
+	@Column(name = "esta_activo")
+	private boolean estaActivo;
 
-    // Constructor por defecto
-    public TorneoEntidad() {
-    }
+	@NotNull
+	@ManyToOne
+	@JoinColumn(name = "instalacion_id", referencedColumnName = "id_instalacion", nullable = false)
+	@JsonBackReference
+	private InstalacionEntidad instalacion;
 
-    // Getters y Setters
+	@OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<EquipoTorneoEntidad> equipoTorneo = new ArrayList<>();
 
-    public long getIdTorneo() {
-        return idTorneo;
-    }
+	@OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ActaPartidoEntidad> actasPartidos = new ArrayList<>();
 
-    public void setIdTorneo(long idTorneo) {
-        this.idTorneo = idTorneo;
-    }
+	@OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ClubEstadisticaTorneoEntidad> clubEstadisticaTorneo = new ArrayList<>();
 
-    public String getNombreTorneo() {
-        return nombreTorneo;
-    }
+	@OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<JugadorEstadisticaTorneoEntidad> jugadorEstadisticaTorneo = new ArrayList<>();
 
-    public void setNombreTorneo(String nombreTorneo) {
-        this.nombreTorneo = nombreTorneo;
-    }
+	public TorneoEntidad() {
+	}
 
-    public String getFechaInicioTorneo() {
-        return fechaInicioTorneo;
-    }
+	public long getIdTorneo() {
+		return idTorneo;
+	}
 
-    public void setFechaInicioTorneo(String fechaInicioTorneo) {
-        this.fechaInicioTorneo = fechaInicioTorneo;
-    }
+	public void setIdTorneo(long idTorneo) {
+		this.idTorneo = idTorneo;
+	}
 
-    public String getFechaFinTorneo() {
-        return fechaFinTorneo;
-    }
+	public String getNombreTorneo() {
+		return nombreTorneo;
+	}
 
-    public void setFechaFinTorneo(String fechaFinTorneo) {
-        this.fechaFinTorneo = fechaFinTorneo;
-    }
+	public void setNombreTorneo(String nombreTorneo) {
+		this.nombreTorneo = nombreTorneo;
+	}
 
-    public String getDescripcionTorneo() {
-        return descripcionTorneo;
-    }
+	public String getFechaInicioTorneo() {
+		return fechaInicioTorneo;
+	}
 
-    public void setDescripcionTorneo(String descripcionTorneo) {
-        this.descripcionTorneo = descripcionTorneo;
-    }
+	public void setFechaInicioTorneo(String fechaInicioTorneo) {
+		this.fechaInicioTorneo = fechaInicioTorneo;
+	}
 
-    public Modalidad getModalidad() {
-        return modalidad;
-    }
+	public String getFechaFinTorneo() {
+		return fechaFinTorneo;
+	}
 
-    public void setModalidad(Modalidad modalidad) {
-        this.modalidad = modalidad;
-    }
+	public void setFechaFinTorneo(String fechaFinTorneo) {
+		this.fechaFinTorneo = fechaFinTorneo;
+	}
 
-    public InstalacionEntidad getInstalacion() {
-        return instalacion;
-    }
+	public String getDescripcionTorneo() {
+		return descripcionTorneo;
+	}
 
-    public void setInstalacion(InstalacionEntidad instalacion) {
-        this.instalacion = instalacion;
-    }
-    
-    public List<EquipoTorneoEntidad> getEquipoTorneo() {
-        return equipoTorneo;
-    }
+	public void setDescripcionTorneo(String descripcionTorneo) {
+		this.descripcionTorneo = descripcionTorneo;
+	}
 
-    public void setEquipoTorneo(List<EquipoTorneoEntidad> equipoTorneo) {
-        this.equipoTorneo = equipoTorneo;
-    }
+	public String getClubesInscritos() {
+		return clubesInscritos;
+	}
+
+	public void setClubesInscritos(String clubesInscritos) {
+		this.clubesInscritos = clubesInscritos;
+	}
+
+	public Modalidad getModalidad() {
+		return modalidad;
+	}
+
+	public void setModalidad(Modalidad modalidad) {
+		this.modalidad = modalidad;
+	}
+	
+
+	public boolean isEstaActivo() {
+		return estaActivo;
+	}
+
+	public void setEstaActivo(boolean estaActivo) {
+		this.estaActivo = estaActivo;
+	}
+
+	public InstalacionEntidad getInstalacion() {
+		return instalacion;
+	}
+
+	public void setInstalacion(InstalacionEntidad instalacion) {
+		this.instalacion = instalacion;
+	}
+
+	public List<EquipoTorneoEntidad> getEquipoTorneo() {
+		return equipoTorneo;
+	}
+
+	public void setEquipoTorneo(List<EquipoTorneoEntidad> equipoTorneo) {
+		this.equipoTorneo = equipoTorneo;
+	}
+
+	public List<ActaPartidoEntidad> getActasPartidos() {
+		return actasPartidos;
+	}
+
+	public void setActasPartidos(List<ActaPartidoEntidad> actasPartidos) {
+		this.actasPartidos = actasPartidos;
+	}
+
+	public List<ClubEstadisticaTorneoEntidad> getClubEstadisticaTorneo() {
+		return clubEstadisticaTorneo;
+	}
+
+	public void setClubEstadisticaTorneo(List<ClubEstadisticaTorneoEntidad> clubEstadisticaTorneo) {
+		this.clubEstadisticaTorneo = clubEstadisticaTorneo;
+	}
+
+	public List<JugadorEstadisticaTorneoEntidad> getJugadorEstadisticaTorneo() {
+		return jugadorEstadisticaTorneo;
+	}
+
+	public void setJugadorEstadisticaTorneo(List<JugadorEstadisticaTorneoEntidad> jugadorEstadisticaTorneo) {
+		this.jugadorEstadisticaTorneo = jugadorEstadisticaTorneo;
+	}
+
 }

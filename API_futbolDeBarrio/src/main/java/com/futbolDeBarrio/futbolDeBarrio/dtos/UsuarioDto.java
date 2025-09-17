@@ -6,20 +6,49 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Estado;
 import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+/**
+ * Clase que se encarga de los campos de usuario
+ */
 public class UsuarioDto {
 
-	long idUsuario;
-	String nombreCompletoUsuario ="aaaaa";
-	String aliasUsuario = "aaaaa";
-	String fechaNacimientoUsuario;
-	String emailUsuario = "aaaaa";
-	String telefonoUsuario ="aaaaa";
-	String passwordUsuario = "aaaaa";
-	RolUsuario rolUsuario;
-	String descripcionUsuario ="aaaaaa";
-	String imagenUsuario;
-	Estado estadoUsuario;
-	
+	   private long idUsuario;
+
+	    @NotBlank(message = "El nombre completo es obligatorio.")
+	    @Size(max = 50, message = "El nombre completo no puede exceder los 50 caracteres.")
+	    private String nombreCompletoUsuario;
+
+	    @NotBlank(message = "El alias es obligatorio.")
+	    @Size(max = 30, message = "El alias no puede exceder los 30 caracteres.")
+	    private String aliasUsuario;
+
+	    @NotBlank(message = "La fecha de nacimiento es obligatoria.")
+	    private String fechaNacimientoUsuario;
+
+	    @Email(message = "El correo electrónico debe ser válido.")
+	    @NotBlank(message = "El correo electrónico es obligatorio.")
+	    private String emailUsuario;
+
+	    @Pattern(regexp = "^\\+?[0-9]{9,15}$", message = "El teléfono debe tener entre 9 y 15 dígitos y puede empezar con +.")
+	    private String telefonoUsuario;
+
+	    @NotBlank(message = "La contraseña es obligatoria.")
+	    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres.")
+	    private String passwordUsuario;
+
+	    private RolUsuario rolUsuario;
+
+	    @Size(max = 500, message = "La descripción no puede exceder los 500 caracteres.")
+	    private String descripcionUsuario;
+
+	    private String imagenUsuario;
+
+	    private Estado estadoUsuario;
+
 	
 	
 	
