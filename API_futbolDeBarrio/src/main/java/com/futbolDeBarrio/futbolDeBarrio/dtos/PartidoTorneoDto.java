@@ -1,5 +1,7 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
+import java.util.List;
+
 import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
 
 /**
@@ -7,19 +9,29 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
  */
 public class PartidoTorneoDto {
 
-    private Long idPartidoTorneo;
-    private Long torneoId;
-    private Long instalacionId;
-    private Long clubLocalId;
-    private Long clubVisitanteId;
-    private Long equipoLocalId;
-    private Long equipoVisitanteId;
-    private Long actaPartidoId;
-    private int golesLocal;
-    private int golesVisitante;
-    private String fechaPartido;
-    private String ronda;
-    private String estado;
+	  private Long idPartidoTorneo;
+	    private Long torneoId;
+	    private Long instalacionId;
+	    private Long clubLocalId;
+	    private Long clubVisitanteId;
+	    private Long equipoLocalId;
+	    private Long equipoVisitanteId;
+	    private Long actaPartidoId;            
+	    private String clubLocalNombre;
+	    private String clubVisitanteNombre;
+	    private String clubLocalAbreviatura;
+	    private String clubVisitanteAbreviatura;
+	    private int golesLocal;
+	    private int golesVisitante;
+	    private String fechaPartido;      
+	    private String ronda;
+	    private String estado;
+	    private int ubicacionRonda;
+	    private String nombreTorneo;
+	    private String nombreInstalacion;
+	    private List<String> jugadoresLocal;
+	    private List<String> jugadoresVisitante;
+  
 
     public PartidoTorneoDto(PartidoTorneoEntidad entidad) {
         this.idPartidoTorneo = entidad.getIdPartidoTorneo();
@@ -35,6 +47,7 @@ public class PartidoTorneoDto {
         this.fechaPartido = entidad.getFechaPartido();
         this.ronda = entidad.getRonda();
         this.estado = entidad.getEstado();
+        this.ubicacionRonda = entidad.getUbicacionRonda();
        
     }
 
@@ -105,6 +118,38 @@ public class PartidoTorneoDto {
 	public void setEquipoVisitanteId(Long equipoVisitanteId) {
 		this.equipoVisitanteId = equipoVisitanteId;
 	}
+	
+	public String getClubLocalNombre() {
+		return clubLocalNombre;
+	}
+
+	public void setClubLocalNombre(String clubLocalNombre) {
+		this.clubLocalNombre = clubLocalNombre;
+	}
+
+	public String getClubVisitanteNombre() {
+		return clubVisitanteNombre;
+	}
+
+	public void setClubVisitanteNombre(String clubVisitanteNombre) {
+		this.clubVisitanteNombre = clubVisitanteNombre;
+	}
+
+	public String getClubLocalAbreviatura() {
+		return clubLocalAbreviatura;
+	}
+
+	public void setClubLocalAbreviatura(String clubLocalAbreviatura) {
+		this.clubLocalAbreviatura = clubLocalAbreviatura;
+	}
+
+	public String getClubVisitanteAbreviatura() {
+		return clubVisitanteAbreviatura;
+	}
+
+	public void setClubVisitanteAbreviatura(String clubVisitanteAbreviatura) {
+		this.clubVisitanteAbreviatura = clubVisitanteAbreviatura;
+	}
 
 	public int getGolesLocal() {
 		return golesLocal;
@@ -144,6 +189,46 @@ public class PartidoTorneoDto {
 
 	public void setEstado(String estado) {
 		this.estado = estado;
+	}
+
+	public int getUbicacionRonda() {
+		return ubicacionRonda;
+	}
+
+	public void setUbicacionRonda(int ubicacionRonda) {
+		this.ubicacionRonda = ubicacionRonda;
+	}
+
+	public String getNombreTorneo() {
+		return nombreTorneo;
+	}
+
+	public void setNombreTorneo(String nombreTorneo) {
+		this.nombreTorneo = nombreTorneo;
+	}
+
+	public String getNombreInstalacion() {
+		return nombreInstalacion;
+	}
+
+	public void setNombreInstalacion(String nombreInstalacion) {
+		this.nombreInstalacion = nombreInstalacion;
+	}
+
+	public List<String> getJugadoresLocal() {
+		return jugadoresLocal;
+	}
+
+	public void setJugadoresLocal(List<String> jugadoresLocal) {
+		this.jugadoresLocal = jugadoresLocal;
+	}
+
+	public List<String> getJugadoresVisitante() {
+		return jugadoresVisitante;
+	}
+
+	public void setJugadoresVisitante(List<String> jugadoresVisitante) {
+		this.jugadoresVisitante = jugadoresVisitante;
 	}
 
    

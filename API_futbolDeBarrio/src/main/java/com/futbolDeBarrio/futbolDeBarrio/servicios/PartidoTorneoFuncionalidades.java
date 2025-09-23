@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +14,7 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ActaPartidoInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.EquipoTorneoInterfaz;
@@ -40,6 +40,8 @@ public class PartidoTorneoFuncionalidades {
 	private ClubInterfaz clubInterfaz;
 	@Autowired
 	private InstalacionInterfaz instalacionInterfaz;
+	@Autowired
+	private MiembroClubFuncionalidades miembroClubFuncionalidades;
 
 	/**
 	 * Mapea una entidad PartidoTorneoEntidad a un DTO PartidoTorneoDto.
@@ -57,11 +59,25 @@ public class PartidoTorneoFuncionalidades {
 		dto.setClubVisitanteId(entidad.getClubVisitante().getIdClub());
 		dto.setEquipoLocalId(entidad.getEquipoLocal().getIdEquipoTorneo());
 		dto.setEquipoVisitanteId(entidad.getEquipoVisitante().getIdEquipoTorneo());
+		dto.setClubLocalNombre(entidad.getClubLocal().getNombreClub());
+		dto.setClubVisitanteNombre(entidad.getClubVisitante().getNombreClub());
+		dto.setClubLocalAbreviatura(entidad.getClubLocal().getAbreviaturaClub());
+		dto.setClubVisitanteAbreviatura(entidad.getClubVisitante().getAbreviaturaClub());
 		dto.setGolesLocal(entidad.getGolesLocal());
 		dto.setGolesVisitante(entidad.getGolesVisitante());
 		dto.setFechaPartido(entidad.getFechaPartido());
 		dto.setRonda(entidad.getRonda());
 		dto.setEstado(entidad.getEstado());
+		dto.setUbicacionRonda(entidad.getUbicacionRonda());
+	    dto.setNombreTorneo(entidad.getTorneo().getNombreTorneo());
+	    dto.setNombreInstalacion(entidad.getInstalacion().getNombreInstalacion());
+		dto.setJugadoresLocal(miembroClubFuncionalidades
+				.obtenerMiembrosPorClub(entidad.getClubLocal().getIdClub()).stream()
+				.map(miembro -> miembro.getUsuario().getNombreCompletoUsuario()).collect(Collectors.toList()));
+
+		dto.setJugadoresVisitante(miembroClubFuncionalidades
+				.obtenerMiembrosPorClub(entidad.getClubVisitante().getIdClub()).stream()
+				.map(miembro -> miembro.getUsuario().getNombreCompletoUsuario()).collect(Collectors.toList()));
 
 		if (entidad.getActaPartido() != null) {
 			dto.setActaPartidoId(entidad.getActaPartido().getIdActaPartido());
@@ -114,6 +130,7 @@ public class PartidoTorneoFuncionalidades {
 		entidad.setFechaPartido(dto.getFechaPartido());
 		entidad.setRonda(dto.getRonda());
 		entidad.setEstado(dto.getEstado());
+		entidad.setUbicacionRonda(dto.getUbicacionRonda());
 		entidad.setInstalacion(instalacionInterfaz.findById(dto.getInstalacionId()).orElseThrow(
 				() -> new IllegalArgumentException("La instalación con ID " + dto.getInstalacionId() + " no existe")));
 
@@ -219,6 +236,7 @@ public class PartidoTorneoFuncionalidades {
 	    entidad.setFechaPartido(dto.getFechaPartido());
 	    entidad.setRonda(dto.getRonda());
 	    entidad.setEstado(dto.getEstado());
+	    entidad.setUbicacionRonda(dto.getUbicacionRonda());
 
 	    return partidoTorneoInterfaz.save(entidad);
 	}

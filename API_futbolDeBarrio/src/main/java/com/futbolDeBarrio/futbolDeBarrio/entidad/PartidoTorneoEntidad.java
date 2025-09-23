@@ -47,7 +47,7 @@ public class PartidoTorneoEntidad {
     @OneToOne(mappedBy = "partidoTorneo", cascade = CascadeType.ALL, orphanRemoval = true, optional = true)
     private ActaPartidoEntidad actaPartido;
 
-
+    
     @Column(name = "goles_local")
     private int golesLocal;
 
@@ -62,6 +62,9 @@ public class PartidoTorneoEntidad {
 
     @Column(name = "estado", nullable = false)
     private String estado; // PENDIENTE, JUGADO, CERRADO
+    
+    @Column(name = "ubicacion_ronda")
+    private int ubicacionRonda;
 
     // Getters y setters
 
@@ -167,6 +170,14 @@ public class PartidoTorneoEntidad {
 
 	public void setActaPartido(ActaPartidoEntidad actaPartido) {
 		this.actaPartido = actaPartido;
+	}
+
+	public int getUbicacionRonda() {
+		return ubicacionRonda;
+	}
+
+	public void setUbicacionRonda(int ubicacionRonda) {
+		this.ubicacionRonda = ubicacionRonda;
 	}
     
     

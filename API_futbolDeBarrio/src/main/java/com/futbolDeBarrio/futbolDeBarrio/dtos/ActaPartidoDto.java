@@ -21,12 +21,12 @@ public class ActaPartidoDto {
 	private Long partidoTorneoId;
 	private int golesLocal;
 	private int golesVisitante;
+	private int golesPenaltisLocal;
+	private int golesPenaltisVisitante;
 	private LocalDateTime fechaPartido;
 	private String observaciones;
 	private boolean cerrado;
 	private List<EventoPartidoDto> eventos;
-
-	
 
 	public ActaPartidoDto(ActaPartidoEntidad actaPartidoEntidad) {
 
@@ -40,14 +40,13 @@ public class ActaPartidoDto {
 		this.partidoTorneoId = actaPartidoEntidad.getPartidoTorneo().getIdPartidoTorneo();
 		this.golesLocal = actaPartidoEntidad.getGolesLocal();
 		this.golesVisitante = actaPartidoEntidad.getGolesVisitante();
+		this.golesPenaltisLocal = actaPartidoEntidad.getGolesPenaltisLocal();
+		this.golesPenaltisVisitante = actaPartidoEntidad.getGolesPenaltisVisitante();
 		this.fechaPartido = actaPartidoEntidad.getFechaPartido();
-		this.observaciones= actaPartidoEntidad.getObservaciones();
+		this.observaciones = actaPartidoEntidad.getObservaciones();
 		this.cerrado = actaPartidoEntidad.estaCerrado();
-		this.eventos = actaPartidoEntidad.getEventoPartido()
-                .stream()
-                .map(EventoPartidoDto::new)
-                .collect(Collectors.toList());
-
+		this.eventos = actaPartidoEntidad.getEventoPartido().stream().map(EventoPartidoDto::new)
+				.collect(Collectors.toList());
 
 	}
 
@@ -66,7 +65,7 @@ public class ActaPartidoDto {
 	public void setTorneoId(Long torneoId) {
 		this.torneoId = torneoId;
 	}
-	
+
 	public Long getInstalacionId() {
 		return instalacionId;
 	}
@@ -90,8 +89,6 @@ public class ActaPartidoDto {
 	public void setClubVisitanteId(Long clubVisitanteId) {
 		this.clubVisitanteId = clubVisitanteId;
 	}
-	
-	
 
 	public Long getPartidoTorneoId() {
 		return partidoTorneoId;
@@ -133,6 +130,22 @@ public class ActaPartidoDto {
 		this.golesVisitante = golesVisitante;
 	}
 
+	public int getGolesPenaltisLocal() {
+		return golesPenaltisLocal;
+	}
+
+	public void setGolesPenaltisLocal(int golesPenaltisLocal) {
+		this.golesPenaltisLocal = golesPenaltisLocal;
+	}
+
+	public int getGolesPenaltisVisitante() {
+		return golesPenaltisVisitante;
+	}
+
+	public void setGolesPenaltisVisitante(int golesPenaltisVisitante) {
+		this.golesPenaltisVisitante = golesPenaltisVisitante;
+	}
+
 	public LocalDateTime getFechaPartido() {
 		return fechaPartido;
 	}
@@ -141,7 +154,6 @@ public class ActaPartidoDto {
 		this.fechaPartido = fechaPartido;
 	}
 
-	
 	public String getObservaciones() {
 		return observaciones;
 	}

@@ -20,59 +20,62 @@ import jakarta.persistence.Table;
 @Table(name = "acta_partido", schema = "sch")
 public class ActaPartidoEntidad {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_acta_partido")
-    private Long idActaPartido;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_acta_partido")
+	private Long idActaPartido;
 
-    @ManyToOne
-    @JoinColumn(name = "torneo_id", referencedColumnName = "id_torneo", nullable = false)
-    private TorneoEntidad torneo;
-    
-    @ManyToOne
-    @JoinColumn(name = "instalacion_id", referencedColumnName = "id_instalacion", nullable = false)
-    private InstalacionEntidad instalacion;
+	@ManyToOne
+	@JoinColumn(name = "torneo_id", referencedColumnName = "id_torneo", nullable = false)
+	private TorneoEntidad torneo;
 
-    @ManyToOne
-    @JoinColumn(name = "club_local_id", referencedColumnName = "id_club", nullable = false)
-    private ClubEntidad clubLocal;
+	@ManyToOne
+	@JoinColumn(name = "instalacion_id", referencedColumnName = "id_instalacion", nullable = false)
+	private InstalacionEntidad instalacion;
 
-    @ManyToOne
-    @JoinColumn(name = "club_visitante_id", referencedColumnName = "id_club", nullable = false)
-    private ClubEntidad clubVisitante;
+	@ManyToOne
+	@JoinColumn(name = "club_local_id", referencedColumnName = "id_club", nullable = false)
+	private ClubEntidad clubLocal;
 
-  
-    @ManyToOne
-    @JoinColumn(name = "equipo_local_id", referencedColumnName = "id_equipo_torneo", nullable = false)
-    private EquipoTorneoEntidad equipoLocal;
+	@ManyToOne
+	@JoinColumn(name = "club_visitante_id", referencedColumnName = "id_club", nullable = false)
+	private ClubEntidad clubVisitante;
 
-    @ManyToOne
-    @JoinColumn(name = "equipo_visitante_id", referencedColumnName = "id_equipo_torneo", nullable = false)
-    private EquipoTorneoEntidad equipoVisitante;
-    
-    @OneToOne
-    @JoinColumn(name = "partido_torneo_id", nullable = true)
-    private PartidoTorneoEntidad partidoTorneo;
+	@ManyToOne
+	@JoinColumn(name = "equipo_local_id", referencedColumnName = "id_equipo_torneo", nullable = false)
+	private EquipoTorneoEntidad equipoLocal;
 
+	@ManyToOne
+	@JoinColumn(name = "equipo_visitante_id", referencedColumnName = "id_equipo_torneo", nullable = false)
+	private EquipoTorneoEntidad equipoVisitante;
 
-    @Column(name = "goles_local")
-    private int golesLocal;
+	@OneToOne
+	@JoinColumn(name = "partido_torneo_id", nullable = true)
+	private PartidoTorneoEntidad partidoTorneo;
 
-    @Column(name = "goles_visitante")
-    private int golesVisitante;
+	@Column(name = "goles_local")
+	private int golesLocal;
 
-    @Column(name = "fecha_partido")
-    private LocalDateTime fechaPartido;
-    
-    @Column(name = "observaciones")
-    private String observaciones;
+	@Column(name = "goles_visitante")
+	private int golesVisitante;
 
-    @Column(name = "cerrado")
-    private boolean cerrado;
+	@Column(name = "goles_penaltis_local")
+	private int golesPenaltisLocal;
 
+	@Column(name = "goles_penaltis_visitante")
+	private int golesPenaltisVisitante;
 
-    @OneToMany(mappedBy = "actaPartido", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EventoPartidoEntidad> eventoPartido = new ArrayList<>();
+	@Column(name = "fecha_partido")
+	private LocalDateTime fechaPartido;
+
+	@Column(name = "observaciones")
+	private String observaciones;
+
+	@Column(name = "cerrado")
+	private boolean cerrado;
+
+	@OneToMany(mappedBy = "actaPartido", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<EventoPartidoEntidad> eventoPartido = new ArrayList<>();
 
 	public Long getIdActaPartido() {
 		return idActaPartido;
@@ -89,7 +92,7 @@ public class ActaPartidoEntidad {
 	public void setTorneo(TorneoEntidad torneo) {
 		this.torneo = torneo;
 	}
-	
+
 	public InstalacionEntidad getInstalacion() {
 		return instalacion;
 	}
@@ -97,7 +100,6 @@ public class ActaPartidoEntidad {
 	public void setInstalacion(InstalacionEntidad instalacion) {
 		this.instalacion = instalacion;
 	}
-
 
 	public ClubEntidad getClubLocal() {
 		return clubLocal;
@@ -114,7 +116,6 @@ public class ActaPartidoEntidad {
 	public void setClubVisitante(ClubEntidad clubVisitante) {
 		this.clubVisitante = clubVisitante;
 	}
-	
 
 	public PartidoTorneoEntidad getPartidoTorneo() {
 		return partidoTorneo;
@@ -156,6 +157,22 @@ public class ActaPartidoEntidad {
 		this.golesVisitante = golesVisitante;
 	}
 
+	public int getGolesPenaltisLocal() {
+		return golesPenaltisLocal;
+	}
+
+	public void setGolesPenaltisLocal(int golesPenaltisLocal) {
+		this.golesPenaltisLocal = golesPenaltisLocal;
+	}
+
+	public int getGolesPenaltisVisitante() {
+		return golesPenaltisVisitante;
+	}
+
+	public void setGolesPenaltisVisitante(int golesPenaltisVisitante) {
+		this.golesPenaltisVisitante = golesPenaltisVisitante;
+	}
+
 	public LocalDateTime getFechaPartido() {
 		return fechaPartido;
 	}
@@ -163,7 +180,6 @@ public class ActaPartidoEntidad {
 	public void setFechaPartido(LocalDateTime fechaPartido) {
 		this.fechaPartido = fechaPartido;
 	}
-	
 
 	public String getObservaciones() {
 		return observaciones;
@@ -181,7 +197,6 @@ public class ActaPartidoEntidad {
 		this.cerrado = cerrado;
 	}
 
-
 	public List<EventoPartidoEntidad> getEventoPartido() {
 		return eventoPartido;
 	}
@@ -193,11 +208,5 @@ public class ActaPartidoEntidad {
 	public boolean isCerrado() {
 		return cerrado;
 	}
-    
-    
 
-	    
-	}
-
-
-
+}
