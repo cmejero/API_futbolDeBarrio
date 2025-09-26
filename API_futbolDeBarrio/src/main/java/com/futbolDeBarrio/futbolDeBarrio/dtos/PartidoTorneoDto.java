@@ -29,8 +29,8 @@ public class PartidoTorneoDto {
 	    private int ubicacionRonda;
 	    private String nombreTorneo;
 	    private String nombreInstalacion;
-	    private List<String> jugadoresLocal;
-	    private List<String> jugadoresVisitante;
+	    private List<UsuarioDto> jugadoresLocal;
+	    private List<UsuarioDto> jugadoresVisitante;
   
 
     public PartidoTorneoDto(PartidoTorneoEntidad entidad) {
@@ -215,19 +215,19 @@ public class PartidoTorneoDto {
 		this.nombreInstalacion = nombreInstalacion;
 	}
 
-	public List<String> getJugadoresLocal() {
+	public List<UsuarioDto> getJugadoresLocal() {
 		return jugadoresLocal;
 	}
 
-	public void setJugadoresLocal(List<String> jugadoresLocal) {
+	public void setJugadoresLocal(List<UsuarioDto> jugadoresLocal) {
 		this.jugadoresLocal = jugadoresLocal;
 	}
 
-	public List<String> getJugadoresVisitante() {
+	public List<UsuarioDto> getJugadoresVisitante() {
 		return jugadoresVisitante;
 	}
 
-	public void setJugadoresVisitante(List<String> jugadoresVisitante) {
+	public void setJugadoresVisitante(List<UsuarioDto> jugadoresVisitante) {
 		this.jugadoresVisitante = jugadoresVisitante;
 	}
 

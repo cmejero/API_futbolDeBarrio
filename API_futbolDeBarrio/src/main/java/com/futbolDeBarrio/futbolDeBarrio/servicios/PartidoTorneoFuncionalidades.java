@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.PartidoTorneoDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ActaPartidoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
@@ -50,41 +51,59 @@ public class PartidoTorneoFuncionalidades {
 	 * @return el DTO correspondiente al partido.
 	 */
 	public PartidoTorneoDto mapearAPartidoTorneoDto(PartidoTorneoEntidad entidad) {
-		PartidoTorneoDto dto = new PartidoTorneoDto();
+	    PartidoTorneoDto dto = new PartidoTorneoDto();
 
-		dto.setIdPartidoTorneo(entidad.getIdPartidoTorneo());
-		dto.setTorneoId(entidad.getTorneo().getIdTorneo());
-		dto.setInstalacionId(entidad.getInstalacion().getIdInstalacion());
-		dto.setClubLocalId(entidad.getClubLocal().getIdClub());
-		dto.setClubVisitanteId(entidad.getClubVisitante().getIdClub());
-		dto.setEquipoLocalId(entidad.getEquipoLocal().getIdEquipoTorneo());
-		dto.setEquipoVisitanteId(entidad.getEquipoVisitante().getIdEquipoTorneo());
-		dto.setClubLocalNombre(entidad.getClubLocal().getNombreClub());
-		dto.setClubVisitanteNombre(entidad.getClubVisitante().getNombreClub());
-		dto.setClubLocalAbreviatura(entidad.getClubLocal().getAbreviaturaClub());
-		dto.setClubVisitanteAbreviatura(entidad.getClubVisitante().getAbreviaturaClub());
-		dto.setGolesLocal(entidad.getGolesLocal());
-		dto.setGolesVisitante(entidad.getGolesVisitante());
-		dto.setFechaPartido(entidad.getFechaPartido());
-		dto.setRonda(entidad.getRonda());
-		dto.setEstado(entidad.getEstado());
-		dto.setUbicacionRonda(entidad.getUbicacionRonda());
+	    dto.setIdPartidoTorneo(entidad.getIdPartidoTorneo());
+	    dto.setTorneoId(entidad.getTorneo().getIdTorneo());
+	    dto.setInstalacionId(entidad.getInstalacion().getIdInstalacion());
+	    dto.setClubLocalId(entidad.getClubLocal().getIdClub());
+	    dto.setClubVisitanteId(entidad.getClubVisitante().getIdClub());
+	    dto.setEquipoLocalId(entidad.getEquipoLocal().getIdEquipoTorneo());
+	    dto.setEquipoVisitanteId(entidad.getEquipoVisitante().getIdEquipoTorneo());
+	    dto.setClubLocalNombre(entidad.getClubLocal().getNombreClub());
+	    dto.setClubVisitanteNombre(entidad.getClubVisitante().getNombreClub());
+	    dto.setClubLocalAbreviatura(entidad.getClubLocal().getAbreviaturaClub());
+	    dto.setClubVisitanteAbreviatura(entidad.getClubVisitante().getAbreviaturaClub());
+	    dto.setGolesLocal(entidad.getGolesLocal());
+	    dto.setGolesVisitante(entidad.getGolesVisitante());
+	    dto.setFechaPartido(entidad.getFechaPartido());
+	    dto.setRonda(entidad.getRonda());
+	    dto.setEstado(entidad.getEstado());
+	    dto.setUbicacionRonda(entidad.getUbicacionRonda());
 	    dto.setNombreTorneo(entidad.getTorneo().getNombreTorneo());
 	    dto.setNombreInstalacion(entidad.getInstalacion().getNombreInstalacion());
-		dto.setJugadoresLocal(miembroClubFuncionalidades
-				.obtenerMiembrosPorClub(entidad.getClubLocal().getIdClub()).stream()
-				.map(miembro -> miembro.getUsuario().getNombreCompletoUsuario()).collect(Collectors.toList()));
 
-		dto.setJugadoresVisitante(miembroClubFuncionalidades
-				.obtenerMiembrosPorClub(entidad.getClubVisitante().getIdClub()).stream()
-				.map(miembro -> miembro.getUsuario().getNombreCompletoUsuario()).collect(Collectors.toList()));
+	    dto.setJugadoresLocal(
+	        miembroClubFuncionalidades.obtenerMiembrosPorClub(entidad.getClubLocal().getIdClub())
+	            .stream()
+	            .map(miembro -> {
+	                UsuarioDto jugador = new UsuarioDto();
+	                jugador.setIdUsuario(miembro.getUsuarioId());
+	                jugador.setNombreCompletoUsuario(miembro.getUsuario().getNombreCompletoUsuario());
+	                return jugador;
+	            })
+	            .collect(Collectors.toList())
+	    );
 
-		if (entidad.getActaPartido() != null) {
-			dto.setActaPartidoId(entidad.getActaPartido().getIdActaPartido());
-		}
+	    dto.setJugadoresVisitante(
+	        miembroClubFuncionalidades.obtenerMiembrosPorClub(entidad.getClubVisitante().getIdClub())
+	            .stream()
+	            .map(miembro -> {
+	                UsuarioDto jugador = new UsuarioDto();
+	                jugador.setIdUsuario(miembro.getUsuarioId());
+	                jugador.setNombreCompletoUsuario(miembro.getUsuario().getNombreCompletoUsuario());
+	                return jugador;
+	            })
+	            .collect(Collectors.toList())
+	    );
 
-		return dto;
+	    if (entidad.getActaPartido() != null) {
+	        dto.setActaPartidoId(entidad.getActaPartido().getIdActaPartido());
+	    }
+
+	    return dto;
 	}
+
 
 	/**
 	 * Mapea un DTO PartidoTorneoDto a una entidad PartidoTorneoEntidad.

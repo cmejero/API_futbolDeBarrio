@@ -1,6 +1,5 @@
 package com.futbolDeBarrio.futbolDeBarrio.entidad;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,8 +64,12 @@ public class ActaPartidoEntidad {
 	@Column(name = "goles_penaltis_visitante")
 	private int golesPenaltisVisitante;
 
+	@ManyToOne
+	@JoinColumn(name = "club_ganador_id", referencedColumnName = "id_club")
+	private ClubEntidad clubGanador;
+
 	@Column(name = "fecha_partido")
-	private LocalDateTime fechaPartido;
+	private String fechaPartido;
 
 	@Column(name = "observaciones")
 	private String observaciones;
@@ -173,11 +176,19 @@ public class ActaPartidoEntidad {
 		this.golesPenaltisVisitante = golesPenaltisVisitante;
 	}
 
-	public LocalDateTime getFechaPartido() {
+	public ClubEntidad getClubGanador() {
+		return clubGanador;
+	}
+
+	public void setEquipoGanador(ClubEntidad equipoGanador) {
+		this.clubGanador = equipoGanador;
+	}
+
+	public String getFechaPartido() {
 		return fechaPartido;
 	}
 
-	public void setFechaPartido(LocalDateTime fechaPartido) {
+	public void setFechaPartido(String fechaPartido) {
 		this.fechaPartido = fechaPartido;
 	}
 
