@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Estado;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Modalidad;
@@ -67,6 +68,7 @@ public class InstalacionEntidad {
 
     @OneToMany(mappedBy = "instalacion", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
+    @JsonIgnore
     private List<TorneoEntidad> torneo = new ArrayList<>();
 
     public List<Long> getTorneoIds() {
@@ -77,6 +79,7 @@ public class InstalacionEntidad {
     
     @OneToMany(mappedBy = "instalacion", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
+    @JsonIgnore
     private List<ActaPartidoEntidad> actasPartidos = new ArrayList<>();
 
 

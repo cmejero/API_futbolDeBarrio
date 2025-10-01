@@ -37,6 +37,13 @@ public class JugadorEstadisticaGlobalEntidad {
     @Column(name = "partidos_jugados_global")
     private int partidosJugadosGlobal;
 
+	@Column(name = "partidos_ganados_global")
+	private int partidosGanadosGlobal;
+
+	@Column(name = "partidos_perdidos_global")
+	private int partidosPerdidosGlobal;
+    
+
     @Column(name = "minutos_jugados_global")
     private int minutosJugadosGlobal;
 
@@ -96,12 +103,34 @@ public class JugadorEstadisticaGlobalEntidad {
 		this.partidosJugadosGlobal = partidosJugadosGlobal;
 	}
 
+	
+	
+	public int getPartidosGanadosGlobal() {
+		return partidosGanadosGlobal;
+	}
+
+	public void setPartidosGanadosGlobal(int partidosGanadosGlobal) {
+		this.partidosGanadosGlobal = partidosGanadosGlobal;
+	}
+
+	public int getPartidosPerdidosGlobal() {
+		return partidosPerdidosGlobal;
+	}
+
+	public void setPartidosPerdidosGlobal(int partidosPerdidosGlobal) {
+		this.partidosPerdidosGlobal = partidosPerdidosGlobal;
+	}
+
 	public int getMinutosJugadosGlobal() {
 		return minutosJugadosGlobal;
 	}
 
 	public void setMinutosJugadosGlobal(int minutosJugadosGlobal) {
 		this.minutosJugadosGlobal = minutosJugadosGlobal;
+	}
+
+	public JugadorEstadisticaGlobalEntidad() {
+		super();
 	}
 
     

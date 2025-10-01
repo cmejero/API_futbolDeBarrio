@@ -119,6 +119,10 @@ public class ClubEstadisticaTorneoEntidad {
 	        this.golesContra = golesContra;
 	    }
 
+		public ClubEstadisticaTorneoEntidad() {
+			super();
+		}
+
 	
 	}
 

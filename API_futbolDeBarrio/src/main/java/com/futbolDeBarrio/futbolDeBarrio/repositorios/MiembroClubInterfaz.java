@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 
 /**
@@ -46,4 +47,17 @@ public interface MiembroClubInterfaz extends JpaRepository<MiembroClubEntidad, L
      * @return Optional que puede contener el miembro si existe.
      */
     Optional<MiembroClubEntidad> findByUsuario_IdUsuarioAndClub_IdClub(Long usuarioId, Long clubId);
+    
+    
+    /**
+     * Obtiene todos los miembros activos de un club específico.
+     * 
+     * @param clubId ID del club del cual se quieren obtener los miembros activos.
+     * @return Lista de entidades {@link MiembroClubEntidad} que representan
+     *         a los miembros activos del club.
+     */
+    List<MiembroClubEntidad> findByClubAndFechaBajaUsuarioIsNull(ClubEntidad  clubId);
+
+    
+
 }

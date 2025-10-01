@@ -104,6 +104,10 @@ public class ClubEstadisticaGlobalEntidad {
 		this.golesContraGlobal = golesContraGlobal;
 	}
 
+	public ClubEstadisticaGlobalEntidad() {
+		super();
+	}
+
    
 }
 

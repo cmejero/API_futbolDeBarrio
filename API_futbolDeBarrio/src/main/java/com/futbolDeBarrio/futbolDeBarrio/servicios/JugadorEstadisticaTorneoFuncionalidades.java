@@ -1,7 +1,6 @@
 package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,8 +8,6 @@ import org.springframework.stereotype.Service;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.JugadorEstadisticaTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.JugadorEstadisticaTorneoInterfaz;
-import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
-import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
 
 
 /**
@@ -20,11 +17,6 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
 @Service
 public class JugadorEstadisticaTorneoFuncionalidades {
 
-    @Autowired
-    private UsuarioInterfaz usuarioInterfaz;
-
-    @Autowired
-    private TorneoInterfaz torneoInterfaz;
 
     @Autowired
     private JugadorEstadisticaTorneoInterfaz jugadorEstadisticaTorneoInterfaz;
@@ -73,38 +65,5 @@ public class JugadorEstadisticaTorneoFuncionalidades {
         return listaDto;
     }
 
-    /**
-     * Actualiza las estadísticas de un jugador en un torneo a partir de un evento de partido.
-     * Si no existe la estadística del jugador en el torneo, se crea una nueva.
-     * 
-     * @param dto DTO con los datos a actualizar: goles, asistencias, tarjetas, minutos y partidos.
-     */
-    public void actualizarEstadisticasDesdeEvento(JugadorEstadisticaTorneoDto dto) {
-        Optional<JugadorEstadisticaTorneoEntidad> entidadOpt =
-                jugadorEstadisticaTorneoInterfaz.findByJugadorIdUsuarioAndTorneoIdTorneo(dto.getJugadorId(), dto.getTorneoId());
-
-        JugadorEstadisticaTorneoEntidad entidad;
-        if (entidadOpt.isPresent()) {
-            entidad = entidadOpt.get();
-            entidad.setGolesTorneo(entidad.getGolesTorneo() + dto.getGolesTorneo());
-            entidad.setAsistenciasTorneo(entidad.getAsistenciasTorneo() + dto.getAsistenciasTorneo());
-            entidad.setAmarillasTorneo(entidad.getAmarillasTorneo() + dto.getAmarillasTorneo());
-            entidad.setRojasTorneo(entidad.getRojasTorneo() + dto.getRojasTorneo());
-            entidad.setPartidosJugadosTorneo(entidad.getPartidosJugadosTorneo() + dto.getPartidosJugadosTorneo());
-            entidad.setMinutosJugadosTorneo(entidad.getMinutosJugadosTorneo() + dto.getMinutosJugadosTorneo());
-        } else {
-            entidad = new JugadorEstadisticaTorneoEntidad();
-            entidad.setJugador(usuarioInterfaz.findById(dto.getJugadorId())
-                .orElseThrow(() -> new IllegalArgumentException("Jugador no encontrado")));
-            entidad.setTorneo(torneoInterfaz.findById(dto.getTorneoId())
-                .orElseThrow(() -> new IllegalArgumentException("Torneo no encontrado")));
-            entidad.setGolesTorneo(dto.getGolesTorneo());
-            entidad.setAsistenciasTorneo(dto.getAsistenciasTorneo());
-            entidad.setAmarillasTorneo(dto.getAmarillasTorneo());
-            entidad.setRojasTorneo(dto.getRojasTorneo());
-            entidad.setPartidosJugadosTorneo(dto.getPartidosJugadosTorneo());
-            entidad.setMinutosJugadosTorneo(dto.getMinutosJugadosTorneo());
-        }
-        jugadorEstadisticaTorneoInterfaz.save(entidad);
-    }
+  
 }

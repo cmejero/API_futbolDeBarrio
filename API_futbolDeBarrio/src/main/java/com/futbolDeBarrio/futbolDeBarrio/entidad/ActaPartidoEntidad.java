@@ -180,8 +180,8 @@ public class ActaPartidoEntidad {
 		return clubGanador;
 	}
 
-	public void setEquipoGanador(ClubEntidad equipoGanador) {
-		this.clubGanador = equipoGanador;
+	public void setClubGanador(ClubEntidad clubGanador) {
+		this.clubGanador = clubGanador;
 	}
 
 	public String getFechaPartido() {

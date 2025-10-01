@@ -18,11 +18,7 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
 @Service
 public class ClubEstadisticaTorneoFuncionalidades {
 
-    @Autowired
-    private ClubInterfaz clubInterfaz;
 
-    @Autowired
-    private TorneoInterfaz torneoInterfaz;
 
     @Autowired
     private ClubEstadisticaTorneoInterfaz clubEstadisticaTorneoInterfaz;
@@ -61,38 +57,5 @@ public class ClubEstadisticaTorneoFuncionalidades {
         return listaDto;
     }
 
-    /**
-     * Actualiza las estadísticas de un club en un torneo a partir de un evento de partido.
-     * Si no existe la estadística del club en el torneo, se crea una nueva.
-     * 
-     * @param dto DTO con los datos a actualizar: goles, partidos, victorias, empates, derrotas.
-     */
-    public void actualizarEstadisticasDesdeEvento(ClubEstadisticaTorneoDto dto) {
-        Optional<ClubEstadisticaTorneoEntidad> entidadOpt =
-                clubEstadisticaTorneoInterfaz.findByClub_IdClubAndTorneo_IdTorneo(dto.getClubId(), dto.getTorneoId());
-
-        ClubEstadisticaTorneoEntidad entidad;
-        if (entidadOpt.isPresent()) {
-            entidad = entidadOpt.get();
-            entidad.setPartidosJugados(entidad.getPartidosJugados() + dto.getPartidosJugados());
-            entidad.setGanados(entidad.getGanados() + dto.getGanados());
-            entidad.setEmpatados(entidad.getEmpatados() + dto.getEmpatados());
-            entidad.setPerdidos(entidad.getPerdidos() + dto.getPerdidos());
-            entidad.setGolesFavor(entidad.getGolesFavor() + dto.getGolesFavor());
-            entidad.setGolesContra(entidad.getGolesContra() + dto.getGolesContra());
-        } else {
-            entidad = new ClubEstadisticaTorneoEntidad();
-            entidad.setClub(clubInterfaz.findById(dto.getClubId())
-                    .orElseThrow(() -> new IllegalArgumentException("Club no encontrado")));
-            entidad.setTorneo(torneoInterfaz.findById(dto.getTorneoId())
-                    .orElseThrow(() -> new IllegalArgumentException("Torneo no encontrado")));
-            entidad.setPartidosJugados(dto.getPartidosJugados());
-            entidad.setGanados(dto.getGanados());
-            entidad.setEmpatados(dto.getEmpatados());
-            entidad.setPerdidos(dto.getPerdidos());
-            entidad.setGolesFavor(dto.getGolesFavor());
-            entidad.setGolesContra(dto.getGolesContra());
-        }
-        clubEstadisticaTorneoInterfaz.save(entidad);
-    }
+    
 }

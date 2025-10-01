@@ -30,5 +30,7 @@ public interface JugadorEstadisticaGlobalInterfaz extends JpaRepository<JugadorE
 	 *         o {@link Optional#empty()} si no se encuentra.
 	 */
 	Optional<JugadorEstadisticaGlobalEntidad> findByJugadorGlobalId_IdUsuario(Long idUsuario);
+	
+	
 
 }

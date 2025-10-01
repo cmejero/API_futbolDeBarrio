@@ -1,7 +1,6 @@
-package com.futbolDeBarrio.futbolDeBarrio.servicios;
-
-import java.util.ArrayList;
-import java.util.List;
+	package com.futbolDeBarrio.futbolDeBarrio.servicios;
+	
+	import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -11,259 +10,251 @@ import org.springframework.stereotype.Service;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ActaPartidoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.EventoPartidoDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ActaPartidoEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EventoPartidoEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ActaPartidoInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.EquipoTorneoInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.PartidoTorneoInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
-
-@Service
-/**
- * * Clase que se encarga de la lógica de los metodos CRUD de Acta de partido
- */
-public class ActaPartidoFuncionalidades {
-
-	@Autowired
-	private EquipoTorneoInterfaz equipoTorneoInterfaz;
-	@Autowired
-	private TorneoInterfaz torneoInterfaz;
-	@Autowired
-	private ClubInterfaz clubInterfaz;
-	@Autowired
-	private InstalacionInterfaz instalacionInterfaz;
-	@Autowired
-	private ActaPartidoInterfaz actaPartidoInterfaz;
-	@Autowired
-	private PartidoTorneoInterfaz partidoTorneoInterfaz;
-	@Autowired
-	private EventoPartidoFuncionalidades eventoPartidoFuncionalidades;
-
-
+	
+	@Service
 	/**
-	 * Mapea una entidad ActaPartidoEntidad a un DTO ActaPartidoDto.
-	 * 
-	 * @param ActaPartidoEntidad la entidad del acta del partido
-	 * @return el DTO correspondiente al acta del partido
+	 * * Clase que se encarga de la lógica de los metodos CRUD de Acta de partido
 	 */
-	public ActaPartidoDto mapearAActaPartidoDto(ActaPartidoEntidad actaPartidoEntidad) {
-
-		ActaPartidoDto actaPartidoDto = new ActaPartidoDto();
-		actaPartidoDto.setIdActaPartido(actaPartidoEntidad.getIdActaPartido());
-		actaPartidoDto.setTorneoId(actaPartidoEntidad.getTorneo().getIdTorneo());
-		actaPartidoDto.setInstalacionId(actaPartidoEntidad.getInstalacion().getIdInstalacion());
-		actaPartidoDto.setClubLocalId(actaPartidoEntidad.getClubLocal().getIdClub());
-		actaPartidoDto.setClubVisitanteId(actaPartidoEntidad.getClubVisitante().getIdClub());
-		actaPartidoDto.setEquipoLocalId(actaPartidoEntidad.getEquipoLocal().getIdEquipoTorneo());
-		actaPartidoDto.setEquipoVisitanteId(actaPartidoEntidad.getEquipoVisitante().getIdEquipoTorneo());
-		actaPartidoDto.setPartidoTorneoId(actaPartidoEntidad.getPartidoTorneo().getIdPartidoTorneo());
-		actaPartidoDto.setGolesLocal(actaPartidoEntidad.getGolesLocal());
-		actaPartidoDto.setGolesVisitante(actaPartidoEntidad.getGolesVisitante());
-		actaPartidoDto.setGolesPenaltisLocal(actaPartidoEntidad.getGolesPenaltisLocal());
-		actaPartidoDto.setGolesPenaltisVisitante(actaPartidoEntidad.getGolesPenaltisVisitante());
-		actaPartidoDto.setClubGanadorId(actaPartidoEntidad.getClubGanador().getIdClub());
-		actaPartidoDto.setFechaPartido(actaPartidoEntidad.getFechaPartido());
-		actaPartidoDto.setObservaciones(actaPartidoEntidad.getObservaciones());
-		actaPartidoDto.setCerrado(actaPartidoEntidad.estaCerrado());
-		actaPartidoDto.setEventos(
-				actaPartidoEntidad.getEventoPartido().stream().map(EventoPartidoDto::new).collect(Collectors.toList()));
-		return actaPartidoDto;
-	}
-
-	/**
-	 * Mapea un DTO ActaPartidoDto a una entidad ActaPartidoEntidad.
-	 * 
-	 * @param actaPartidoDto el DTO del actaPartido
-	 * @return la entidad correspondiente al actaPartido
-	 */
-	public ActaPartidoEntidad mapearAActaPartidoEntidad(ActaPartidoDto actaPartidoDto) {
-
-	    ActaPartidoEntidad actaPartidoEntidad = new ActaPartidoEntidad();
-
-	    actaPartidoEntidad.setIdActaPartido(actaPartidoDto.getIdActaPartido());
-
-	    // Mapear relaciones simples (torneo, instalacion, clubes, equipos, etc.)
-	    actaPartidoEntidad.setTorneo(torneoInterfaz.findById(actaPartidoDto.getTorneoId())
-	        .orElseThrow(() -> new IllegalArgumentException(
-	            "El torneo con ID " + actaPartidoDto.getTorneoId() + " no existe")));
-	    actaPartidoEntidad.setInstalacion(instalacionInterfaz.findById(actaPartidoDto.getInstalacionId())
-	        .orElseThrow(() -> new IllegalArgumentException(
-	            "La instalacion con ID " + actaPartidoDto.getInstalacionId() + " no existe")));
-	    actaPartidoEntidad.setClubLocal(clubInterfaz.findById(actaPartidoDto.getClubLocalId())
-	        .orElseThrow(() -> new IllegalArgumentException(
-	            "El club local con ID " + actaPartidoDto.getClubLocalId() + " no existe")));
-	    actaPartidoEntidad.setClubVisitante(clubInterfaz.findById(actaPartidoDto.getClubVisitanteId())
-	        .orElseThrow(() -> new IllegalArgumentException(
-	            "El club visitante con ID " + actaPartidoDto.getClubVisitanteId() + " no existe")));
-	    actaPartidoEntidad.setEquipoLocal(equipoTorneoInterfaz.findById(actaPartidoDto.getEquipoLocalId())
-	        .orElseThrow(() -> new IllegalArgumentException(
-	            "El equipo local con ID " + actaPartidoDto.getEquipoLocalId() + " no existe")));
-	    actaPartidoEntidad.setEquipoVisitante(equipoTorneoInterfaz.findById(actaPartidoDto.getEquipoVisitanteId())
-	        .orElseThrow(() -> new IllegalArgumentException(
-	            "El equipo visitante con ID " + actaPartidoDto.getEquipoVisitanteId() + " no existe")));
-	    actaPartidoEntidad.setPartidoTorneo(partidoTorneoInterfaz.findById(actaPartidoDto.getPartidoTorneoId())
-	        .orElseThrow(() -> new IllegalArgumentException(
-	            "El partido Torneo con ID " + actaPartidoDto.getPartidoTorneoId() + " no existe")));
-	    actaPartidoEntidad.setEquipoGanador(clubInterfaz.findById(actaPartidoDto.getClubGanadorId())
-	        .orElseThrow(() -> new IllegalArgumentException(
-	            "El equipo ganador con ID " + actaPartidoDto.getClubGanadorId() + " no existe")));
-
-	    // Mapear campos simples
-	    actaPartidoEntidad.setGolesLocal(actaPartidoDto.getGolesLocal());
-	    actaPartidoEntidad.setGolesVisitante(actaPartidoDto.getGolesVisitante());
-	    actaPartidoEntidad.setGolesPenaltisLocal(actaPartidoDto.getGolesPenaltisLocal());
-	    actaPartidoEntidad.setGolesPenaltisVisitante(actaPartidoDto.getGolesPenaltisVisitante());
-	    actaPartidoEntidad.setFechaPartido(actaPartidoDto.getFechaPartido());
-	    actaPartidoEntidad.setObservaciones(actaPartidoDto.getObservaciones());
-	    actaPartidoEntidad.setCerrado(actaPartidoDto.isCerrado());
-
-	    actaPartidoEntidad.setEventoPartido(new ArrayList<>()); 
-
-	    return actaPartidoEntidad;
-	}
-
-	/**
-	 * Método que obtiene un acta de partido por su ID.
-	 * 
-	 * @param idActaPartido el ID del acta
-	 * @return el DTO del acta null si no se encuentra
-	 */
-	public ActaPartidoDto obtenerActaPartidoDtoPorId(Long idActaPartido) {
-		ActaPartidoEntidad actaPartidoEntidad = actaPartidoInterfaz.findById(idActaPartido).orElse(null);
-		return actaPartidoEntidad != null ? mapearAActaPartidoDto(actaPartidoEntidad) : null;
-	}
-
-	/**
-	 * Método que mapea una lista de entidades a DTOs.
-	 * 
-	 * @return la lista de DTOs de acta partido
-	 */
-	public ArrayList<ActaPartidoDto> obtenerActasPartidosDto() {
-		ArrayList<ActaPartidoEntidad> actaPartidoEntidad = (ArrayList<ActaPartidoEntidad>) actaPartidoInterfaz
-				.findAll();
-		ArrayList<ActaPartidoDto> actaPartidoDto = new ArrayList<>();
-		for (ActaPartidoEntidad acta : actaPartidoEntidad) {
-			actaPartidoDto.add(mapearAActaPartidoDto(acta));
+	public class ActaPartidoFuncionalidades {
+	
+		@Autowired
+		private EquipoTorneoInterfaz equipoTorneoInterfaz;
+		@Autowired
+		private TorneoInterfaz torneoInterfaz;
+		@Autowired
+		private ClubInterfaz clubInterfaz;
+		@Autowired
+		private InstalacionInterfaz instalacionInterfaz;
+		@Autowired
+		private ActaPartidoInterfaz actaPartidoInterfaz;
+		@Autowired
+		private PartidoTorneoInterfaz partidoTorneoInterfaz;
+		@Autowired
+		private EventoPartidoFuncionalidades eventoPartidoFuncionalidades;
+		@Autowired
+		ActualizarEstadisticasFuncionalidades actualizarEstadisticasFuncionalidades;
+		
+	
+	
+		/**
+		 * Mapea una entidad ActaPartidoEntidad a un DTO ActaPartidoDto.
+		 * 
+		 * @param ActaPartidoEntidad la entidad del acta del partido
+		 * @return el DTO correspondiente al acta del partido
+		 */
+		public ActaPartidoDto mapearAActaPartidoDto(ActaPartidoEntidad actaPartidoEntidad) {
+	
+			ActaPartidoDto actaPartidoDto = new ActaPartidoDto();
+			actaPartidoDto.setIdActaPartido(actaPartidoEntidad.getIdActaPartido());
+			actaPartidoDto.setTorneoId(actaPartidoEntidad.getTorneo().getIdTorneo());
+			actaPartidoDto.setInstalacionId(actaPartidoEntidad.getInstalacion().getIdInstalacion());
+			actaPartidoDto.setClubLocalId(actaPartidoEntidad.getClubLocal().getIdClub());
+			actaPartidoDto.setClubVisitanteId(actaPartidoEntidad.getClubVisitante().getIdClub());
+			actaPartidoDto.setEquipoLocalId(actaPartidoEntidad.getEquipoLocal().getIdEquipoTorneo());
+			actaPartidoDto.setEquipoVisitanteId(actaPartidoEntidad.getEquipoVisitante().getIdEquipoTorneo());
+			actaPartidoDto.setPartidoTorneoId(actaPartidoEntidad.getPartidoTorneo().getIdPartidoTorneo());
+			actaPartidoDto.setGolesLocal(actaPartidoEntidad.getGolesLocal());
+			actaPartidoDto.setGolesVisitante(actaPartidoEntidad.getGolesVisitante());
+			actaPartidoDto.setGolesPenaltisLocal(actaPartidoEntidad.getGolesPenaltisLocal());
+			actaPartidoDto.setGolesPenaltisVisitante(actaPartidoEntidad.getGolesPenaltisVisitante());
+			actaPartidoDto.setClubGanadorId(actaPartidoEntidad.getClubGanador().getIdClub());
+			actaPartidoDto.setFechaPartido(actaPartidoEntidad.getFechaPartido());
+			actaPartidoDto.setObservaciones(actaPartidoEntidad.getObservaciones());
+			actaPartidoDto.setCerrado(actaPartidoEntidad.estaCerrado());
+			actaPartidoDto.setEventos(
+					actaPartidoEntidad.getEventoPartido().stream().map(EventoPartidoDto::new).collect(Collectors.toList()));
+			return actaPartidoDto;
 		}
-		return actaPartidoDto;
-	}
-
-	/**
-	 * Guarda un nuevo Acta de partido.
-	 * 
-	 * @param ActaPartidoDto el DTO del actaPartido a guardar
-	 * @return la entidad del ActaPartido guardada
-	 */
-	public ActaPartidoEntidad guardarActaPartido(ActaPartidoDto actaPartidoDto) {
-	    
-	    // 1️⃣ Crear la entidad acta sin eventos
-	    ActaPartidoEntidad actaPartidoEntidad = mapearAActaPartidoEntidad(actaPartidoDto);
-	    actaPartidoEntidad.setEventoPartido(new ArrayList<>()); // quitar eventos temporalmente
-	    
-	    // 2️⃣ Guardar acta para obtener ID
-	    actaPartidoEntidad = actaPartidoInterfaz.save(actaPartidoEntidad);
-
-	    // 3️⃣ Mapear y asignar ID del acta a los eventos
-	    if (actaPartidoDto.getEventos() != null) {
-	        for (EventoPartidoDto eventoDto : actaPartidoDto.getEventos()) {
-	            eventoDto.setActaPartidoId(actaPartidoEntidad.getIdActaPartido());
-	            EventoPartidoEntidad eventoEntidad = eventoPartidoFuncionalidades.mapearAEventoPartidoEntidad(eventoDto);
-	            actaPartidoEntidad.getEventoPartido().add(eventoEntidad);
-	        }
-	    }
-
-	    // 4️⃣ Guardar eventos asociados
-	    actaPartidoEntidad = actaPartidoInterfaz.save(actaPartidoEntidad);
-
-	    return actaPartidoEntidad;
-	}
-
-
-	/**
-	 * Modifica un acta de partido existente.
-	 * 
-	 * @param id             el ID del acta a modificar
-	 * @param actaPartidoDto el DTO actualizado del actaPartido
-	 * @return true si la modificación fue exitosa, false en caso contrario
-	 */
-	public boolean modificarActaPartido(String id, ActaPartidoDto actaPartidoDto) {
-		Long idActaPartido = Long.parseLong(id);
-		Optional<ActaPartidoEntidad> actaPartidoOpt = actaPartidoInterfaz.findById(idActaPartido);
-
-		if (actaPartidoOpt.isPresent()) {
-			ActaPartidoEntidad actaPartidoEntidad = actaPartidoOpt.get();
-
-			Optional<TorneoEntidad> torneoOpt = torneoInterfaz.findById(actaPartidoDto.getTorneoId());
-			torneoOpt.ifPresent(actaPartidoEntidad::setTorneo);
-
-			Optional<InstalacionEntidad> instalacionOpt = instalacionInterfaz
-					.findById(actaPartidoDto.getInstalacionId());
-			instalacionOpt.ifPresent(actaPartidoEntidad::setInstalacion);
-
-			Optional<ClubEntidad> clubLocalOpt = clubInterfaz.findById(actaPartidoDto.getClubLocalId());
-			clubLocalOpt.ifPresent(actaPartidoEntidad::setClubLocal);
-
-			Optional<ClubEntidad> clubVisitanteOpt = clubInterfaz.findById(actaPartidoDto.getClubVisitanteId());
-			clubVisitanteOpt.ifPresent(actaPartidoEntidad::setClubVisitante);
-
-			Optional<EquipoTorneoEntidad> equipoLocalOpt = equipoTorneoInterfaz
-					.findById(actaPartidoDto.getEquipoLocalId());
-			equipoLocalOpt.ifPresent(actaPartidoEntidad::setEquipoLocal);
-
-			Optional<EquipoTorneoEntidad> equipoVisitanteOpt = equipoTorneoInterfaz
-					.findById(actaPartidoDto.getEquipoVisitanteId());
-			equipoVisitanteOpt.ifPresent(actaPartidoEntidad::setEquipoVisitante);
-
-			Optional<PartidoTorneoEntidad> partidoTorneoOpt = partidoTorneoInterfaz
-					.findById(actaPartidoDto.getPartidoTorneoId());
-			partidoTorneoOpt.ifPresent(actaPartidoEntidad::setPartidoTorneo);
-
-			actaPartidoEntidad.setGolesLocal(actaPartidoDto.getGolesLocal());
-			actaPartidoEntidad.setGolesVisitante(actaPartidoDto.getGolesVisitante());
-			actaPartidoEntidad.setGolesPenaltisLocal(actaPartidoDto.getGolesPenaltisLocal());
-			actaPartidoEntidad.setGolesPenaltisVisitante(actaPartidoDto.getGolesPenaltisVisitante());
-			
-			Optional<ClubEntidad> equipoGanadorOpt = clubInterfaz
-					.findById(actaPartidoDto.getClubGanadorId());
-			equipoGanadorOpt.ifPresent(actaPartidoEntidad::setEquipoGanador);
-			
-			actaPartidoEntidad.setFechaPartido(actaPartidoDto.getFechaPartido());
-			actaPartidoEntidad.setObservaciones(actaPartidoDto.getObservaciones());
-			actaPartidoEntidad.setCerrado(actaPartidoDto.isCerrado());
-
-			actaPartidoInterfaz.save(actaPartidoEntidad);
-			return true;
-		} else {
-			return false;
+	
+		/**
+		 * Mapea un DTO ActaPartidoDto a una entidad ActaPartidoEntidad.
+		 * 
+		 * @param actaPartidoDto el DTO del actaPartido
+		 * @return la entidad correspondiente al actaPartido
+		 */
+		public ActaPartidoEntidad mapearAActaPartidoEntidad(ActaPartidoDto actaPartidoDto) {
+	
+		    ActaPartidoEntidad actaPartidoEntidad = new ActaPartidoEntidad();
+	
+		    actaPartidoEntidad.setIdActaPartido(actaPartidoDto.getIdActaPartido());
+	
+		    // Mapear relaciones simples (torneo, instalacion, clubes, equipos, etc.)
+		    actaPartidoEntidad.setTorneo(torneoInterfaz.findById(actaPartidoDto.getTorneoId())
+		        .orElseThrow(() -> new IllegalArgumentException(
+		            "El torneo con ID " + actaPartidoDto.getTorneoId() + " no existe")));
+		    actaPartidoEntidad.setInstalacion(instalacionInterfaz.findById(actaPartidoDto.getInstalacionId())
+		        .orElseThrow(() -> new IllegalArgumentException(
+		            "La instalacion con ID " + actaPartidoDto.getInstalacionId() + " no existe")));
+		    actaPartidoEntidad.setClubLocal(clubInterfaz.findById(actaPartidoDto.getClubLocalId())
+		        .orElseThrow(() -> new IllegalArgumentException(
+		            "El club local con ID " + actaPartidoDto.getClubLocalId() + " no existe")));
+		    actaPartidoEntidad.setClubVisitante(clubInterfaz.findById(actaPartidoDto.getClubVisitanteId())
+		        .orElseThrow(() -> new IllegalArgumentException(
+		            "El club visitante con ID " + actaPartidoDto.getClubVisitanteId() + " no existe")));
+		    actaPartidoEntidad.setEquipoLocal(equipoTorneoInterfaz.findById(actaPartidoDto.getEquipoLocalId())
+		        .orElseThrow(() -> new IllegalArgumentException(
+		            "El equipo local con ID " + actaPartidoDto.getEquipoLocalId() + " no existe")));
+		    actaPartidoEntidad.setEquipoVisitante(equipoTorneoInterfaz.findById(actaPartidoDto.getEquipoVisitanteId())
+		        .orElseThrow(() -> new IllegalArgumentException(
+		            "El equipo visitante con ID " + actaPartidoDto.getEquipoVisitanteId() + " no existe")));
+		    actaPartidoEntidad.setPartidoTorneo(partidoTorneoInterfaz.findById(actaPartidoDto.getPartidoTorneoId())
+		        .orElseThrow(() -> new IllegalArgumentException(
+		            "El partido Torneo con ID " + actaPartidoDto.getPartidoTorneoId() + " no existe")));
+		    actaPartidoEntidad.setClubGanador(clubInterfaz.findById(actaPartidoDto.getClubGanadorId())
+		        .orElseThrow(() -> new IllegalArgumentException(
+		            "El equipo ganador con ID " + actaPartidoDto.getClubGanadorId() + " no existe")));
+	
+		    // Mapear campos simples
+		    actaPartidoEntidad.setGolesLocal(actaPartidoDto.getGolesLocal());
+		    actaPartidoEntidad.setGolesVisitante(actaPartidoDto.getGolesVisitante());
+		    actaPartidoEntidad.setGolesPenaltisLocal(actaPartidoDto.getGolesPenaltisLocal());
+		    actaPartidoEntidad.setGolesPenaltisVisitante(actaPartidoDto.getGolesPenaltisVisitante());
+		    actaPartidoEntidad.setFechaPartido(actaPartidoDto.getFechaPartido());
+		    actaPartidoEntidad.setObservaciones(actaPartidoDto.getObservaciones());
+		    actaPartidoEntidad.setCerrado(actaPartidoDto.isCerrado());
+	
+		    actaPartidoEntidad.setEventoPartido(new ArrayList<>()); 
+	
+		    return actaPartidoEntidad;
 		}
-	}
-
-	/**
-	 * Método que borra un acta de partido por su ID.
-	 * 
-	 * @param idActaPartidoString el ID del acta como cadena
-	 * @return true si el acta fue borrado correctamente, false en caso contrario
-	 */
-	public boolean borrarActaPartido(String idActaPartidoString) {
-		boolean estaBorrado = false;
-
-		Long idActaPartido = Long.parseLong(idActaPartidoString);
-		ActaPartidoEntidad actaPartidoEntidad = actaPartidoInterfaz.findByIdActaPartido(idActaPartido);
-
-		if (actaPartidoEntidad == null) {
-			estaBorrado = false;
-		} else {
-			actaPartidoInterfaz.delete(actaPartidoEntidad);
-			estaBorrado = true;
+	
+		/**
+		 * Método que obtiene un acta de partido por su ID.
+		 * 
+		 * @param idActaPartido el ID del acta
+		 * @return el DTO del acta null si no se encuentra
+		 */
+		public ActaPartidoDto obtenerActaPartidoDtoPorId(Long idActaPartido) {
+			ActaPartidoEntidad actaPartidoEntidad = actaPartidoInterfaz.findById(idActaPartido).orElse(null);
+			return actaPartidoEntidad != null ? mapearAActaPartidoDto(actaPartidoEntidad) : null;
 		}
+	
+		/**
+		 * Método que mapea una lista de entidades a DTOs.
+		 * 
+		 * @return la lista de DTOs de acta partido
+		 */
+		public ArrayList<ActaPartidoDto> obtenerActasPartidosDto() {
+			ArrayList<ActaPartidoEntidad> actaPartidoEntidad = (ArrayList<ActaPartidoEntidad>) actaPartidoInterfaz
+					.findAll();
+			ArrayList<ActaPartidoDto> actaPartidoDto = new ArrayList<>();
+			for (ActaPartidoEntidad acta : actaPartidoEntidad) {
+				actaPartidoDto.add(mapearAActaPartidoDto(acta));
+			}
+			return actaPartidoDto;
+		}
+	
+		/**
+		 * Guarda un nuevo Acta de partido.
+		 * 
+		 * @param ActaPartidoDto el DTO del actaPartido a guardar
+		 * @return la entidad del ActaPartido guardada
+		 */
+		public ActaPartidoEntidad guardarActaPartido(ActaPartidoDto actaPartidoDto) {
+		    // 1️⃣ Crear la entidad sin eventos
+		    ActaPartidoEntidad actaPartidoEntidad = mapearAActaPartidoEntidad(actaPartidoDto);
+		    actaPartidoEntidad.setEventoPartido(new ArrayList<>()); // temporalmente vacío
 
-		return estaBorrado;
+		    // 2️⃣ Guardar la acta para generar ID
+		    actaPartidoEntidad = actaPartidoInterfaz.save(actaPartidoEntidad);
+
+		    // 3️⃣ Mapear y asignar ID del acta a los eventos
+		    if (actaPartidoDto.getEventos() != null && !actaPartidoDto.getEventos().isEmpty()) {
+		        for (EventoPartidoDto eventoDto : actaPartidoDto.getEventos()) {
+		            eventoDto.setActaPartidoId(actaPartidoEntidad.getIdActaPartido());
+		            EventoPartidoEntidad eventoEntidad = eventoPartidoFuncionalidades.mapearAEventoPartidoEntidad(eventoDto);
+		            actaPartidoEntidad.getEventoPartido().add(eventoEntidad);
+		        }
+		       
+		        actaPartidoEntidad = actaPartidoInterfaz.save(actaPartidoEntidad);
+		        actualizarEstadisticasFuncionalidades.actualizarGolesPartidoTorneo(actaPartidoEntidad);
+		        
+		    }
+
+		
+		    actualizarEstadisticasFuncionalidades.actualizarEstadisticas(actaPartidoEntidad);
+		 
+		    
+
+		    return actaPartidoEntidad;
+		}
+	
+	
+		/**
+		 * Modifica un acta de partido existente.
+		 * 
+		 * @param id             el ID del acta a modificar
+		 * @param actaPartidoDto el DTO actualizado del actaPartido
+		 * @return true si la modificación fue exitosa, false en caso contrario
+		 */
+		public boolean modificarActaPartido(Long idActaPartido, ActaPartidoDto actaPartidoDto) {
+		    Optional<ActaPartidoEntidad> actaPartidoOpt = actaPartidoInterfaz.findById(idActaPartido);
+		    if (actaPartidoOpt.isEmpty()) return false;
+
+		    ActaPartidoEntidad actaPartidoEntidad = actaPartidoOpt.get();
+
+		    // Actualizar relaciones si existen
+		    torneoInterfaz.findById(actaPartidoDto.getTorneoId()).ifPresent(actaPartidoEntidad::setTorneo);
+		    instalacionInterfaz.findById(actaPartidoDto.getInstalacionId()).ifPresent(actaPartidoEntidad::setInstalacion);
+		    clubInterfaz.findById(actaPartidoDto.getClubLocalId()).ifPresent(actaPartidoEntidad::setClubLocal);
+		    clubInterfaz.findById(actaPartidoDto.getClubVisitanteId()).ifPresent(actaPartidoEntidad::setClubVisitante);
+		    equipoTorneoInterfaz.findById(actaPartidoDto.getEquipoLocalId()).ifPresent(actaPartidoEntidad::setEquipoLocal);
+		    equipoTorneoInterfaz.findById(actaPartidoDto.getEquipoVisitanteId()).ifPresent(actaPartidoEntidad::setEquipoVisitante);
+		    partidoTorneoInterfaz.findById(actaPartidoDto.getPartidoTorneoId()).ifPresent(actaPartidoEntidad::setPartidoTorneo);
+		    clubInterfaz.findById(actaPartidoDto.getClubGanadorId()).ifPresent(actaPartidoEntidad::setClubGanador);
+
+		    // Actualizar campos simples
+		    actaPartidoEntidad.setGolesLocal(actaPartidoDto.getGolesLocal());
+		    actaPartidoEntidad.setGolesVisitante(actaPartidoDto.getGolesVisitante());
+		    actaPartidoEntidad.setGolesPenaltisLocal(actaPartidoDto.getGolesPenaltisLocal());
+		    actaPartidoEntidad.setGolesPenaltisVisitante(actaPartidoDto.getGolesPenaltisVisitante());
+		    actaPartidoEntidad.setFechaPartido(actaPartidoDto.getFechaPartido());
+		    actaPartidoEntidad.setObservaciones(actaPartidoDto.getObservaciones());
+		    actaPartidoEntidad.setCerrado(actaPartidoDto.isCerrado());
+
+		    // Manejar eventos
+		    actaPartidoEntidad.getEventoPartido().clear(); // borrar eventos previos
+		    if (actaPartidoDto.getEventos() != null && !actaPartidoDto.getEventos().isEmpty()) {
+		        for (EventoPartidoDto eventoDto : actaPartidoDto.getEventos()) {
+		            eventoDto.setActaPartidoId(actaPartidoEntidad.getIdActaPartido());
+		            EventoPartidoEntidad eventoEntidad = eventoPartidoFuncionalidades.mapearAEventoPartidoEntidad(eventoDto);
+		            actaPartidoEntidad.getEventoPartido().add(eventoEntidad);
+		        }
+		    }
+
+		    actaPartidoInterfaz.save(actaPartidoEntidad);
+		    actualizarEstadisticasFuncionalidades.actualizarEstadisticas(actaPartidoEntidad);
+
+		    return true;
+		}
+	
+		/**
+		 * Método que borra un acta de partido por su ID.
+		 * 
+		 * @param idActaPartidoString el ID del acta como cadena
+		 * @return true si el acta fue borrado correctamente, false en caso contrario
+		 */
+		public boolean borrarActaPartido(String idActaPartidoString) {
+			boolean estaBorrado = false;
+	
+			Long idActaPartido = Long.parseLong(idActaPartidoString);
+			ActaPartidoEntidad actaPartidoEntidad = actaPartidoInterfaz.findByIdActaPartido(idActaPartido);
+	
+			if (actaPartidoEntidad == null) {
+				estaBorrado = false;
+			} else {
+				actaPartidoInterfaz.delete(actaPartidoEntidad);
+				estaBorrado = true;
+			}
+	
+			return estaBorrado;
+		}
+	
 	}
-
-}

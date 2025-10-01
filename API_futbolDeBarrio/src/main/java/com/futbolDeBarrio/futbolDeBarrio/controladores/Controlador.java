@@ -37,7 +37,6 @@ import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ActaPartidoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.entidad.EventoPartidoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
@@ -745,7 +744,7 @@ public class Controlador {
 	    } catch (Exception e) {
 	        // Loguea la excepción completa para ver la causa raíz
 	        Logs.ficheroLog("Error inesperado al guardar acta de partido: " + e.toString());
-	        e.printStackTrace(); // <-- Esto imprime el stack trace completo en la consola
+	        e.printStackTrace(); 
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
 	    }
 	}
@@ -759,10 +758,13 @@ public class Controlador {
 	 * @return Resultado de la modificación.
 	 */
 	@PutMapping("/modificarActaPartido/{id_ActaPartido}")
-	public ResponseEntity<?> modificarActaPartido(@PathVariable("id_ActaPartido") String idActaPartido,
+	public ResponseEntity<?> modificarActaPartido(@PathVariable("id_ActaPartido") String idActaPartidoStr,
 			@RequestBody ActaPartidoDto actaPartidoDto) {
-		Logs.ficheroLog("Solicitud para modificar Acta del partido con ID: " + idActaPartido);
+		Logs.ficheroLog("Solicitud para modificar Acta del partido con ID: " + idActaPartidoStr);
 		try {
+
+
+			Long idActaPartido = Long.parseLong(idActaPartidoStr);
 			boolean resultado = actaPartidoFuncionalidades.modificarActaPartido(idActaPartido, actaPartidoDto);
 			Logs.ficheroLog("Resultado de la modificación del actaPartido con ID " + idActaPartido + ": " + resultado);
 			if (resultado) {
@@ -771,7 +773,7 @@ public class Controlador {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Acta de partido no encontrado");
 			}
 		} catch (Exception e) {
-			Logs.ficheroLog("Error al modificar acta de partido con ID " + idActaPartido + ": " + e.getMessage());
+			Logs.ficheroLog("Error al modificar acta de partido con ID " + idActaPartidoStr + ": " + e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al modificar acta de partido");
 		}
 	}
@@ -851,91 +853,7 @@ public class Controlador {
 
 	}
 
-	/**
-	 * Metodo para guardar un nuevo evento de partido
-	 * 
-	 * @param eventoPartidoDto Datos del evento del partido a guardar
-	 * @return El evento de partido con su ID
-	 */
-	@PostMapping("/guardarEventoPartido")
-	public ResponseEntity<?> guardarEventoPartido(@RequestBody EventoPartidoDto eventoPartidoDto) {
-		Logs.ficheroLog("Solicitud para guardar Evento de partido con datos" + eventoPartidoDto.toString());
-		try {
 
-			EventoPartidoEntidad eventoPartidoEntidad = eventoPartidoFuncionalidades
-					.guardarEventoPartido(eventoPartidoDto);
-			Logs.ficheroLog(
-					"Evento del partido guardado exitosamente con ID: " + eventoPartidoEntidad.getIdEventoPartido());
-			return ResponseEntity.ok(eventoPartidoFuncionalidades.mapearAEventoPartidoDto(eventoPartidoEntidad));
-
-		} catch (IllegalArgumentException e) {
-			Logs.ficheroLog("Error al guardar evento partido: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-		} catch (Exception e) {
-			Logs.ficheroLog("Error inesperado al guardar evento partido: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
-		}
-
-	}
-
-	/**
-	 * Método PUT para actualizar un evento de partido por su ID.
-	 * 
-	 * @param idEventoPartido  ID del evento partido a modificar.
-	 * @param eventoPartidoDto Datos actualizados del EventoPartido.
-	 * @return Resultado de la modificación.
-	 */
-	@PutMapping("/modificarEventoPartido/{id_EventoPartido}")
-	public ResponseEntity<?> modificarEventoPartido(@PathVariable("id_EventoPartido") String idEventoPartido,
-			@RequestBody EventoPartidoDto eventoPartidoDto) {
-		Logs.ficheroLog("Solicitud para modificar Evento del partido con ID: " + idEventoPartido);
-		try {
-
-			boolean resultado = eventoPartidoFuncionalidades.modificarEventoPartido(idEventoPartido, eventoPartidoDto);
-			Logs.ficheroLog(
-					"Resultado de la modificación del eventoPartido con ID " + idEventoPartido + ": " + resultado);
-			if (resultado) {
-				return ResponseEntity.ok("Evento de partido modificado exitosamente");
-			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Evento de partido no encontrado");
-			}
-
-		} catch (Exception e) {
-			Logs.ficheroLog("Error al modificar evento de partido con ID " + idEventoPartido + ": " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al modificar evento de partido");
-		}
-
-	}
-
-	/**
-	 * Método DELETE para eliminar un evento de partido por su ID.
-	 * 
-	 * @param idEventoPartido ID del evento a eliminar.
-	 * @return Resultado de la operación de eliminación.
-	 */
-	@DeleteMapping("/eliminarEventoPartido/{id_EventoPartido}")
-	public ResponseEntity<Boolean> eliminarEventoPartido(@PathVariable("id_EventoPartido") String idEventoPartido) {
-		Logs.ficheroLog("Solicitud para eliminar evento de partido con ID: " + idEventoPartido);
-
-		try {
-			boolean resultado = eventoPartidoFuncionalidades.borrarEventoPartido(idEventoPartido);
-			if (resultado) {
-				Logs.ficheroLog("Resultado de la eliminación del evento de partido con ID " + idEventoPartido + ": "
-						+ resultado);
-				return ResponseEntity.ok(true);
-			} else {
-				Logs.ficheroLog("No se pudo eliminar el evento con ID " + idEventoPartido + " (no encontrada)");
-				return ResponseEntity.notFound().build();
-			}
-
-		} catch (
-
-		Exception e) {
-			Logs.ficheroLog("Error eliminando el evento  con ID " + idEventoPartido + ": " + e.getMessage());
-			return ResponseEntity.status(500).body(false);
-		}
-
-	}
 
 	/* METODOS CRUD DE LA TABLA JUGADOR ESTADISTICAS GLOBAL */
 
@@ -983,29 +901,6 @@ public class Controlador {
         } catch (Exception e) {
             Logs.ficheroLog("Error mostrando estadísticas globales de jugadores: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    /**
-     * Método POST para actualizar las estadísticas globales de un jugador
-     * a partir de un evento de partido.
-     * 
-     * @param dto DTO con los datos del jugador y del evento para actualizar.
-     * @return Mensaje de confirmación o error si no se pudo actualizar.
-     */
-    @PostMapping("/actualizarJugadorEstadisticaGlobal")
-    public ResponseEntity<?> actualizarDesdeEvento(@RequestBody JugadorEstadisticaGlobalDto dto) {
-        Logs.ficheroLog("Solicitud para actualizar estadísticas globales del jugador: " + dto.toString());
-        try {
-            jugadorEstadisticaGlobalFuncionalidades.actualizarEstadisticasDesdeEvento(dto);
-            Logs.ficheroLog("Estadísticas globales actualizadas correctamente para jugador ID " + dto.getJugadorGlobalId());
-            return ResponseEntity.ok("Estadísticas globales actualizadas correctamente");
-        } catch (IllegalArgumentException e) {
-            Logs.ficheroLog("Error al actualizar estadísticas globales: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            Logs.ficheroLog("Error inesperado al actualizar estadísticas globales: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
         }
     }
 
@@ -1062,30 +957,6 @@ public class Controlador {
             }
         }
 
-        /**
-         * Método POST para actualizar las estadísticas de un jugador en un torneo
-         * a partir de un evento de partido.
-         * 
-         * @param dto DTO con los datos del jugador y del torneo para actualizar.
-         * @return Mensaje de confirmación o error si no se pudo actualizar.
-         */
-        @PostMapping("/actualizarJugadorEstadisticaTorneo")
-        public ResponseEntity<?> actualizarJugadorEstadisticaTorneo(@RequestBody JugadorEstadisticaTorneoDto dto) {
-            Logs.ficheroLog("Solicitud para actualizar estadística de jugador en torneo: " + dto.toString());
-            try {
-                jugadorEstadisticaTorneoFuncionalidades.actualizarEstadisticasDesdeEvento(dto);
-                Logs.ficheroLog("Estadística actualizada correctamente para jugador ID " + dto.getJugadorId() +
-                                 " en torneo ID " + dto.getTorneoId());
-                return ResponseEntity.ok("Estadísticas actualizadas correctamente");
-            } catch (IllegalArgumentException e) {
-                Logs.ficheroLog("Error al actualizar estadística: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-            } catch (Exception e) {
-                Logs.ficheroLog("Error inesperado al actualizar estadística: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
-            }
-        }
-   
 	    
 	    
 	/* METODOS CRUD DE LA TABLA CLUB ESTADISTICAS GLOBAL */
@@ -1137,28 +1008,7 @@ public class Controlador {
 	        }
 	    }
 
-	    /**
-	     * Método POST para actualizar las estadísticas globales de un club
-	     * a partir de un evento de partido.
-	     *
-	     * @param dto DTO con los datos del club y del evento.
-	     * @return Mensaje de confirmación o error si no se pudo actualizar.
-	     */
-	    @PostMapping("/actualizarClubEstadisticaGlobal")
-	    public ResponseEntity<?> actualizarDesdeEvento(@RequestBody ClubEstadisiticaGlobalDto dto) {
-	        Logs.ficheroLog("Solicitud para actualizar estadística global del club: " + dto.toString());
-	        try {
-	            clubEstadisticaGlobalFuncionalidades.actualizarEstadisticasDesdeEvento(dto);
-	            Logs.ficheroLog("Estadística global actualizada correctamente para el club ID " + dto.getClubGlobalId());
-	            return ResponseEntity.ok("Estadísticas globales actualizadas correctamente");
-	        } catch (IllegalArgumentException e) {
-	            Logs.ficheroLog("Error al actualizar estadística global del club: " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-	        } catch (Exception e) {
-	            Logs.ficheroLog("Error inesperado al actualizar estadística global del club: " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
-	        }
-	    }
+	
 	
 	    
 	    
@@ -1213,30 +1063,8 @@ public class Controlador {
 	        }
 	    }
 
-	    /**
-	     * Método POST para actualizar estadísticas de un club en un torneo a partir de un evento de partido.
-	     * 
-	     * @param dto DTO con los datos del club y del torneo.
-	     * @return Mensaje de confirmación o error.
-	     */
-	    @PostMapping("/actualizarClubEstadisticaTorneo")
-	    public ResponseEntity<?> actualizarDesdeEvento(@RequestBody ClubEstadisticaTorneoDto dto) {
-	        Logs.ficheroLog("Solicitud para actualizar estadística de club torneo: " + dto.toString());
-	        try {
-	            clubEstadisticaTorneoFuncionalidades.actualizarEstadisticasDesdeEvento(dto);
-	            Logs.ficheroLog("Estadística de club torneo actualizada correctamente para club " + dto.getClubId() + " y torneo " + dto.getTorneoId());
-	            return ResponseEntity.ok("Estadística de club en torneo actualizada correctamente");
-	        } catch (IllegalArgumentException e) {
-	            Logs.ficheroLog("Error al actualizar estadística de club torneo: " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-	        } catch (Exception e) {
-	            Logs.ficheroLog("Error inesperado al actualizar estadística de club torneo: " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
-	        }
-	    }
-	    
-	    
-	    
+	
+
 
 		/* METODOS CRUD DE LA TABLA PARTIDO TORNEO */
 	    
@@ -1359,36 +1187,6 @@ public class Controlador {
 	    }
 
 	    
-	    /**
-	     * Endpoint PUT para cerrar el acta de un partido y finalizarlo.
-	     *
-	     * @param idPartidoTorneo ID del partido cuyo acta se desea cerrar.
-	     * @return Mensaje de éxito o error según la situación.
-	     */
-	    @PutMapping("/cerrarActa/{idPartidoTorneo}")
-	    public ResponseEntity<?> cerrarActa(@PathVariable("idPartidoTorneo") Long idPartidoTorneo) {
-	        Logs.ficheroLog("Solicitud para cerrar acta del partido con ID: " + idPartidoTorneo);
-
-	        try {
-	            boolean resultado = partidoTorneoFuncionalidades.cerrarActaPartido(idPartidoTorneo);
-
-	            if (resultado) {
-	                Logs.ficheroLog("Acta cerrada y partido finalizado con ID: " + idPartidoTorneo);
-	                return ResponseEntity.ok("Acta cerrada y partido finalizado correctamente");
-	            } else {
-	                Logs.ficheroLog("Intento de cerrar acta ya cerrada o partido inexistente con ID: " + idPartidoTorneo);
-	                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-	                        .body("El acta ya estaba cerrada o el partido no existe");
-	            }
-	        } catch (IllegalStateException e) {
-	            Logs.ficheroLog("Error al cerrar acta del partido con ID " + idPartidoTorneo + ": " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-	        } catch (Exception e) {
-	            Logs.ficheroLog("Error inesperado al cerrar acta del partido con ID " + idPartidoTorneo + ": " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                    .body("Error al cerrar el acta: " + e.getMessage());
-	        }
-	    }
-
+	
 }
 

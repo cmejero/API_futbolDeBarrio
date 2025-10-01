@@ -39,6 +39,14 @@ public class JugadorEstadisticaTorneoEntidad {
 
 	@Column(name = "partidos__jugados_torneo")
 	private int partidosJugadosTorneo;
+	
+	  
+    @Column(name = "partidos_ganados_torneo")
+    private int partidosGanadosTorneo;
+    
+    @Column(name = "partidos_perdidos_torneo")
+    private int partidosPerdidosTorneo;
+    
 
 	@Column(name = "minutos_jugados_torneo")
 	private int minutosJugadosTorneo;
@@ -116,4 +124,29 @@ public class JugadorEstadisticaTorneoEntidad {
 	public void setMinutosJugadosTorneo(int minutosJugadosTorneo) {
 		this.minutosJugadosTorneo = minutosJugadosTorneo;
 	}
+	
+	
+
+	public int getPartidosGanadosTorneo() {
+		return partidosGanadosTorneo;
+	}
+
+	public void setPartidosGanadosTorneo(int partidosGanadosTorneo) {
+		this.partidosGanadosTorneo = partidosGanadosTorneo;
+	}
+
+	public int getPartidosPerdidosTorneo() {
+		return partidosPerdidosTorneo;
+	}
+
+	public void setPartidosPerdidosTorneo(int partidosPerdidosTorneo) {
+		this.partidosPerdidosTorneo = partidosPerdidosTorneo;
+	}
+
+	public JugadorEstadisticaTorneoEntidad() {
+		super();
+	}
+	
+	
+	
 }

@@ -27,7 +27,15 @@ public interface EquipoTorneoInterfaz extends JpaRepository<EquipoTorneoEntidad,
      */
     EquipoTorneoEntidad findByIdEquipoTorneo(Long idEquipoTorneo);
     
+    /**
+     * Verifica si existe un equipo inscrito en un torneo específico perteneciente a un club determinado.
+     *
+     * @param torneoId ID del torneo a verificar.
+     * @param clubId ID del club a verificar.
+     * @return true si el club ya tiene un equipo inscrito en el torneo, false en caso contrario.
+     */
     boolean existsByTorneo_IdTorneoAndClub_IdClub(Long torneoId, Long clubId);
+
 
 
     

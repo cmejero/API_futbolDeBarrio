@@ -15,6 +15,8 @@ public class JugadorEstadisticaGlobalDto {
     private int amarillasGlobal;
     private int rojasGlobal;
     private int partidosJugadosGlobal;
+    private int partidosGanadosGlobal;
+    private int partidosPerdidosGlobal;
     private int minutosJugadosGlobal;
     
     public JugadorEstadisticaGlobalDto(JugadorEstadisticaGlobalEntidad jugadorEstadisticaGlobalEntidad) {
@@ -25,6 +27,9 @@ public class JugadorEstadisticaGlobalDto {
         this.amarillasGlobal = jugadorEstadisticaGlobalEntidad.getAmarillasGlobal();
         this.rojasGlobal = jugadorEstadisticaGlobalEntidad.getRojasGlobal();
         this.partidosJugadosGlobal = jugadorEstadisticaGlobalEntidad.getPartidosJugadosGlobal();
+        this.partidosGanadosGlobal = jugadorEstadisticaGlobalEntidad.getPartidosGanadosGlobal();
+        this.partidosPerdidosGlobal = jugadorEstadisticaGlobalEntidad.getPartidosPerdidosGlobal();
+
         this.minutosJugadosGlobal = jugadorEstadisticaGlobalEntidad.getMinutosJugadosGlobal();
     }
     
@@ -70,6 +75,25 @@ public class JugadorEstadisticaGlobalDto {
 	public void setPartidosJugadosGlobal(int partidosJugadosGlobal) {
 		this.partidosJugadosGlobal = partidosJugadosGlobal;
 	}
+	
+	
+	
+	public int getPartidosGanadosGlobal() {
+		return partidosGanadosGlobal;
+	}
+
+	public void setPartidosGanadosGlobal(int partidosGanadosGlobal) {
+		this.partidosGanadosGlobal = partidosGanadosGlobal;
+	}
+
+	public int getPartidosPerdidosGlobal() {
+		return partidosPerdidosGlobal;
+	}
+
+	public void setPartidosPerdidosGlobal(int partidosPerdidosGlobal) {
+		this.partidosPerdidosGlobal = partidosPerdidosGlobal;
+	}
+
 	public int getMinutosJugadosGlobal() {
 		return minutosJugadosGlobal;
 	}

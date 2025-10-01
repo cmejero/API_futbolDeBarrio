@@ -31,6 +31,8 @@ public interface ClubEstadisticaGlobalInterfaz extends JpaRepository<ClubEstadis
 	 *         o {@link Optional#empty()} si no se encuentra.
 	 */
 	Optional<ClubEstadisticaGlobalEntidad> findByClubGlobal_IdClub(Long idClub);
+	
+	
 
 }
 
