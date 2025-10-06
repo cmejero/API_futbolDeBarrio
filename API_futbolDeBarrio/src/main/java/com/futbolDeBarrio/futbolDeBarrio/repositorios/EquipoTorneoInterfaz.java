@@ -1,5 +1,7 @@
 package com.futbolDeBarrio.futbolDeBarrio.repositorios;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -36,7 +38,7 @@ public interface EquipoTorneoInterfaz extends JpaRepository<EquipoTorneoEntidad,
      */
     boolean existsByTorneo_IdTorneoAndClub_IdClub(Long torneoId, Long clubId);
 
-
+    Optional<EquipoTorneoEntidad> findByTorneo_IdTorneoAndClub_IdClub(Long torneoId, Long clubId);
 
     
     

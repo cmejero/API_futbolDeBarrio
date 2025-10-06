@@ -11,6 +11,7 @@ import com.futbolDeBarrio.futbolDeBarrio.dtos.ActaPartidoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.EventoPartidoDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ActaPartidoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EventoPartidoEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ActaPartidoInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.EquipoTorneoInterfaz;
@@ -158,33 +159,41 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
 		 * @return la entidad del ActaPartido guardada
 		 */
 		public ActaPartidoEntidad guardarActaPartido(ActaPartidoDto actaPartidoDto) {
-		    // 1️⃣ Crear la entidad sin eventos
+		    // 1️⃣ Mapear DTO a entidad
 		    ActaPartidoEntidad actaPartidoEntidad = mapearAActaPartidoEntidad(actaPartidoDto);
 		    actaPartidoEntidad.setEventoPartido(new ArrayList<>()); // temporalmente vacío
 
-		    // 2️⃣ Guardar la acta para generar ID
+		    // 2️⃣ Asociar partido torneo si existe
+		    if (actaPartidoDto.getPartidoTorneoId() != null) {
+		        PartidoTorneoEntidad partidoTorneo = partidoTorneoInterfaz
+		            .findById(actaPartidoDto.getPartidoTorneoId())
+		            .orElseThrow(() -> new RuntimeException("PartidoTorneo no encontrado"));
+		        actaPartidoEntidad.setPartidoTorneo(partidoTorneo);
+		        partidoTorneo.setActaPartido(actaPartidoEntidad); // sincroniza objetos en memoria
+		    }
+
+		    // 3️⃣ Guardar acta para generar ID
 		    actaPartidoEntidad = actaPartidoInterfaz.save(actaPartidoEntidad);
 
-		    // 3️⃣ Mapear y asignar ID del acta a los eventos
+		    // 4️⃣ Mapear y agregar eventos
 		    if (actaPartidoDto.getEventos() != null && !actaPartidoDto.getEventos().isEmpty()) {
 		        for (EventoPartidoDto eventoDto : actaPartidoDto.getEventos()) {
 		            eventoDto.setActaPartidoId(actaPartidoEntidad.getIdActaPartido());
-		            EventoPartidoEntidad eventoEntidad = eventoPartidoFuncionalidades.mapearAEventoPartidoEntidad(eventoDto);
+		            EventoPartidoEntidad eventoEntidad = eventoPartidoFuncionalidades
+		                .mapearAEventoPartidoEntidad(eventoDto);
 		            actaPartidoEntidad.getEventoPartido().add(eventoEntidad);
 		        }
-		       
 		        actaPartidoEntidad = actaPartidoInterfaz.save(actaPartidoEntidad);
-		        actualizarEstadisticasFuncionalidades.actualizarGolesPartidoTorneo(actaPartidoEntidad);
-		        
+		        actualizarEstadisticasFuncionalidades.actualizarCamposPartidoTorneo(actaPartidoEntidad);
 		    }
 
-		
+		    // 5️⃣ Actualizar estadísticas globales
 		    actualizarEstadisticasFuncionalidades.actualizarEstadisticas(actaPartidoEntidad);
-		 
-		    
 
 		    return actaPartidoEntidad;
 		}
+
+
 	
 	
 		/**

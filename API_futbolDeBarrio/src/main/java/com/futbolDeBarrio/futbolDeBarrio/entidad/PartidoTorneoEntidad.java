@@ -44,7 +44,8 @@ public class PartidoTorneoEntidad {
     @JoinColumn(name = "equipo_visitante_id", referencedColumnName = "id_equipo_torneo", nullable = false)
     private EquipoTorneoEntidad equipoVisitante;
     
-    @OneToOne(mappedBy = "partidoTorneo", cascade = CascadeType.ALL, orphanRemoval = true, optional = true)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = true)
+    @JoinColumn(name = "acta_partido_id") 
     private ActaPartidoEntidad actaPartido;
 
     

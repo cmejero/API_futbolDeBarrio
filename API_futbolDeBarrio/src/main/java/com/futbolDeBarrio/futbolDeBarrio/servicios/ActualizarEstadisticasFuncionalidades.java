@@ -278,12 +278,16 @@ public class ActualizarEstadisticasFuncionalidades {
 	}
 	
 	
-	public void actualizarGolesPartidoTorneo(ActaPartidoEntidad acta) {
+	public void actualizarCamposPartidoTorneo(ActaPartidoEntidad acta) {
 	    if (acta.getPartidoTorneo() != null) {
 	        acta.getPartidoTorneo().setGolesLocal(acta.getGolesLocal());
 	        acta.getPartidoTorneo().setGolesVisitante(acta.getGolesVisitante());
+	        acta.getPartidoTorneo().setEstado("finalizado");
+	        
 	        partidoTorneoInterfaz.save(acta.getPartidoTorneo());
 	    }
 	}
+
+	
 
 }

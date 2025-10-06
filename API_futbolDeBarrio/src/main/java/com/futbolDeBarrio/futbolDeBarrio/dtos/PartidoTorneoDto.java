@@ -9,51 +9,52 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
  */
 public class PartidoTorneoDto {
 
-	  private Long idPartidoTorneo;
-	    private Long torneoId;
-	    private Long instalacionId;
-	    private Long clubLocalId;
-	    private Long clubVisitanteId;
-	    private Long equipoLocalId;
-	    private Long equipoVisitanteId;
-	    private Long actaPartidoId;            
-	    private String clubLocalNombre;
-	    private String clubVisitanteNombre;
-	    private String clubLocalAbreviatura;
-	    private String clubVisitanteAbreviatura;
-	    private int golesLocal;
-	    private int golesVisitante;
-	    private String fechaPartido;      
-	    private String ronda;
-	    private String estado;
-	    private int ubicacionRonda;
-	    private String nombreTorneo;
-	    private String nombreInstalacion;
-	    private List<UsuarioDto> jugadoresLocal;
-	    private List<UsuarioDto> jugadoresVisitante;
-  
+	private Long idPartidoTorneo;
+	private Long torneoId;
+	private Long instalacionId;
+	private Long clubLocalId;
+	private Long clubVisitanteId;
+	private Long equipoLocalId;
+	private Long equipoVisitanteId;
+	private Long actaPartidoId;
+	private String clubLocalNombre;
+	private String clubVisitanteNombre;
+	private String clubLocalAbreviatura;
+	private String clubVisitanteAbreviatura;
+	private int golesLocal;
+	private int golesVisitante;
+	private String fechaPartido;
+	private String ronda;
+	private String estado;
+	private int ubicacionRonda;
+	private String nombreTorneo;
+	private String nombreInstalacion;
+	private List<UsuarioDto> jugadoresLocal;
+	private List<UsuarioDto> jugadoresVisitante;
+	private Long equipoGanadorId;
+	private boolean actaCerrada;
 
-    public PartidoTorneoDto(PartidoTorneoEntidad entidad) {
-        this.idPartidoTorneo = entidad.getIdPartidoTorneo();
-        this.torneoId = entidad.getTorneo().getIdTorneo();
-        this.instalacionId = entidad.getInstalacion() != null ? entidad.getInstalacion().getIdInstalacion() : null;
-        this.clubLocalId = entidad.getClubLocal().getIdClub();
-        this.clubVisitanteId = entidad.getClubVisitante().getIdClub();
-        this.equipoLocalId = entidad.getEquipoLocal().getIdEquipoTorneo();
-        this.equipoVisitanteId = entidad.getEquipoVisitante().getIdEquipoTorneo();
-        this.actaPartidoId = entidad.getActaPartido().getIdActaPartido();
-        this.golesLocal = entidad.getGolesLocal();
-        this.golesVisitante = entidad.getGolesVisitante();
-        this.fechaPartido = entidad.getFechaPartido();
-        this.ronda = entidad.getRonda();
-        this.estado = entidad.getEstado();
-        this.ubicacionRonda = entidad.getUbicacionRonda();
-       
-    }
+	public PartidoTorneoDto(PartidoTorneoEntidad entidad) {
+		this.idPartidoTorneo = entidad.getIdPartidoTorneo();
+		this.torneoId = entidad.getTorneo().getIdTorneo();
+		this.instalacionId = entidad.getInstalacion() != null ? entidad.getInstalacion().getIdInstalacion() : null;
+		this.clubLocalId = entidad.getClubLocal().getIdClub();
+		this.clubVisitanteId = entidad.getClubVisitante().getIdClub();
+		this.equipoLocalId = entidad.getEquipoLocal().getIdEquipoTorneo();
+		this.equipoVisitanteId = entidad.getEquipoVisitante().getIdEquipoTorneo();
+		this.actaPartidoId = entidad.getActaPartido().getIdActaPartido();
+		this.golesLocal = entidad.getGolesLocal();
+		this.golesVisitante = entidad.getGolesVisitante();
+		this.fechaPartido = entidad.getFechaPartido();
+		this.ronda = entidad.getRonda();
+		this.estado = entidad.getEstado();
+		this.ubicacionRonda = entidad.getUbicacionRonda();
 
-    public PartidoTorneoDto() {
-        super();
-    }
+	}
+
+	public PartidoTorneoDto() {
+		super();
+	}
 
 	public Long getIdPartidoTorneo() {
 		return idPartidoTorneo;
@@ -118,7 +119,7 @@ public class PartidoTorneoDto {
 	public void setEquipoVisitanteId(Long equipoVisitanteId) {
 		this.equipoVisitanteId = equipoVisitanteId;
 	}
-	
+
 	public String getClubLocalNombre() {
 		return clubLocalNombre;
 	}
@@ -231,5 +232,20 @@ public class PartidoTorneoDto {
 		this.jugadoresVisitante = jugadoresVisitante;
 	}
 
-   
+	public Long getEquipoGanadorId() {
+		return equipoGanadorId;
+	}
+
+	public void setEquipoGanadorId(Long equipoGanadorId) {
+		this.equipoGanadorId = equipoGanadorId;
+	}
+
+	public boolean isActaCerrada() {
+		return actaCerrada;
+	}
+
+	public void setActaCerrada(boolean actaCerrada) {
+		this.actaCerrada = actaCerrada;
+	}
+
 }

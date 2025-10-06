@@ -17,6 +17,8 @@ public class ClubEstadisticaTorneoDto {
 	    private int perdidos;
 	    private int golesFavor;
 	    private int golesContra;
+	    private String nombreClub;
+	    private String abreviaturaClub;
 	   
 
 
@@ -31,6 +33,10 @@ public class ClubEstadisticaTorneoDto {
 	        this.perdidos = clubEstadisticaTorneoEntidad.getPerdidos();
 	        this.golesFavor = clubEstadisticaTorneoEntidad.getGolesFavor();
 	        this.golesContra = clubEstadisticaTorneoEntidad.getGolesContra();
+	        if (clubEstadisticaTorneoEntidad.getClub() != null) {
+	            this.nombreClub = clubEstadisticaTorneoEntidad.getClub().getNombreClub();
+	            this.abreviaturaClub = clubEstadisticaTorneoEntidad.getClub().getAbreviaturaClub();
+	        }
 	    }
 
 	    
@@ -92,7 +98,31 @@ public class ClubEstadisticaTorneoDto {
 	    
 	    
 	    
-		 public ClubEstadisticaTorneoDto() {
+		 public String getNombreClub() {
+			return nombreClub;
+		}
+
+
+
+		public void setNombreClub(String nombreClub) {
+			this.nombreClub = nombreClub;
+		}
+
+
+
+		public String getAbreviaturaClub() {
+			return abreviaturaClub;
+		}
+
+
+
+		public void setAbreviaturaClub(String abreviaturaClub) {
+			this.abreviaturaClub = abreviaturaClub;
+		}
+
+
+
+		public ClubEstadisticaTorneoDto() {
 				super();
 			}
 }

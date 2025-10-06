@@ -96,10 +96,27 @@ public class PartidoTorneoFuncionalidades {
 	            })
 	            .collect(Collectors.toList())
 	    );
+	    
+	    if (entidad.getActaPartido() != null && entidad.getActaPartido().getClubGanador() != null) {
+	        EquipoTorneoEntidad equipoGanador = equipoTorneoInterfaz
+	                .findByTorneo_IdTorneoAndClub_IdClub(
+	                        entidad.getTorneo().getIdTorneo(),
+	                        entidad.getActaPartido().getClubGanador().getIdClub())
+	                .orElse(null);
+
+	        if (equipoGanador != null) {
+	            dto.setEquipoGanadorId(equipoGanador.getIdEquipoTorneo());
+	        }
+	    }
 
 	    if (entidad.getActaPartido() != null) {
 	        dto.setActaPartidoId(entidad.getActaPartido().getIdActaPartido());
+	        dto.setActaCerrada(entidad.getActaPartido().estaCerrado());
+	    } else {
+	        dto.setActaPartidoId(null);
+	        dto.setActaCerrada(false);
 	    }
+
 
 	    return dto;
 	}
@@ -195,61 +212,48 @@ public class PartidoTorneoFuncionalidades {
 	 * @return la entidad guardada.
 	 */
 	public PartidoTorneoEntidad guardarPartidoTorneo(PartidoTorneoDto dto) {
+
+	    // ⚠️ Comprobar si ya existe un partido con los mismos equipos, torneo y ronda
+	    Optional<PartidoTorneoEntidad> existente =
+	            partidoTorneoInterfaz.findByTorneo_IdTorneoAndRondaAndEquipoLocal_IdEquipoTorneoAndEquipoVisitante_IdEquipoTorneo(
+	                    dto.getTorneoId(),
+	                    dto.getRonda(),
+	                    dto.getEquipoLocalId(),
+	                    dto.getEquipoVisitanteId()
+	            );
+
+	    if (existente.isPresent()) {
+	        Logs.ficheroLog("⚠️ Partido duplicado detectado. No se creará uno nuevo. " +
+	                "Torneo=" + dto.getTorneoId() + ", Ronda=" + dto.getRonda() +
+	                ", Local=" + dto.getEquipoLocalId() + ", Visitante=" + dto.getEquipoVisitanteId());
+	        return existente.get(); // ✅ Evita crear un duplicado
+	    }
+
 	    PartidoTorneoEntidad entidad = new PartidoTorneoEntidad();
 
-	    // Setear torneo, clubes, equipos, instalación
-	    TorneoEntidad torneo = torneoInterfaz.findById(dto.getTorneoId()).orElseThrow(
-	            () -> new IllegalArgumentException("El torneo con ID " + dto.getTorneoId() + " no existe"));
+	    TorneoEntidad torneo = torneoInterfaz.findById(dto.getTorneoId())
+	            .orElseThrow(() -> new IllegalArgumentException("El torneo con ID " + dto.getTorneoId() + " no existe"));
 	    entidad.setTorneo(torneo);
 
-	    ClubEntidad clubLocal = clubInterfaz.findById(dto.getClubLocalId()).orElseThrow(
-	            () -> new IllegalArgumentException("El club local con ID " + dto.getClubLocalId() + " no existe"));
+	    ClubEntidad clubLocal = clubInterfaz.findById(dto.getClubLocalId())
+	            .orElseThrow(() -> new IllegalArgumentException("El club local con ID " + dto.getClubLocalId() + " no existe"));
 	    entidad.setClubLocal(clubLocal);
 
-	    ClubEntidad clubVisitante = clubInterfaz.findById(dto.getClubVisitanteId()).orElseThrow(
-	            () -> new IllegalArgumentException("El club visitante con ID " + dto.getClubVisitanteId() + " no existe"));
+	    ClubEntidad clubVisitante = clubInterfaz.findById(dto.getClubVisitanteId())
+	            .orElseThrow(() -> new IllegalArgumentException("El club visitante con ID " + dto.getClubVisitanteId() + " no existe"));
 	    entidad.setClubVisitante(clubVisitante);
 
-	    EquipoTorneoEntidad equipoLocal = equipoTorneoInterfaz.findById(dto.getEquipoLocalId()).orElseThrow(
-	            () -> new IllegalArgumentException("El equipo local con ID " + dto.getEquipoLocalId() + " no existe"));
+	    EquipoTorneoEntidad equipoLocal = equipoTorneoInterfaz.findById(dto.getEquipoLocalId())
+	            .orElseThrow(() -> new IllegalArgumentException("El equipo local con ID " + dto.getEquipoLocalId() + " no existe"));
 	    entidad.setEquipoLocal(equipoLocal);
 
-	    EquipoTorneoEntidad equipoVisitante = equipoTorneoInterfaz.findById(dto.getEquipoVisitanteId()).orElseThrow(
-	            () -> new IllegalArgumentException("El equipo visitante con ID " + dto.getEquipoVisitanteId() + " no existe"));
+	    EquipoTorneoEntidad equipoVisitante = equipoTorneoInterfaz.findById(dto.getEquipoVisitanteId())
+	            .orElseThrow(() -> new IllegalArgumentException("El equipo visitante con ID " + dto.getEquipoVisitanteId() + " no existe"));
 	    entidad.setEquipoVisitante(equipoVisitante);
 
-	    entidad.setInstalacion(instalacionInterfaz.findById(dto.getInstalacionId()).orElseThrow(
-	            () -> new IllegalArgumentException("La instalación con ID " + dto.getInstalacionId() + " no existe")));
+	    entidad.setInstalacion(instalacionInterfaz.findById(dto.getInstalacionId())
+	            .orElseThrow(() -> new IllegalArgumentException("La instalación con ID " + dto.getInstalacionId() + " no existe")));
 
-	   
-	    if (dto.getActaPartidoId() != null) {
-	        try {
-	            ActaPartidoEntidad acta = actaPartidoInterfaz.findById(dto.getActaPartidoId())
-	                .orElseThrow(() -> new IllegalArgumentException(
-	                    "El acta con ID " + dto.getActaPartidoId() + " no existe"
-	                ));
-	            entidad.setActaPartido(acta);
-
-	            // Loguear éxito
-	            Logs.ficheroLog("Acta asignada correctamente al partido. actaId=" + dto.getActaPartidoId());
-	        } catch (IllegalArgumentException e) {
-	            // Loguear error y volver a lanzar excepción para que se capture en el controlador
-	            Logs.ficheroLog("ERROR al asignar acta: " + e.getMessage());
-	            throw e;
-	        } catch (Exception e) {
-	            // Cualquier otro error inesperado
-	            Logs.ficheroLog("ERROR inesperado al asignar acta: " + e.getMessage());
-	            throw new RuntimeException("Error asignando acta al partido", e);
-	        }
-	    } else {
-	        // Loguear que no había acta (opcional)
-	        Logs.ficheroLog("No se asigna acta al partido, actaPartidoId es null.");
-	    }
-	    
-
-	    
-
-	    // Setear goles, fecha, ronda, estado
 	    entidad.setGolesLocal(dto.getGolesLocal());
 	    entidad.setGolesVisitante(dto.getGolesVisitante());
 	    entidad.setFechaPartido(dto.getFechaPartido());
@@ -257,8 +261,13 @@ public class PartidoTorneoFuncionalidades {
 	    entidad.setEstado(dto.getEstado());
 	    entidad.setUbicacionRonda(dto.getUbicacionRonda());
 
+	    Logs.ficheroLog("✅ Partido nuevo guardado: " +
+	            "Torneo=" + dto.getTorneoId() + ", Ronda=" + dto.getRonda() +
+	            ", Local=" + dto.getEquipoLocalId() + ", Visitante=" + dto.getEquipoVisitanteId());
+
 	    return partidoTorneoInterfaz.save(entidad);
 	}
+
 
 
 	/**
@@ -327,47 +336,5 @@ public class PartidoTorneoFuncionalidades {
 		}
 	}
 
-	// =========================================
-	// NUEVO MÉTODO: CERRAR ACTA DEL PARTIDO
-	// =========================================
-	/**
-	 * Cierra el acta de un partido y marca el partido como FINALIZADO.
-	 *
-	 * @param idPartidoTorneo ID del partido a cerrar.
-	 * @return true si se cerró correctamente, false si ya estaba cerrada o no
-	 *         existe.
-	 * @throws IllegalStateException si el partido no tiene acta asociada.
-	 */
-	public boolean cerrarActaPartido(Long idPartidoTorneo) {
-
-		Optional<PartidoTorneoEntidad> entidadOpt = partidoTorneoInterfaz.findById(idPartidoTorneo);
-
-		if (entidadOpt.isPresent()) {
-			PartidoTorneoEntidad partido = entidadOpt.get();
-
-
-			if (partido.getActaPartido() == null) {
-
-				throw new IllegalStateException("El partido no tiene acta asociada");
-			}
-
-			ActaPartidoEntidad acta = partido.getActaPartido();
-
-			if (acta.isCerrado()) {
-
-				return false;
-			}
-
-			acta.setCerrado(true);
-			actaPartidoInterfaz.save(acta);
-
-			partido.setEstado("FINALIZADO");
-			partidoTorneoInterfaz.save(partido);
-
-			return true;
-		}
-
-		return false;
-	}
-
+	
 }
