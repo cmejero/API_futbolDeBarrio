@@ -27,6 +27,7 @@ import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.JugadorEstadisticaGlobalDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.JugadorEstadisticaTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.LoginDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.LoginGoogleDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.MiembroClubDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.PartidoTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.RecuperarContrasenaDto;
@@ -114,7 +115,7 @@ public class Controlador {
 	 * @return ResponseEntity con el resultado del login.
 	 */
 	public ResponseEntity<RespuestaLoginDto> login(@RequestBody LoginDto loginDto) {
-		Logs.ficheroLog("Intento de login con email: " + loginDto.getEmail());
+	    Logs.ficheroLog("Intento de login con email: " + loginDto.getEmail() + " tipo: " + loginDto.getTipoUsuario());
 		RespuestaLoginDto respuestaLogin = loginFuncionalidades.verificarCredenciales(loginDto);
 		if (respuestaLogin == null) {
 			Logs.ficheroLog("Login fallido para email: " + loginDto.getEmail());
@@ -123,6 +124,18 @@ public class Controlador {
 		Logs.ficheroLog("Login exitoso para email: " + loginDto.getEmail());
 		return ResponseEntity.ok(respuestaLogin);
 	}
+	
+	@PostMapping("/loginGoogle")
+	public ResponseEntity<RespuestaLoginDto> loginGoogle(@RequestBody LoginGoogleDto dto) {
+	    RespuestaLoginDto respuesta = loginFuncionalidades.loginConGoogle(dto);
+
+	    if (respuesta != null) {
+	        return ResponseEntity.ok(respuesta);
+	    } else {
+	        return ResponseEntity.status(401).body(null);
+	    }
+	}
+
 
 	@PostMapping("/recuperar-contrasena")
 	/**

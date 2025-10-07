@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.JugadorEstadisticaTorneoDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaTorneoEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.JugadorEstadisticaTorneoInterfaz;
 
 
@@ -29,8 +31,10 @@ public class JugadorEstadisticaTorneoFuncionalidades {
      */
     public JugadorEstadisticaTorneoDto mapearAJugadorEstadisticaTorneoDto(JugadorEstadisticaTorneoEntidad entidad) {
         JugadorEstadisticaTorneoDto dto = new JugadorEstadisticaTorneoDto();
+        
         dto.setIdJugadorEstadisticaTorneo(entidad.getIdJugadorEstadisticaTorneo());
         dto.setJugadorId(entidad.getJugador().getIdUsuario());
+        dto.setNombreJugador(entidad.getJugador().getNombreCompletoUsuario()); 
         dto.setTorneoId(entidad.getTorneo().getIdTorneo());
         dto.setGolesTorneo(entidad.getGolesTorneo());
         dto.setAsistenciasTorneo(entidad.getAsistenciasTorneo());
@@ -38,8 +42,24 @@ public class JugadorEstadisticaTorneoFuncionalidades {
         dto.setRojasTorneo(entidad.getRojasTorneo());
         dto.setPartidosJugadosTorneo(entidad.getPartidosJugadosTorneo());
         dto.setMinutosJugadosTorneo(entidad.getMinutosJugadosTorneo());
+
+        String nombreClub = "Sin club";
+
+        if (entidad.getJugador().getMiembroClub() != null && !entidad.getJugador().getMiembroClub().isEmpty()) {
+            nombreClub = entidad.getJugador().getMiembroClub().stream()
+                .map(MiembroClubEntidad::getClub)  // obtenemos el club
+                .filter(club -> club.getEquipoTorneo().stream()
+                        .anyMatch(et -> et.getTorneo().getIdTorneo() == entidad.getTorneo().getIdTorneo()))
+                .map(ClubEntidad::getNombreClub)
+                .findFirst()
+                .orElse("Sin club");
+        }
+
+        dto.setNombreClub(nombreClub);
+
         return dto;
     }
+
 
     /**
      * Obtiene las estadísticas de un jugador en un torneo por su ID.
