@@ -173,6 +173,32 @@ public class ClubFuncionalidades {
 	    return esModificado;
 	}
 
+	  /**
+     * Método para actualizar solo el campo esPremium de un club.
+     *
+     * @param idClub ID del club a actualizar.
+     * @param nuevoEstado Valor del campo esPremium (true o false).
+     * @return true si se actualizó correctamente, false si no se encontró el club.
+     */
+	public boolean actualizarPremium(Long idClub, boolean nuevoEstado) {
+	    try {
+	        Optional<ClubEntidad> clubOpt = clubInterfaz.findById(idClub);
+
+	        if (clubOpt.isPresent()) {
+	            ClubEntidad club = clubOpt.get();
+	            club.setEsPremium(nuevoEstado);
+	            clubInterfaz.save(club);
+	            return true;
+	        }
+	        return false;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+
+	
+	
 	/**
 	 * Elimina un club por su ID.
 	 * 

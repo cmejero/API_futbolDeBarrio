@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaGlobalEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.JugadorEstadisticaGlobalInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 
@@ -20,6 +22,8 @@ public class UsuarioFuncionalidades {
 
     @Autowired
     UsuarioInterfaz usuarioInterfaz;
+    @Autowired
+    JugadorEstadisticaGlobalInterfaz jugadorEstadisticaGlobalInterfaz;
     
 
     /**
@@ -54,6 +58,7 @@ public class UsuarioFuncionalidades {
         }
         usuarioDto.setEstadoUsuario(usuarioEntidad.getEstadoUsuario());
         usuarioDto.setRolUsuario(usuarioEntidad.getRolUsuario());
+        usuarioDto.setEsPremium(usuarioEntidad.isEsPremium());
         return usuarioDto;
     }
     /**
@@ -78,6 +83,7 @@ public class UsuarioFuncionalidades {
         }
         usuarioEntidad.setEstadoUsuario(usuarioDto.getEstadoUsuario());
         usuarioEntidad.setRolUsuario(usuarioDto.getRolUsuario());
+        usuarioEntidad.setEsPremium(usuarioDto.isEsPremium());
         return usuarioEntidad;
     }
 
@@ -113,17 +119,35 @@ public class UsuarioFuncionalidades {
      * @return la entidad del usuario guardada
      */
     public UsuarioEntidad guardarUsuario(UsuarioDto usuarioDto) {
-    	 // System.out.println("Rol recibido: " + usuarioDto.getRolUsuario());
-    	    if (usuarioDto.getRolUsuario() == null) {
-    	        throw new IllegalArgumentException("El rol del usuario es obligatorio.");
-    	    }
+        if (usuarioDto.getRolUsuario() == null) {
+            throw new IllegalArgumentException("El rol del usuario es obligatorio.");
+        }
+
         Optional<UsuarioEntidad> usuarioExistente = buscarUsuarioPorEmail(usuarioDto.getEmailUsuario());
         if (usuarioExistente.isPresent()) {
             throw new IllegalArgumentException("El email proporcionado ya está siendo utilizado por otro usuario.");
         }
+
+        // 1️⃣ Guardar usuario
         UsuarioEntidad usuarioEntidad = mapearADtoAEntidad(usuarioDto);
         usuarioEntidad.setPasswordUsuario(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
-        return usuarioInterfaz.save(usuarioEntidad);
+        usuarioEntidad = usuarioInterfaz.save(usuarioEntidad);
+
+        // 2️⃣ Crear estadísticas iniciales en cero
+        JugadorEstadisticaGlobalEntidad estadistica = new JugadorEstadisticaGlobalEntidad();
+        estadistica.setJugadorGlobalId(usuarioEntidad); 
+        estadistica.setGolesGlobal(0);
+        estadistica.setAsistenciasGlobal(0);
+        estadistica.setAmarillasGlobal(0);
+        estadistica.setRojasGlobal(0);
+        estadistica.setPartidosJugadosGlobal(0);
+        estadistica.setPartidosGanadosGlobal(0);
+        estadistica.setPartidosPerdidosGlobal(0);
+        estadistica.setMinutosJugadosGlobal(0);
+
+        jugadorEstadisticaGlobalInterfaz.save(estadistica);
+
+        return usuarioEntidad;
     }
 
     /**
@@ -163,6 +187,7 @@ public class UsuarioFuncionalidades {
                 // Estado y rol siempre se actualizan aunque no haya imagen
                 usuario.setEstadoUsuario(usuarioDto.getEstadoUsuario());
                 usuario.setRolUsuario(usuarioDto.getRolUsuario());
+                usuario.setEsPremium(usuarioDto.isEsPremium());
 
                 usuarioInterfaz.save(usuario);
                 esModificado = true;
@@ -174,6 +199,32 @@ public class UsuarioFuncionalidades {
         }
         return esModificado;
     }
+    
+    
+    /**
+     * Método para actualizar solo el campo esPremium de un usuario.
+     *
+     * @param idUsuario ID del usuario a actualizar.
+     * @param nuevoEstado Valor del campo esPremium (true o false).
+     * @return true si se actualizó correctamente, false si no se encontró el usuario.
+     */
+    public boolean actualizarPremium(Long idUsuario, boolean nuevoEstado) {
+        try {
+            Optional<UsuarioEntidad> usuarioOpt = usuarioInterfaz.findById(idUsuario);
+
+            if (usuarioOpt.isPresent()) {
+                UsuarioEntidad usuario = usuarioOpt.get();
+                usuario.setEsPremium(nuevoEstado);
+                usuarioInterfaz.save(usuario);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     
     /**

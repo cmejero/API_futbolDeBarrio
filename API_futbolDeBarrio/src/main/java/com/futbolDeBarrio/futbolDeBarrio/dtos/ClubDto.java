@@ -1,4 +1,4 @@
-	package com.futbolDeBarrio.futbolDeBarrio.dtos;
+package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
 import java.util.Base64;
 
@@ -14,159 +14,167 @@ import jakarta.validation.constraints.Size;
  */
 public class ClubDto {
 
-	   private long idClub;
+	private long idClub;
 
-	    @NotBlank(message = "El nombre del club es obligatorio") // Validación de campo no vacío
-	    private String nombreClub;
+	@NotBlank(message = "El nombre del club es obligatorio") // Validación de campo no vacío
+	private String nombreClub;
 
-	    @NotBlank(message = "La abreviatura del club es obligatoria") // Validación de campo no vacío
-	    private String abreviaturaClub;
+	@NotBlank(message = "La abreviatura del club es obligatoria") // Validación de campo no vacío
+	private String abreviaturaClub;
 
-	    @NotBlank(message = "La descripción del club es obligatoria")
-	    private String descripcionClub;
+	@NotBlank(message = "La descripción del club es obligatoria")
+	private String descripcionClub;
 
-	    private String fechaCreacionClub;
+	private String fechaCreacionClub;
 
-	    private String fechaFundacionClub;
+	private String fechaFundacionClub;
 
-	    @NotBlank(message = "La localidad del club es obligatoria") 
-	    private String localidadClub;
+	@NotBlank(message = "La localidad del club es obligatoria")
+	private String localidadClub;
 
-	    @NotBlank(message = "El país del club es obligatorio") 
-	    private String paisClub;
+	@NotBlank(message = "El país del club es obligatorio")
+	private String paisClub;
 
-	    private String logoClub;
+	private String logoClub;
 
-	    @Email(message = "El email debe tener un formato válido") 
-	    @NotBlank(message = "El email del club es obligatorio") 
-	    private String emailClub;
+	@Email(message = "El email debe tener un formato válido")
+	@NotBlank(message = "El email del club es obligatorio")
+	private String emailClub;
 
-	    @NotBlank(message = "La contraseña es obligatoria") 
-	    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres") 
-	    private String passwordClub;
+	@NotBlank(message = "La contraseña es obligatoria")
+	@Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
+	private String passwordClub;
 
-	    @Pattern(regexp = "^\\d{10}$", message = "El teléfono debe tener 10 dígitos") 
-	    private String telefonoClub;
+	@Pattern(regexp = "^\\d{10}$", message = "El teléfono debe tener 10 dígitos")
+	private String telefonoClub;
 
-    
-    public ClubDto(ClubEntidad clubEntidad) {
-        this.idClub = clubEntidad.getIdClub();
-        this.nombreClub = clubEntidad.getNombreClub();
-        this.abreviaturaClub = clubEntidad.getAbreviaturaClub();
-        this.descripcionClub = clubEntidad.getDescripcionClub();
-        this.fechaCreacionClub = clubEntidad.getFechaCreacionClub();
-        this.fechaFundacionClub = clubEntidad.getFechaFundacionClub();
-        this.localidadClub = clubEntidad.getLocalidadClub();
-        this.paisClub = clubEntidad.getPaisClub();        
-        if (clubEntidad.getLogoClub() != null) {
-            this.logoClub = Base64.getEncoder().encodeToString(clubEntidad.getLogoClub());
-        }
-        this.emailClub = clubEntidad.getEmailClub();
-        this.passwordClub = clubEntidad.getPasswordClub();
-        this.telefonoClub = clubEntidad.getTelefonoClub();
-    }
+	private boolean esPremium = false;
 
-    
-    public long getIdClub() {
-        return idClub;
-    }
+	public ClubDto(ClubEntidad clubEntidad) {
+		this.idClub = clubEntidad.getIdClub();
+		this.nombreClub = clubEntidad.getNombreClub();
+		this.abreviaturaClub = clubEntidad.getAbreviaturaClub();
+		this.descripcionClub = clubEntidad.getDescripcionClub();
+		this.fechaCreacionClub = clubEntidad.getFechaCreacionClub();
+		this.fechaFundacionClub = clubEntidad.getFechaFundacionClub();
+		this.localidadClub = clubEntidad.getLocalidadClub();
+		this.paisClub = clubEntidad.getPaisClub();
+		if (clubEntidad.getLogoClub() != null) {
+			this.logoClub = Base64.getEncoder().encodeToString(clubEntidad.getLogoClub());
+		}
+		this.emailClub = clubEntidad.getEmailClub();
+		this.passwordClub = clubEntidad.getPasswordClub();
+		this.telefonoClub = clubEntidad.getTelefonoClub();
+		this.esPremium = clubEntidad.isEsPremium();
+	}
 
-    public void setIdClub(long idClub) {
-        this.idClub = idClub;
-    }
+	public long getIdClub() {
+		return idClub;
+	}
 
-    public String getNombreClub() {
-        return nombreClub;
-    }
+	public void setIdClub(long idClub) {
+		this.idClub = idClub;
+	}
 
-    public void setNombreClub(String nombreClub) {
-        this.nombreClub = nombreClub;
-    }
+	public String getNombreClub() {
+		return nombreClub;
+	}
 
-    public String getAbreviaturaClub() {
-        return abreviaturaClub;
-    }
+	public void setNombreClub(String nombreClub) {
+		this.nombreClub = nombreClub;
+	}
 
-    public void setAbreviaturaClub(String abreviaturaClub) {
-        this.abreviaturaClub = abreviaturaClub;
-    }
+	public String getAbreviaturaClub() {
+		return abreviaturaClub;
+	}
 
-    public String getDescripcionClub() {
-        return descripcionClub;
-    }
+	public void setAbreviaturaClub(String abreviaturaClub) {
+		this.abreviaturaClub = abreviaturaClub;
+	}
 
-    public void setDescripcionClub(String descripcionClub) {
-        this.descripcionClub = descripcionClub;
-    }
+	public String getDescripcionClub() {
+		return descripcionClub;
+	}
 
-    public String getFechaCreacionClub() {
-        return fechaCreacionClub;
-    }
+	public void setDescripcionClub(String descripcionClub) {
+		this.descripcionClub = descripcionClub;
+	}
 
-    public void setFechaCreacionClub(String fechaCreacionClub) {
-        this.fechaCreacionClub = fechaCreacionClub;
-    }
+	public String getFechaCreacionClub() {
+		return fechaCreacionClub;
+	}
 
-    public String getFechaFundacionClub() {
-        return fechaFundacionClub;
-    }
+	public void setFechaCreacionClub(String fechaCreacionClub) {
+		this.fechaCreacionClub = fechaCreacionClub;
+	}
 
-    public void setFechaFundacionClub(String fechaFundacionClub) {
-        this.fechaFundacionClub = fechaFundacionClub;
-    }
+	public String getFechaFundacionClub() {
+		return fechaFundacionClub;
+	}
 
-    public String getLocalidadClub() {
-        return localidadClub;
-    }
+	public void setFechaFundacionClub(String fechaFundacionClub) {
+		this.fechaFundacionClub = fechaFundacionClub;
+	}
 
-    public void setLocalidadClub(String localidadClub) {
-        this.localidadClub = localidadClub;
-    }
+	public String getLocalidadClub() {
+		return localidadClub;
+	}
 
-    public String getPaisClub() {
-        return paisClub;
-    }
+	public void setLocalidadClub(String localidadClub) {
+		this.localidadClub = localidadClub;
+	}
 
-    public void setPaisClub(String paisClub) {
-        this.paisClub = paisClub;
-    }
+	public String getPaisClub() {
+		return paisClub;
+	}
 
-    public String getLogoClub() {
-        return logoClub;
-    }
+	public void setPaisClub(String paisClub) {
+		this.paisClub = paisClub;
+	}
 
-    public void setLogoClub(String logoClub) {
-        this.logoClub = logoClub;
-    }
+	public String getLogoClub() {
+		return logoClub;
+	}
 
-    public String getEmailClub() {
-        return emailClub;
-    }
+	public void setLogoClub(String logoClub) {
+		this.logoClub = logoClub;
+	}
 
-    public void setEmailClub(String emailClub) {
-        this.emailClub = emailClub;
-    }
+	public String getEmailClub() {
+		return emailClub;
+	}
 
-    public String getPasswordClub() {
-        return passwordClub;
-    }
+	public void setEmailClub(String emailClub) {
+		this.emailClub = emailClub;
+	}
 
-    public void setPasswordClub(String passwordClub) {
-        this.passwordClub = passwordClub;
-    }
+	public String getPasswordClub() {
+		return passwordClub;
+	}
 
-    public String getTelefonoClub() {
-        return telefonoClub;
-    }
+	public void setPasswordClub(String passwordClub) {
+		this.passwordClub = passwordClub;
+	}
 
-    public void setTelefonoClub(String telefonoClub) {
-        this.telefonoClub = telefonoClub;
-    }
+	public String getTelefonoClub() {
+		return telefonoClub;
+	}
+
+	public void setTelefonoClub(String telefonoClub) {
+		this.telefonoClub = telefonoClub;
+	}
+
+	public boolean isEsPremium() {
+		return esPremium;
+	}
+
+	public void setEsPremium(boolean esPremium) {
+		this.esPremium = esPremium;
+	}
 
 	public ClubDto() {
 		super();
-		
+
 	}
-    
-    
+
 }

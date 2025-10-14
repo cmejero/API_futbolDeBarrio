@@ -18,6 +18,8 @@ public class JugadorEstadisticaGlobalDto {
     private int partidosGanadosGlobal;
     private int partidosPerdidosGlobal;
     private int minutosJugadosGlobal;
+    private String nombreJugador;
+    private String aliasJugador;
     
     public JugadorEstadisticaGlobalDto(JugadorEstadisticaGlobalEntidad jugadorEstadisticaGlobalEntidad) {
         this.idGlobal = jugadorEstadisticaGlobalEntidad.getIdJugadorEstadisticaGlobal();
@@ -29,6 +31,9 @@ public class JugadorEstadisticaGlobalDto {
         this.partidosJugadosGlobal = jugadorEstadisticaGlobalEntidad.getPartidosJugadosGlobal();
         this.partidosGanadosGlobal = jugadorEstadisticaGlobalEntidad.getPartidosGanadosGlobal();
         this.partidosPerdidosGlobal = jugadorEstadisticaGlobalEntidad.getPartidosPerdidosGlobal();
+        this.nombreJugador = jugadorEstadisticaGlobalEntidad.getJugadorGlobalId().getNombreCompletoUsuario();
+        this.aliasJugador = jugadorEstadisticaGlobalEntidad.getJugadorGlobalId().getAliasUsuario();
+
 
         this.minutosJugadosGlobal = jugadorEstadisticaGlobalEntidad.getMinutosJugadosGlobal();
     }
@@ -99,6 +104,23 @@ public class JugadorEstadisticaGlobalDto {
 	}
 	public void setMinutosJugadosGlobal(int minutosJugadosGlobal) {
 		this.minutosJugadosGlobal = minutosJugadosGlobal;
+	}
+
+	
+	public String getNombreJugador() {
+		return nombreJugador;
+	}
+
+	public void setNombreJugador(String nombreJugador) {
+		this.nombreJugador = nombreJugador;
+	}
+
+	public String getAliasJugador() {
+		return aliasJugador;
+	}
+
+	public void setAliasJugador(String aliasJugador) {
+		this.aliasJugador = aliasJugador;
 	}
 
 	public JugadorEstadisticaGlobalDto() {

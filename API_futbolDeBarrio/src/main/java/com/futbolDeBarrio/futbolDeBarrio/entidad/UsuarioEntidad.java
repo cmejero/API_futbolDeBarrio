@@ -24,60 +24,61 @@ import jakarta.validation.constraints.Size;
 @Table(name = "usuario", schema = "sch")
 public class UsuarioEntidad {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_usuario")
-    private long idUsuario;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_usuario")
+	private long idUsuario;
 
-    @Size(min = 3, max = 50, message = "El nombre debe tener entre 1 y 50 caracteres")
-    @Column(name = "nombreCompleto_usuario")
-    private String nombreCompletoUsuario;
-    
-    @Size(min = 3, max = 30, message = "El nombre debe tener entre 1 y 50 caracteres")
-    @Column(name = "alias_usuario")
-    private String aliasUsuario;
+	@Size(min = 3, max = 50, message = "El nombre debe tener entre 1 y 50 caracteres")
+	@Column(name = "nombreCompleto_usuario")
+	private String nombreCompletoUsuario;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @Column(name = "fecha_nacimiento_usuario")
-    private String fechaNacimientoUsuario;
+	@Size(min = 3, max = 30, message = "El nombre debe tener entre 1 y 50 caracteres")
+	@Column(name = "alias_usuario")
+	private String aliasUsuario;
 
-    @Size(min = 3, max = 50, message = "El correo debe tener entre 3 y 50 caracteres")
-    @Column(name = "email_usuario")
-    private String emailUsuario;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Column(name = "fecha_nacimiento_usuario")
+	private String fechaNacimientoUsuario;
 
-    @Column(name = "telefono_usuario")
-    private String telefonoUsuario;
+	@Size(min = 3, max = 50, message = "El correo debe tener entre 3 y 50 caracteres")
+	@Column(name = "email_usuario")
+	private String emailUsuario;
 
-    @Column(name = "password_usuario")
-    private String passwordUsuario;
+	@Column(name = "telefono_usuario")
+	private String telefonoUsuario;
 
-  
-    @Column(name = "descripcion_usuario")
-    private String descripcionUsuario;
+	@Column(name = "password_usuario")
+	private String passwordUsuario;
 
-    @Column(name = "imagen_usuario")
-    private  byte[] imagenUsuario;
+	@Column(name = "descripcion_usuario")
+	private String descripcionUsuario;
 
-    @Enumerated(EnumType.STRING) 
-    @Column(name = "estado_usuario")
-    private Estado estadoUsuario;
+	@Column(name = "imagen_usuario")
+	private byte[] imagenUsuario;
 
-    @Enumerated(EnumType.STRING) 
-    @Column(name = "rolUsuario")
-    private RolUsuario rolUsuario;
-    
-    
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MiembroClubEntidad> miembroClub = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EventoPartidoEntidad> eventoPartido = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "jugadorGlobalId", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<JugadorEstadisticaGlobalEntidad> jugadorEstadisticaGlobal = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<JugadorEstadisticaTorneoEntidad> jugadorEstadisticaTorneo = new ArrayList<>();
+	@Enumerated(EnumType.STRING)
+	@Column(name = "estado_usuario")
+	private Estado estadoUsuario;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "rolUsuario")
+	private RolUsuario rolUsuario;
+
+	@Column(name = "es_premium")
+	private boolean esPremium;
+
+	@OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<MiembroClubEntidad> miembroClub = new ArrayList<>();
+
+	@OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<EventoPartidoEntidad> eventoPartido = new ArrayList<>();
+
+	@OneToMany(mappedBy = "jugadorGlobalId", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<JugadorEstadisticaGlobalEntidad> jugadorEstadisticaGlobal = new ArrayList<>();
+
+	@OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<JugadorEstadisticaTorneoEntidad> jugadorEstadisticaTorneo = new ArrayList<>();
 
 	public long getIdUsuario() {
 		return idUsuario;
@@ -94,8 +95,6 @@ public class UsuarioEntidad {
 	public void setNombreCompletoUsuario(String nombreCompletoUsuario) {
 		this.nombreCompletoUsuario = nombreCompletoUsuario;
 	}
-
-	
 
 	public String getAliasUsuario() {
 		return aliasUsuario;
@@ -137,8 +136,6 @@ public class UsuarioEntidad {
 		this.passwordUsuario = passwordUsuario;
 	}
 
-
-
 	public String getDescripcionUsuario() {
 		return descripcionUsuario;
 	}
@@ -147,7 +144,6 @@ public class UsuarioEntidad {
 		this.descripcionUsuario = descripcionUsuario;
 	}
 
-
 	public byte[] getImagenUsuario() {
 		return imagenUsuario;
 	}
@@ -155,7 +151,6 @@ public class UsuarioEntidad {
 	public void setImagenUsuario(byte[] imagenUsuario) {
 		this.imagenUsuario = imagenUsuario;
 	}
-	
 
 	public Estado getEstadoUsuario() {
 		return estadoUsuario;
@@ -165,7 +160,6 @@ public class UsuarioEntidad {
 		this.estadoUsuario = estadoUsuario;
 	}
 
-	
 	public RolUsuario getRolUsuario() {
 		return rolUsuario;
 	}
@@ -173,7 +167,6 @@ public class UsuarioEntidad {
 	public void setRolUsuario(RolUsuario rolUsuario) {
 		this.rolUsuario = rolUsuario;
 	}
-	
 
 	public UsuarioEntidad() {
 	}
@@ -210,6 +203,12 @@ public class UsuarioEntidad {
 		this.jugadorEstadisticaTorneo = jugadorEstadisticaTorneo;
 	}
 
-	
-    
+	public boolean isEsPremium() {
+		return esPremium;
+	}
+
+	public void setEsPremium(boolean esPremium) {
+		this.esPremium = esPremium;
+	}
+
 }

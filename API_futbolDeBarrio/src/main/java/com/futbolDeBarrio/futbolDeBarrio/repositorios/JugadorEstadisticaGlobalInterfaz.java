@@ -32,5 +32,6 @@ public interface JugadorEstadisticaGlobalInterfaz extends JpaRepository<JugadorE
 	Optional<JugadorEstadisticaGlobalEntidad> findByJugadorGlobalId_IdUsuario(Long idUsuario);
 	
 	
+	
 
 }

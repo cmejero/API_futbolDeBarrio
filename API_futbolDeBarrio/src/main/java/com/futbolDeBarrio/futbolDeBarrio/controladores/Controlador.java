@@ -2,6 +2,7 @@ package com.futbolDeBarrio.futbolDeBarrio.controladores;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,12 +40,14 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.ActaPartidoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaGlobalEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.EquipoTorneoInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.JugadorEstadisticaGlobalInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.ActaPartidoFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.ClubEstadisticaGlobalFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.ClubEstadisticaTorneoFuncionalidades;
@@ -104,6 +107,8 @@ public class Controlador {
 	PartidoTorneoFuncionalidades partidoTorneoFuncionalidades;
 	@Autowired
 	EquipoTorneoInterfaz equipoTorneoInterfaz;
+	@Autowired
+	JugadorEstadisticaGlobalInterfaz jugadorEstadisticaGlobalInterfaz;
 
 	@CrossOrigin(origins = "http://localhost:8080")
 
@@ -115,7 +120,7 @@ public class Controlador {
 	 * @return ResponseEntity con el resultado del login.
 	 */
 	public ResponseEntity<RespuestaLoginDto> login(@RequestBody LoginDto loginDto) {
-	    Logs.ficheroLog("Intento de login con email: " + loginDto.getEmail() + " tipo: " + loginDto.getTipoUsuario());
+		Logs.ficheroLog("Intento de login con email: " + loginDto.getEmail() + " tipo: " + loginDto.getTipoUsuario());
 		RespuestaLoginDto respuestaLogin = loginFuncionalidades.verificarCredenciales(loginDto);
 		if (respuestaLogin == null) {
 			Logs.ficheroLog("Login fallido para email: " + loginDto.getEmail());
@@ -124,18 +129,17 @@ public class Controlador {
 		Logs.ficheroLog("Login exitoso para email: " + loginDto.getEmail());
 		return ResponseEntity.ok(respuestaLogin);
 	}
-	
+
 	@PostMapping("/loginGoogle")
-	public ResponseEntity<RespuestaLoginDto> loginGoogle(@RequestBody LoginGoogleDto dto) {
-	    RespuestaLoginDto respuesta = loginFuncionalidades.loginConGoogle(dto);
+	public ResponseEntity<LoginGoogleDto> loginGoogle(@RequestBody LoginGoogleDto dto) {
+		LoginGoogleDto respuesta = loginFuncionalidades.loginConGoogle(dto);
 
-	    if (respuesta != null) {
-	        return ResponseEntity.ok(respuesta);
-	    } else {
-	        return ResponseEntity.status(401).body(null);
-	    }
+		if (respuesta != null) {
+			return ResponseEntity.ok(respuesta);
+		} else {
+			return ResponseEntity.status(401).body(null);
+		}
 	}
-
 
 	@PostMapping("/recuperar-contrasena")
 	/**
@@ -262,6 +266,29 @@ public class Controlador {
 		return resultado;
 	}
 
+	/**
+	 * Método PUT para actualizar el campo esPremium de un club.
+	 * 
+	 * @param idClub ID del club a actualizar.
+	 * @return Mensaje de confirmación.
+	 */
+	@PutMapping("/modificarPremiumClub/{id_club}")
+	public ResponseEntity<?> modificarPremiumClub(@PathVariable("id_club") Long idClub) {
+		try {
+			boolean resultado = clubFuncionalidades.actualizarPremium(idClub, true);
+
+			if (resultado) {
+				return ResponseEntity.ok("Club actualizado a Premium correctamente.");
+			} else {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Club no encontrado.");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error al actualizar el estado Premium del club.");
+		}
+	}
+
 	/* METODOS CRUD DE LA TABLA EQUIPO_TORNEO */
 
 	@GetMapping("/equipoTorneo/{id_equipoTorneo}")
@@ -296,8 +323,6 @@ public class Controlador {
 		return equipoTorneoFuncionalidades.obtenerEquiposTorneoDto();
 	}
 
-
-
 	@PostMapping("/guardarEquipoTorneo")
 	/**
 	 * Metodo para guardar un nuevo equipo en el torneo.
@@ -306,17 +331,15 @@ public class Controlador {
 	 * @return El objeto EquipoTorneoDto del equipo guardado.
 	 */
 	public ResponseEntity<String> guardarEquipoTorneo(@RequestBody EquipoTorneoDto equipoTorneoDto) {
-	    try {
-	        EquipoTorneoEntidad guardado = equipoTorneoFuncionalidades.guardarEquipoTorneo(equipoTorneoDto);
-	        return ResponseEntity.ok("Te has unido al torneo correctamente.");
-	    } catch (RuntimeException e) {
-	        Logs.ficheroLog("Intento de inscripción duplicada: " + e.getMessage());
-	        return ResponseEntity.status(HttpStatus.CONFLICT)
-	                             .body("No puedes unirte, tu club ya está inscrito en este torneo.");
-	    }
+		try {
+			EquipoTorneoEntidad guardado = equipoTorneoFuncionalidades.guardarEquipoTorneo(equipoTorneoDto);
+			return ResponseEntity.ok("Te has unido al torneo correctamente.");
+		} catch (RuntimeException e) {
+			Logs.ficheroLog("Intento de inscripción duplicada: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.CONFLICT)
+					.body("No puedes unirte, tu club ya está inscrito en este torneo.");
+		}
 	}
-
-
 
 	@DeleteMapping("/eliminarEquipoTorneo/{id_equipoTorneo}")
 	/**
@@ -700,6 +723,32 @@ public class Controlador {
 		}
 	}
 
+	/**
+	 * Método PUT para actualizar el campo esPremium de un usuario.
+	 * 
+	 * @param idUsuario ID del usuario a actualizar.
+	 * @return Mensaje de confirmación.
+	 */
+	@PutMapping("/modificarPremiumUsuario/{id_usuario}")
+	public ResponseEntity<?> modificarPremiumUsuario(@PathVariable("id_usuario") Long idUsuario) {
+		System.out.println("API llamada para modificarPremiumUsuario, id=" + idUsuario);
+
+		try {
+			boolean resultado = usuarioFuncionalidades.actualizarPremium(idUsuario, true);
+			System.out.println("Resultado de actualizarPremium en API: " + resultado);
+
+			if (resultado) {
+				return ResponseEntity.ok("Usuario actualizado a Premium correctamente.");
+			} else {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error al actualizar el estado Premium del usuario.");
+		}
+	}
+
 	/* METODOS CRUD DE LA TABLA ACTA PARTIDO */
 
 	/**
@@ -746,22 +795,21 @@ public class Controlador {
 	 */
 	@PostMapping("/guardarActaPartido")
 	public ResponseEntity<?> guardarActaPartido(@RequestBody ActaPartidoDto actaPartidoDto) {
-	    Logs.ficheroLog("Solicitud para guardar Acta de partido con datos: " + actaPartidoDto.toString());
-	    try {
-	        ActaPartidoEntidad actaPartidoEntidad = actaPartidoFuncionalidades.guardarActaPartido(actaPartidoDto);
-	        Logs.ficheroLog("Acta del partido guardado exitosamente con ID: " + actaPartidoEntidad.getIdActaPartido());
-	        return ResponseEntity.ok(actaPartidoFuncionalidades.mapearAActaPartidoDto(actaPartidoEntidad));
-	    } catch (IllegalArgumentException e) {
-	        Logs.ficheroLog("Error al guardar acta de partido: " + e.getMessage());
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-	    } catch (Exception e) {
-	        // Loguea la excepción completa para ver la causa raíz
-	        Logs.ficheroLog("Error inesperado al guardar acta de partido: " + e.toString());
-	        e.printStackTrace(); 
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
-	    }
+		Logs.ficheroLog("Solicitud para guardar Acta de partido con datos: " + actaPartidoDto.toString());
+		try {
+			ActaPartidoEntidad actaPartidoEntidad = actaPartidoFuncionalidades.guardarActaPartido(actaPartidoDto);
+			Logs.ficheroLog("Acta del partido guardado exitosamente con ID: " + actaPartidoEntidad.getIdActaPartido());
+			return ResponseEntity.ok(actaPartidoFuncionalidades.mapearAActaPartidoDto(actaPartidoEntidad));
+		} catch (IllegalArgumentException e) {
+			Logs.ficheroLog("Error al guardar acta de partido: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		} catch (Exception e) {
+			// Loguea la excepción completa para ver la causa raíz
+			Logs.ficheroLog("Error inesperado al guardar acta de partido: " + e.toString());
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
+		}
 	}
-
 
 	/**
 	 * Método PUT para actualizar un acta de partido por su ID.
@@ -775,7 +823,6 @@ public class Controlador {
 			@RequestBody ActaPartidoDto actaPartidoDto) {
 		Logs.ficheroLog("Solicitud para modificar Acta del partido con ID: " + idActaPartidoStr);
 		try {
-
 
 			Long idActaPartido = Long.parseLong(idActaPartidoStr);
 			boolean resultado = actaPartidoFuncionalidades.modificarActaPartido(idActaPartido, actaPartidoDto);
@@ -866,340 +913,356 @@ public class Controlador {
 
 	}
 
-
-
 	/* METODOS CRUD DE LA TABLA JUGADOR ESTADISTICAS GLOBAL */
 
-	  /**
-     * Método GET para obtener un jugador estadística global por su ID.
-     * 
-     * @param id ID del jugador.
-     * @return DTO {@link JugadorEstadisticaGlobalDto} correspondiente, o 404 si no existe.
-     */
-    @GetMapping("/jugadorEstadisticaGlobal/{id}")
-    public ResponseEntity<JugadorEstadisticaGlobalDto> obtenerJugadorEstadisticaGlobal(@PathVariable Long id) {
-        try {
-            Logs.ficheroLog("Buscando estadística global del jugador con ID " + id);
-            JugadorEstadisticaGlobalDto dto = jugadorEstadisticaGlobalFuncionalidades.obtenerJugadorEstadisticaGlobalPorId(id);
-            if (dto != null) {
-                Logs.ficheroLog("Estadística global encontrada para jugador ID " + id);
-                return ResponseEntity.ok(dto);
-            } else {
-                Logs.ficheroLog("No se encontró estadística global para jugador ID " + id);
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            Logs.ficheroLog("Error al obtener estadística global del jugador con ID " + id + ": " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+	/**
+	 * Método GET para obtener un jugador estadística global por su ID.
+	 * 
+	 * @param id ID del jugador.
+	 * @return DTO {@link JugadorEstadisticaGlobalDto} correspondiente, o 404 si no
+	 *         existe.
+	 */
+	@GetMapping("/jugadorEstadisticaGlobal/{id}")
+	public ResponseEntity<JugadorEstadisticaGlobalDto> obtenerJugadorEstadisticaGlobal(@PathVariable Long id) {
+		try {
+			Logs.ficheroLog("Buscando estadística global del jugador con ID " + id);
+			JugadorEstadisticaGlobalDto dto = jugadorEstadisticaGlobalFuncionalidades
+					.obtenerJugadorEstadisticaGlobalPorId(id);
+			if (dto != null) {
+				Logs.ficheroLog("Estadística global encontrada para jugador ID " + id);
+				return ResponseEntity.ok(dto);
+			} else {
+				Logs.ficheroLog("No se encontró estadística global para jugador ID " + id);
+				return ResponseEntity.notFound().build();
+			}
+		} catch (Exception e) {
+			Logs.ficheroLog("Error al obtener estadística global del jugador con ID " + id + ": " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-    /**
-     * Método GET para obtener todas las estadísticas globales de jugadores como una lista de DTOs.
-     * 
-     * @return Lista de todos los jugadores con estadísticas globales, o 404 si no hay datos.
-     */
-    @GetMapping("/mostrarJugadorEstadisticaGlobal")
-    public ResponseEntity<ArrayList<JugadorEstadisticaGlobalDto>> mostrarJugadorEstadisticaGlobal() {
-        try {
-            Logs.ficheroLog("Solicitando todas las estadísticas globales de jugadores");
-            ArrayList<JugadorEstadisticaGlobalDto> lista = jugadorEstadisticaGlobalFuncionalidades.mostrarJugadorEstadisticaGlobal();
-            if (lista != null && !lista.isEmpty()) {
-                Logs.ficheroLog("Mostrando todas las estadísticas globales de jugadores");
-                return ResponseEntity.ok(lista);
-            } else {
-                Logs.ficheroLog("No existen estadísticas globales de jugadores");
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            Logs.ficheroLog("Error mostrando estadísticas globales de jugadores: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+	 @GetMapping("/jugadorEstadisticaIndividualGlobal/{jugadorId}")
+	    public ResponseEntity<JugadorEstadisticaGlobalDto> obtenerPorJugadorId(@PathVariable Long jugadorId) {
+	        JugadorEstadisticaGlobalDto dto = jugadorEstadisticaGlobalFuncionalidades
+	                .obtenerPorJugadorId(jugadorId);
 
-    
-    
-    
-    
+	        if (dto != null) {
+	            return ResponseEntity.ok(dto);
+	        } else {
+	            return ResponseEntity.notFound().build();
+	        }
+	    }
+
+
+	/**
+	 * Método GET para obtener todas las estadísticas globales de jugadores como una
+	 * lista de DTOs.
+	 * 
+	 * @return Lista de todos los jugadores con estadísticas globales, o 404 si no
+	 *         hay datos.
+	 */
+	@GetMapping("/mostrarJugadorEstadisticaGlobal")
+	public ResponseEntity<ArrayList<JugadorEstadisticaGlobalDto>> mostrarJugadorEstadisticaGlobal() {
+		try {
+			Logs.ficheroLog("Solicitando todas las estadísticas globales de jugadores");
+			ArrayList<JugadorEstadisticaGlobalDto> lista = jugadorEstadisticaGlobalFuncionalidades
+					.mostrarJugadorEstadisticaGlobal();
+			if (lista != null && !lista.isEmpty()) {
+				Logs.ficheroLog("Mostrando todas las estadísticas globales de jugadores");
+				return ResponseEntity.ok(lista);
+			} else {
+				Logs.ficheroLog("No existen estadísticas globales de jugadores");
+				return ResponseEntity.notFound().build();
+			}
+		} catch (Exception e) {
+			Logs.ficheroLog("Error mostrando estadísticas globales de jugadores: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
 	/* METODOS CRUD DE LA TABLA JUGADOR ESTADISTICAS TORNEO */
 
-        /**
-         * Método GET para obtener un jugador estadística torneo por su ID.
-         * 
-         * @param id ID de la estadística del jugador en el torneo.
-         * @return DTO {@link JugadorEstadisticaTorneoDto} correspondiente, o 404 si no existe.
-         */
-        @GetMapping("/jugadorEstadisticaTorneo/{id}")
-        public ResponseEntity<JugadorEstadisticaTorneoDto> obtenerJugadorEstadisticaTorneo(@PathVariable Long id) {
-            try {
-                Logs.ficheroLog("Buscando estadística de jugador en torneo con ID " + id);
-                JugadorEstadisticaTorneoDto dto = jugadorEstadisticaTorneoFuncionalidades.obtenerJugadorEstadisticaTorneoPorId(id);
-                if (dto != null) {
-                    Logs.ficheroLog("Estadística encontrada para jugador en torneo ID " + id);
-                    return ResponseEntity.ok(dto);
-                } else {
-                    Logs.ficheroLog("No se encontró estadística para jugador en torneo con ID " + id);
-                    return ResponseEntity.notFound().build();
-                }
-            } catch (Exception e) {
-                Logs.ficheroLog("Error al obtener estadística de jugador en torneo con ID " + id + ": " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-        }
+	/**
+	 * Método GET para obtener un jugador estadística torneo por su ID.
+	 * 
+	 * @param id ID de la estadística del jugador en el torneo.
+	 * @return DTO {@link JugadorEstadisticaTorneoDto} correspondiente, o 404 si no
+	 *         existe.
+	 */
+	@GetMapping("/jugadorEstadisticaTorneo/{id}")
+	public ResponseEntity<JugadorEstadisticaTorneoDto> obtenerJugadorEstadisticaTorneo(@PathVariable Long id) {
+		try {
+			Logs.ficheroLog("Buscando estadística de jugador en torneo con ID " + id);
+			JugadorEstadisticaTorneoDto dto = jugadorEstadisticaTorneoFuncionalidades
+					.obtenerJugadorEstadisticaTorneoPorId(id);
+			if (dto != null) {
+				Logs.ficheroLog("Estadística encontrada para jugador en torneo ID " + id);
+				return ResponseEntity.ok(dto);
+			} else {
+				Logs.ficheroLog("No se encontró estadística para jugador en torneo con ID " + id);
+				return ResponseEntity.notFound().build();
+			}
+		} catch (Exception e) {
+			Logs.ficheroLog("Error al obtener estadística de jugador en torneo con ID " + id + ": " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-        /**
-         * Método GET para obtener todas las estadísticas de jugadores en torneos como una lista de DTOs.
-         * 
-         * @return Lista de todos los jugadores con estadísticas en torneos, o 404 si no hay datos.
-         */
-        @GetMapping("/mostrarJugadorEstadisticaTorneo")
-        public ResponseEntity<ArrayList<JugadorEstadisticaTorneoDto>> mostrarJugadorEstadisticaTorneo() {
-            try {
-                Logs.ficheroLog("Solicitando todas las estadísticas de jugadores en torneos");
-                ArrayList<JugadorEstadisticaTorneoDto> lista = jugadorEstadisticaTorneoFuncionalidades.mostrarJugadorEstadisticaTorneo();
-                if (lista != null && !lista.isEmpty()) {
-                    Logs.ficheroLog("Mostrando todas las estadísticas de jugadores en torneos");
-                    return ResponseEntity.ok(lista);
-                } else {
-                    Logs.ficheroLog("No existen estadísticas de jugadores en torneos");
-                    return ResponseEntity.notFound().build();
-                }
-            } catch (Exception e) {
-                Logs.ficheroLog("Error mostrando estadísticas de jugadores en torneos: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-        }
+	/**
+	 * Método GET para obtener todas las estadísticas de jugadores en torneos como
+	 * una lista de DTOs.
+	 * 
+	 * @return Lista de todos los jugadores con estadísticas en torneos, o 404 si no
+	 *         hay datos.
+	 */
+	@GetMapping("/mostrarJugadorEstadisticaTorneo")
+	public ResponseEntity<ArrayList<JugadorEstadisticaTorneoDto>> mostrarJugadorEstadisticaTorneo() {
+		try {
+			Logs.ficheroLog("Solicitando todas las estadísticas de jugadores en torneos");
+			ArrayList<JugadorEstadisticaTorneoDto> lista = jugadorEstadisticaTorneoFuncionalidades
+					.mostrarJugadorEstadisticaTorneo();
+			if (lista != null && !lista.isEmpty()) {
+				Logs.ficheroLog("Mostrando todas las estadísticas de jugadores en torneos");
+				return ResponseEntity.ok(lista);
+			} else {
+				Logs.ficheroLog("No existen estadísticas de jugadores en torneos");
+				return ResponseEntity.notFound().build();
+			}
+		} catch (Exception e) {
+			Logs.ficheroLog("Error mostrando estadísticas de jugadores en torneos: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	
+	 @GetMapping("/jugadorEstadisticaIndividualTorneo/{jugadorId}")
+	 public ArrayList<JugadorEstadisticaTorneoDto> obtenerPorJugador(@PathVariable Long jugadorId) {
+	        return jugadorEstadisticaTorneoFuncionalidades.obtenerEstadisticasDeTodosLosTorneos(jugadorId);
+	    }
 
-	    
-	    
 	/* METODOS CRUD DE LA TABLA CLUB ESTADISTICAS GLOBAL */
 
-	    /**
-	     * Método GET para obtener la estadística global de un club por su ID.
-	     *
-	     * @param id ID del club estadística global.
-	     * @return DTO {@link ClubEstadisiticaGlobalDto} correspondiente, o 404 si no existe.
-	     */
-	    @GetMapping("/clubEstadisticaGlobal/{id}")
-	    public ResponseEntity<ClubEstadisiticaGlobalDto> obtenerClubEstadisticaGlobal(@PathVariable Long id) {
-	        try {
-	            Logs.ficheroLog("Buscando estadística global del club con ID " + id);
-	            ClubEstadisiticaGlobalDto dto = clubEstadisticaGlobalFuncionalidades.obtenerClubEstadisticaGlobalPorId(id);
-	            if (dto != null) {
-	                Logs.ficheroLog("Estadística global encontrada para el club ID " + id);
-	                return ResponseEntity.ok(dto);
-	            } else {
-	                Logs.ficheroLog("No se encontró estadística global para el club con ID " + id);
-	                return ResponseEntity.notFound().build();
-	            }
-	        } catch (Exception e) {
-	            Logs.ficheroLog("Error al obtener estadística global del club con ID " + id + ": " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-	        }
-	    }
+	/**
+	 * Método GET para obtener la estadística global de un club por su ID.
+	 *
+	 * @param id ID del club estadística global.
+	 * @return DTO {@link ClubEstadisiticaGlobalDto} correspondiente, o 404 si no
+	 *         existe.
+	 */
+	@GetMapping("/clubEstadisticaGlobal/{id}")
+	public ResponseEntity<ClubEstadisiticaGlobalDto> obtenerClubEstadisticaGlobal(@PathVariable Long id) {
+		try {
+			Logs.ficheroLog("Buscando estadística global del club con ID " + id);
+			ClubEstadisiticaGlobalDto dto = clubEstadisticaGlobalFuncionalidades.obtenerClubEstadisticaGlobalPorId(id);
+			if (dto != null) {
+				Logs.ficheroLog("Estadística global encontrada para el club ID " + id);
+				return ResponseEntity.ok(dto);
+			} else {
+				Logs.ficheroLog("No se encontró estadística global para el club con ID " + id);
+				return ResponseEntity.notFound().build();
+			}
+		} catch (Exception e) {
+			Logs.ficheroLog("Error al obtener estadística global del club con ID " + id + ": " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-	    /**
-	     * Método GET para obtener todas las estadísticas globales de los clubes.
-	     *
-	     * @return Lista de DTOs {@link ClubEstadisiticaGlobalDto}, o 404 si no hay datos.
-	     */
-	    @GetMapping("/mostrarClubEstadisticaGlobal")
-	    public ResponseEntity<ArrayList<ClubEstadisiticaGlobalDto>> mostrarClubEstadisticaGlobal() {
-	        try {
-	            Logs.ficheroLog("Solicitando todas las estadísticas globales de clubes");
-	            ArrayList<ClubEstadisiticaGlobalDto> lista = clubEstadisticaGlobalFuncionalidades.mostrarClubEstadisticaGlobal();
-	            if (lista != null && !lista.isEmpty()) {
-	                Logs.ficheroLog("Mostrando todas las estadísticas globales de clubes");
-	                return ResponseEntity.ok(lista);
-	            } else {
-	                Logs.ficheroLog("No existen estadísticas globales de clubes");
-	                return ResponseEntity.notFound().build();
-	            }
-	        } catch (Exception e) {
-	            Logs.ficheroLog("Error mostrando estadísticas globales de clubes: " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-	        }
-	    }
+	/**
+	 * Método GET para obtener todas las estadísticas globales de los clubes.
+	 *
+	 * @return Lista de DTOs {@link ClubEstadisiticaGlobalDto}, o 404 si no hay
+	 *         datos.
+	 */
+	@GetMapping("/mostrarClubEstadisticaGlobal")
+	public ResponseEntity<ArrayList<ClubEstadisiticaGlobalDto>> mostrarClubEstadisticaGlobal() {
+		try {
+			Logs.ficheroLog("Solicitando todas las estadísticas globales de clubes");
+			ArrayList<ClubEstadisiticaGlobalDto> lista = clubEstadisticaGlobalFuncionalidades
+					.mostrarClubEstadisticaGlobal();
+			if (lista != null && !lista.isEmpty()) {
+				Logs.ficheroLog("Mostrando todas las estadísticas globales de clubes");
+				return ResponseEntity.ok(lista);
+			} else {
+				Logs.ficheroLog("No existen estadísticas globales de clubes");
+				return ResponseEntity.notFound().build();
+			}
+		} catch (Exception e) {
+			Logs.ficheroLog("Error mostrando estadísticas globales de clubes: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-	
-	
-	    
-	    
-	    
-	    
 	/* METODOS CRUD DE LA TABLA CLUB ESTADISTICAS TORNEO */
 
-	    /**
-	     * Método GET para obtener la estadística de un club en un torneo por su ID.
-	     * 
-	     * @param idEstadistica ID de la estadística a buscar.
-	     * @return DTO correspondiente o 404 si no existe.
-	     */
-	    @GetMapping("/clubEstadisticaTorneo/{id}")
-	    public ResponseEntity<ClubEstadisticaTorneoDto> obtenerClubEstadisticaTorneo(@PathVariable Long id) {
-	        try {
-	            Logs.ficheroLog("Buscando estadística de club torneo con ID " + id);
-	            ClubEstadisticaTorneoDto dto = clubEstadisticaTorneoFuncionalidades.obtenerClubEstadisticaTorneoPorId(id);
-	            if (dto != null) {
-	                Logs.ficheroLog("Estadística encontrada para club torneo ID " + id);
-	                return ResponseEntity.ok(dto);
-	            } else {
-	                Logs.ficheroLog("No se encontró estadística de club torneo con ID " + id);
-	                return ResponseEntity.notFound().build();
-	            }
-	        } catch (Exception e) {
-	            Logs.ficheroLog("Error obteniendo estadística de club torneo con ID " + id + ": " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-	        }
-	    }
+	/**
+	 * Método GET para obtener la estadística de un club en un torneo por su ID.
+	 * 
+	 * @param idEstadistica ID de la estadística a buscar.
+	 * @return DTO correspondiente o 404 si no existe.
+	 */
+	@GetMapping("/clubEstadisticaTorneo/{id}")
+	public ResponseEntity<ClubEstadisticaTorneoDto> obtenerClubEstadisticaTorneo(@PathVariable Long id) {
+		try {
+			Logs.ficheroLog("Buscando estadística de club torneo con ID " + id);
+			ClubEstadisticaTorneoDto dto = clubEstadisticaTorneoFuncionalidades.obtenerClubEstadisticaTorneoPorId(id);
+			if (dto != null) {
+				Logs.ficheroLog("Estadística encontrada para club torneo ID " + id);
+				return ResponseEntity.ok(dto);
+			} else {
+				Logs.ficheroLog("No se encontró estadística de club torneo con ID " + id);
+				return ResponseEntity.notFound().build();
+			}
+		} catch (Exception e) {
+			Logs.ficheroLog("Error obteniendo estadística de club torneo con ID " + id + ": " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-	    /**
-	     * Método GET para obtener todas las estadísticas de clubes en torneos.
-	     * 
-	     * @return Lista de DTOs o 404 si no hay datos.
-	     */
-	    @GetMapping("/mostrarClubEstadisticaTorneo")
-	    public ResponseEntity<ArrayList<ClubEstadisticaTorneoDto>> mostrarClubEstadisticaTorneo() {
-	        try {
-	            Logs.ficheroLog("Solicitando todas las estadísticas de clubes en torneos");
-	            ArrayList<ClubEstadisticaTorneoDto> lista = clubEstadisticaTorneoFuncionalidades.mostrarClubEstadisticaTorneo();
-	            if (lista != null && !lista.isEmpty()) {
-	                Logs.ficheroLog("Mostrando todas las estadísticas de clubes en torneos.");
-	                return ResponseEntity.ok(lista);
-	            } else {
-	                Logs.ficheroLog("No existen estadísticas de clubes en torneos.");
-	                return ResponseEntity.notFound().build();
-	            }
-	        } catch (Exception e) {
-	            Logs.ficheroLog("Error mostrando todas las estadísticas de clubes en torneos: " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-	        }
-	    }
+	/**
+	 * Método GET para obtener todas las estadísticas de clubes en torneos.
+	 * 
+	 * @return Lista de DTOs o 404 si no hay datos.
+	 */
+	@GetMapping("/mostrarClubEstadisticaTorneo")
+	public ResponseEntity<ArrayList<ClubEstadisticaTorneoDto>> mostrarClubEstadisticaTorneo() {
+		try {
+			Logs.ficheroLog("Solicitando todas las estadísticas de clubes en torneos");
+			ArrayList<ClubEstadisticaTorneoDto> lista = clubEstadisticaTorneoFuncionalidades
+					.mostrarClubEstadisticaTorneo();
+			if (lista != null && !lista.isEmpty()) {
+				Logs.ficheroLog("Mostrando todas las estadísticas de clubes en torneos.");
+				return ResponseEntity.ok(lista);
+			} else {
+				Logs.ficheroLog("No existen estadísticas de clubes en torneos.");
+				return ResponseEntity.notFound().build();
+			}
+		} catch (Exception e) {
+			Logs.ficheroLog("Error mostrando todas las estadísticas de clubes en torneos: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-	
+	/* METODOS CRUD DE LA TABLA PARTIDO TORNEO */
 
+	/**
+	 * Método GET para obtener un partido por su ID.
+	 *
+	 * @param idPartidoTorneo ID del partido a buscar.
+	 * @return El partido correspondiente al ID proporcionado, o 404 si no se
+	 *         encuentra.
+	 */
+	@GetMapping("/partidoTorneo/{idPartidoTorneo}")
+	public ResponseEntity<PartidoTorneoDto> obtenerPartidoTorneoPorId(
+			@PathVariable("idPartidoTorneo") Long idPartidoTorneo) {
+		try {
+			Logs.ficheroLog("Buscando partido con ID: " + idPartidoTorneo);
+			PartidoTorneoDto dto = partidoTorneoFuncionalidades.obtenerPartidoTorneoDtoPorId(idPartidoTorneo);
+			if (dto != null) {
+				Logs.ficheroLog("Partido encontrado con ID: " + idPartidoTorneo);
+				return ResponseEntity.ok(dto);
+			} else {
+				Logs.ficheroLog("No se encontró partido con ID: " + idPartidoTorneo);
+				return ResponseEntity.notFound().build();
+			}
+		} catch (Exception e) {
+			Logs.ficheroLog("Error al obtener partido con ID " + idPartidoTorneo + ": " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-		/* METODOS CRUD DE LA TABLA PARTIDO TORNEO */
-	    
-	    /**
-	     * Método GET para obtener un partido por su ID.
-	     *
-	     * @param idPartidoTorneo ID del partido a buscar.
-	     * @return El partido correspondiente al ID proporcionado, o 404 si no se encuentra.
-	     */
-	    @GetMapping("/partidoTorneo/{idPartidoTorneo}")
-	    public ResponseEntity<PartidoTorneoDto> obtenerPartidoTorneoPorId(@PathVariable("idPartidoTorneo") Long idPartidoTorneo) {
-	        try {
-	            Logs.ficheroLog("Buscando partido con ID: " + idPartidoTorneo);
-	            PartidoTorneoDto dto = partidoTorneoFuncionalidades.obtenerPartidoTorneoDtoPorId(idPartidoTorneo);
-	            if (dto != null) {
-	                Logs.ficheroLog("Partido encontrado con ID: " + idPartidoTorneo);
-	                return ResponseEntity.ok(dto);
-	            } else {
-	                Logs.ficheroLog("No se encontró partido con ID: " + idPartidoTorneo);
-	                return ResponseEntity.notFound().build();
-	            }
-	        } catch (Exception e) {
-	            Logs.ficheroLog("Error al obtener partido con ID " + idPartidoTorneo + ": " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-	        }
-	    }
+	/**
+	 * Método GET para obtener todos los partidos del torneo.
+	 *
+	 * @return Lista de DTOs {@link PartidoTorneoDto}, o 404 si no hay datos.
+	 */
+	@GetMapping("/mostrarPartidosTorneo")
+	public ResponseEntity<ArrayList<PartidoTorneoDto>> mostrarPartidosTorneo() {
+		Logs.ficheroLog("Mostrando todos los partidos del torneo.");
+		ArrayList<PartidoTorneoDto> lista = partidoTorneoFuncionalidades.obtenerPartidosTorneoDto();
+		return (lista != null && !lista.isEmpty()) ? ResponseEntity.ok(lista) : ResponseEntity.notFound().build();
+	}
 
-	    /**
-	     * Método GET para obtener todos los partidos del torneo.
-	     *
-	     * @return Lista de DTOs {@link PartidoTorneoDto}, o 404 si no hay datos.
-	     */
-	    @GetMapping("/mostrarPartidosTorneo")
-	    public ResponseEntity<ArrayList<PartidoTorneoDto>> mostrarPartidosTorneo() {
-	        Logs.ficheroLog("Mostrando todos los partidos del torneo.");
-	        ArrayList<PartidoTorneoDto> lista = partidoTorneoFuncionalidades.obtenerPartidosTorneoDto();
-	        return (lista != null && !lista.isEmpty()) ? ResponseEntity.ok(lista) : ResponseEntity.notFound().build();
-	    }
+	/**
+	 * Método GET para obtener todos los partidos de un torneo específico.
+	 *
+	 * @param idTorneo ID del torneo.
+	 * @return Lista de DTOs {@link PartidoTorneoDto}, o 404 si no hay datos.
+	 */
+	@GetMapping("/partidosPorTorneo/{idTorneo}")
+	public ResponseEntity<ArrayList<PartidoTorneoDto>> obtenerPartidosPorTorneo(
+			@PathVariable("idTorneo") Long idTorneo) {
+		try {
+			Logs.ficheroLog("Buscando partidos del torneo con ID: " + idTorneo);
+			ArrayList<PartidoTorneoDto> lista = partidoTorneoFuncionalidades.obtenerPartidosPorTorneoDto(idTorneo);
+			return (lista != null && !lista.isEmpty()) ? ResponseEntity.ok(lista) : ResponseEntity.notFound().build();
+		} catch (Exception e) {
+			Logs.ficheroLog("Error al obtener partidos del torneo con ID " + idTorneo + ": " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
 
-	    /**
-	     * Método GET para obtener todos los partidos de un torneo específico.
-	     *
-	     * @param idTorneo ID del torneo.
-	     * @return Lista de DTOs {@link PartidoTorneoDto}, o 404 si no hay datos.
-	     */
-	    @GetMapping("/partidosPorTorneo/{idTorneo}")
-	    public ResponseEntity<ArrayList<PartidoTorneoDto>> obtenerPartidosPorTorneo(@PathVariable("idTorneo") Long idTorneo) {
-	        try {
-	            Logs.ficheroLog("Buscando partidos del torneo con ID: " + idTorneo);
-	            ArrayList<PartidoTorneoDto> lista = partidoTorneoFuncionalidades.obtenerPartidosPorTorneoDto(idTorneo);
-	            return (lista != null && !lista.isEmpty()) ? ResponseEntity.ok(lista) : ResponseEntity.notFound().build();
-	        } catch (Exception e) {
-	            Logs.ficheroLog("Error al obtener partidos del torneo con ID " + idTorneo + ": " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-	        }
-	    }
+	/**
+	 * Método POST para guardar un nuevo partido.
+	 *
+	 * @param partidoTorneoDto Datos del partido a guardar.
+	 * @return El partido guardado en formato DTO.
+	 */
+	@PostMapping("/guardarPartidoTorneo")
+	public ResponseEntity<?> guardarPartidoTorneo(@RequestBody PartidoTorneoDto partidoTorneoDto) {
+		Logs.ficheroLog("Solicitud para guardar partido: " + partidoTorneoDto.toString());
+		try {
+			PartidoTorneoEntidad partidoEntidad = partidoTorneoFuncionalidades.guardarPartidoTorneo(partidoTorneoDto);
+			Logs.ficheroLog("Partido guardado exitosamente con ID: " + partidoEntidad.getIdPartidoTorneo());
+			return ResponseEntity.ok(partidoTorneoFuncionalidades.mapearAPartidoTorneoDto(partidoEntidad));
+		} catch (IllegalArgumentException e) {
+			Logs.ficheroLog("Error al guardar partido: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		} catch (Exception e) {
+			Logs.ficheroLog("Error inesperado al guardar partido: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
+		}
+	}
 
-	    /**
-	     * Método POST para guardar un nuevo partido.
-	     *
-	     * @param partidoTorneoDto Datos del partido a guardar.
-	     * @return El partido guardado en formato DTO.
-	     */
-	    @PostMapping("/guardarPartidoTorneo")
-	    public ResponseEntity<?> guardarPartidoTorneo(@RequestBody PartidoTorneoDto partidoTorneoDto) {
-	        Logs.ficheroLog("Solicitud para guardar partido: " + partidoTorneoDto.toString());
-	        try {
-	            PartidoTorneoEntidad partidoEntidad = partidoTorneoFuncionalidades.guardarPartidoTorneo(partidoTorneoDto);
-	            Logs.ficheroLog("Partido guardado exitosamente con ID: " + partidoEntidad.getIdPartidoTorneo());
-	            return ResponseEntity.ok(partidoTorneoFuncionalidades.mapearAPartidoTorneoDto(partidoEntidad));
-	        } catch (IllegalArgumentException e) {
-	            Logs.ficheroLog("Error al guardar partido: " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-	        } catch (Exception e) {
-	            Logs.ficheroLog("Error inesperado al guardar partido: " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
-	        }
-	    }
+	/**
+	 * Método PUT para actualizar los datos de un partido.
+	 *
+	 * @param idPartidoTorneo  ID del partido a modificar.
+	 * @param partidoTorneoDto Datos actualizados.
+	 * @return Resultado de la actualización.
+	 */
+	@PutMapping("/modificarPartidoTorneo/{idPartidoTorneo}")
+	public ResponseEntity<?> modificarPartidoTorneo(@PathVariable("idPartidoTorneo") Long idPartidoTorneo,
+			@RequestBody PartidoTorneoDto partidoTorneoDto) {
+		Logs.ficheroLog("Solicitud para modificar partido con ID: " + idPartidoTorneo);
+		try {
+			boolean resultado = partidoTorneoFuncionalidades.modificarPartidoTorneo(idPartidoTorneo, partidoTorneoDto);
+			if (resultado) {
+				return ResponseEntity.ok("Partido modificado exitosamente");
+			} else {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partido no encontrado");
+			}
+		} catch (Exception e) {
+			Logs.ficheroLog("Error al modificar partido con ID " + idPartidoTorneo + ": " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al modificar partido");
+		}
+	}
 
-	    /**
-	     * Método PUT para actualizar los datos de un partido.
-	     *
-	     * @param idPartidoTorneo ID del partido a modificar.
-	     * @param partidoTorneoDto Datos actualizados.
-	     * @return Resultado de la actualización.
-	     */
-	    @PutMapping("/modificarPartidoTorneo/{idPartidoTorneo}")
-	    public ResponseEntity<?> modificarPartidoTorneo(@PathVariable("idPartidoTorneo") Long idPartidoTorneo,
-	                                                   @RequestBody PartidoTorneoDto partidoTorneoDto) {
-	        Logs.ficheroLog("Solicitud para modificar partido con ID: " + idPartidoTorneo);
-	        try {
-	            boolean resultado = partidoTorneoFuncionalidades.modificarPartidoTorneo(idPartidoTorneo, partidoTorneoDto);
-	            if (resultado) {
-	                return ResponseEntity.ok("Partido modificado exitosamente");
-	            } else {
-	                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partido no encontrado");
-	            }
-	        } catch (Exception e) {
-	            Logs.ficheroLog("Error al modificar partido con ID " + idPartidoTorneo + ": " + e.getMessage());
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al modificar partido");
-	        }
-	    }
+	/**
+	 * Método DELETE para eliminar un partido.
+	 *
+	 * @param idPartidoTorneo ID del partido a eliminar.
+	 * @return Resultado de la eliminación.
+	 */
+	@DeleteMapping("/eliminarPartidoTorneo/{idPartidoTorneo}")
+	public ResponseEntity<Boolean> eliminarPartidoTorneo(@PathVariable("idPartidoTorneo") Long idPartidoTorneo) {
+		try {
+			Logs.ficheroLog("Solicitud para eliminar partido con ID: " + idPartidoTorneo);
+			boolean resultado = partidoTorneoFuncionalidades.eliminarPartidoTorneo(idPartidoTorneo);
+			return resultado ? ResponseEntity.ok(true) : ResponseEntity.notFound().build();
+		} catch (Exception e) {
+			Logs.ficheroLog("Error al eliminar partido con ID " + idPartidoTorneo + ": " + e.getMessage());
+			return ResponseEntity.status(500).body(false);
+		}
+	}
 
-	    /**
-	     * Método DELETE para eliminar un partido.
-	     *
-	     * @param idPartidoTorneo ID del partido a eliminar.
-	     * @return Resultado de la eliminación.
-	     */
-	    @DeleteMapping("/eliminarPartidoTorneo/{idPartidoTorneo}")
-	    public ResponseEntity<Boolean> eliminarPartidoTorneo(@PathVariable("idPartidoTorneo") Long idPartidoTorneo) {
-	        try {
-	            Logs.ficheroLog("Solicitud para eliminar partido con ID: " + idPartidoTorneo);
-	            boolean resultado = partidoTorneoFuncionalidades.eliminarPartidoTorneo(idPartidoTorneo);
-	            return resultado ? ResponseEntity.ok(true) : ResponseEntity.notFound().build();
-	        } catch (Exception e) {
-	            Logs.ficheroLog("Error al eliminar partido con ID " + idPartidoTorneo + ": " + e.getMessage());
-	            return ResponseEntity.status(500).body(false);
-	        }
-	    }
-
-	    
-	
 }
-

@@ -1,5 +1,6 @@
 package com.futbolDeBarrio.futbolDeBarrio.repositorios;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,5 +32,10 @@ public interface JugadorEstadisticaTorneoInterfaz extends JpaRepository<JugadorE
  * @return Entidad {@link JugadorEstadisticaTorneoEntidad} correspondiente si existe.
  */
     Optional<JugadorEstadisticaTorneoEntidad> findByJugadorIdUsuarioAndTorneoIdTorneo(Long jugadorId, Long torneoId);
+    
+    
+    
+    List<JugadorEstadisticaTorneoEntidad> findByJugador_IdUsuario(Long jugadorId);
+
 }
 

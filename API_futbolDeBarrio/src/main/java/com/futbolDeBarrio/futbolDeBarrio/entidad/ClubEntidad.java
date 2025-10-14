@@ -55,6 +55,9 @@ public class ClubEntidad {
     @Column(name = "telefono_club")
     private String telefonoClub;
 
+    @Column(name = "es_premium")
+    private boolean esPremium;
+    
     // Relación con los clubes
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EquipoTorneoEntidad> equipoTorneo = new ArrayList<>();
@@ -229,6 +232,14 @@ public class ClubEntidad {
 
 	public void setClubEstadisticaTorneo(List<ClubEstadisticaTorneoEntidad> clubEstadisticaTorneo) {
 		this.clubEstadisticaTorneo = clubEstadisticaTorneo;
+	}
+
+	public boolean isEsPremium() {
+		return esPremium;
+	}
+
+	public void setEsPremium(boolean esPremium) {
+		this.esPremium = esPremium;
 	}
 
    

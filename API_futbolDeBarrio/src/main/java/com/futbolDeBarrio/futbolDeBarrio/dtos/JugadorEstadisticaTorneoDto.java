@@ -1,10 +1,6 @@
 package com.futbolDeBarrio.futbolDeBarrio.dtos;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaTorneoEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 
 /**
  * Clase que se encarga de los campos de Jugador estadisitica torneo
@@ -16,6 +12,7 @@ public class JugadorEstadisticaTorneoDto {
 	private Long torneoId;
 	private String nombreJugador;
 	private String nombreClub;
+	private String nombreTorneo;
 	private int golesTorneo;
 	private int asistenciasTorneo;
 	private int amarillasTorneo;
@@ -29,6 +26,7 @@ public class JugadorEstadisticaTorneoDto {
 		this.idJugadorEstadisticaTorneo = jugadorEstadisticaTorneoEntidad.getIdJugadorEstadisticaTorneo();
 		this.jugadorId = jugadorEstadisticaTorneoEntidad.getJugador().getIdUsuario();
 		this.torneoId = jugadorEstadisticaTorneoEntidad.getTorneo().getIdTorneo();
+		this.nombreTorneo = jugadorEstadisticaTorneoEntidad.getTorneo().getNombreTorneo();
 		this.golesTorneo = jugadorEstadisticaTorneoEntidad.getGolesTorneo();
 		this.asistenciasTorneo = jugadorEstadisticaTorneoEntidad.getAsistenciasTorneo();
 		this.amarillasTorneo = jugadorEstadisticaTorneoEntidad.getAmarillasTorneo();
@@ -79,6 +77,16 @@ public class JugadorEstadisticaTorneoDto {
 
 	public void setNombreClub(String nombreClub) {
 		this.nombreClub = nombreClub;
+	}
+
+	
+	
+	public String getNombreTorneo() {
+		return nombreTorneo;
+	}
+
+	public void setNombreTorneo(String nombreTorneo) {
+		this.nombreTorneo = nombreTorneo;
 	}
 
 	public int getGolesTorneo() {
