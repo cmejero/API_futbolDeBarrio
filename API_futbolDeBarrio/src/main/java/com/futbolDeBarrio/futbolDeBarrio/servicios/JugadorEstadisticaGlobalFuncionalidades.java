@@ -72,6 +72,7 @@ public class JugadorEstadisticaGlobalFuncionalidades {
 	    return listaDto;
 	}
 
+	
 
 	public JugadorEstadisticaGlobalDto obtenerPorJugadorId(Long jugadorId) {
 		return jugadorEstadisticaGlobalInterfaz.findByJugadorGlobalId_IdUsuario(jugadorId)

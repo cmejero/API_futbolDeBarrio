@@ -2,7 +2,6 @@ package com.futbolDeBarrio.futbolDeBarrio.controladores;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ActaPartidoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubDto;
-import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubEstadisiticaGlobalDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubEstadisticaGlobalDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubEstadisticaTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.EquipoTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.EventoPartidoDto;
@@ -40,7 +39,6 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.ActaPartidoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaGlobalEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
@@ -1046,14 +1044,14 @@ public class Controlador {
 	 * Método GET para obtener la estadística global de un club por su ID.
 	 *
 	 * @param id ID del club estadística global.
-	 * @return DTO {@link ClubEstadisiticaGlobalDto} correspondiente, o 404 si no
+	 * @return DTO {@link ClubEstadisticaGlobalDto} correspondiente, o 404 si no
 	 *         existe.
 	 */
 	@GetMapping("/clubEstadisticaGlobal/{id}")
-	public ResponseEntity<ClubEstadisiticaGlobalDto> obtenerClubEstadisticaGlobal(@PathVariable Long id) {
+	public ResponseEntity<ClubEstadisticaGlobalDto> obtenerClubEstadisticaGlobal(@PathVariable Long id) {
 		try {
 			Logs.ficheroLog("Buscando estadística global del club con ID " + id);
-			ClubEstadisiticaGlobalDto dto = clubEstadisticaGlobalFuncionalidades.obtenerClubEstadisticaGlobalPorId(id);
+			ClubEstadisticaGlobalDto dto = clubEstadisticaGlobalFuncionalidades.obtenerClubEstadisticaGlobalPorId(id);
 			if (dto != null) {
 				Logs.ficheroLog("Estadística global encontrada para el club ID " + id);
 				return ResponseEntity.ok(dto);
@@ -1070,14 +1068,14 @@ public class Controlador {
 	/**
 	 * Método GET para obtener todas las estadísticas globales de los clubes.
 	 *
-	 * @return Lista de DTOs {@link ClubEstadisiticaGlobalDto}, o 404 si no hay
+	 * @return Lista de DTOs {@link ClubEstadisticaGlobalDto}, o 404 si no hay
 	 *         datos.
 	 */
 	@GetMapping("/mostrarClubEstadisticaGlobal")
-	public ResponseEntity<ArrayList<ClubEstadisiticaGlobalDto>> mostrarClubEstadisticaGlobal() {
+	public ResponseEntity<ArrayList<ClubEstadisticaGlobalDto>> mostrarClubEstadisticaGlobal() {
 		try {
 			Logs.ficheroLog("Solicitando todas las estadísticas globales de clubes");
-			ArrayList<ClubEstadisiticaGlobalDto> lista = clubEstadisticaGlobalFuncionalidades
+			ArrayList<ClubEstadisticaGlobalDto> lista = clubEstadisticaGlobalFuncionalidades
 					.mostrarClubEstadisticaGlobal();
 			if (lista != null && !lista.isEmpty()) {
 				Logs.ficheroLog("Mostrando todas las estadísticas globales de clubes");
@@ -1091,6 +1089,19 @@ public class Controlador {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GetMapping("/clubEstadisticaIndividualGlobal/{clubId}")
+    public ResponseEntity<ClubEstadisticaGlobalDto> obtenerPorClubId(@PathVariable Long clubId) {
+        ClubEstadisticaGlobalDto dto = clubEstadisticaGlobalFuncionalidades
+                .obtenerPorClubId(clubId);
+
+        if (dto != null) {
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
 	/* METODOS CRUD DE LA TABLA CLUB ESTADISTICAS TORNEO */
 
@@ -1141,6 +1152,11 @@ public class Controlador {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	 @GetMapping("/clubEstadisticaIndividualTorneo/{clubId}")
+	 public ArrayList<ClubEstadisticaTorneoDto> obtenerPorClub(@PathVariable Long clubId) {
+	        return clubEstadisticaTorneoFuncionalidades.obtenerEstadisticasDeTodosLosTorneos(clubId);
+	    }
 
 	/* METODOS CRUD DE LA TABLA PARTIDO TORNEO */
 

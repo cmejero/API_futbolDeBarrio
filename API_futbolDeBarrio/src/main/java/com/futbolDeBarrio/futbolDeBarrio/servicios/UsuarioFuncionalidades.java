@@ -49,7 +49,7 @@ public class UsuarioFuncionalidades {
         usuarioDto.setAliasUsuario(usuarioEntidad.getAliasUsuario());
         usuarioDto.setFechaNacimientoUsuario(usuarioEntidad.getFechaNacimientoUsuario());
         usuarioDto.setEmailUsuario(usuarioEntidad.getEmailUsuario());
-        usuarioDto.setPasswordUsuario(usuarioEntidad.getPasswordUsuario());
+        usuarioDto.setPasswordUsuario(null);
         usuarioDto.setTelefonoUsuario(usuarioEntidad.getTelefonoUsuario());
         usuarioDto.setDescripcionUsuario(usuarioEntidad.getDescripcionUsuario());
         if (usuarioEntidad.getImagenUsuario() != null) {
@@ -84,6 +84,7 @@ public class UsuarioFuncionalidades {
         usuarioEntidad.setEstadoUsuario(usuarioDto.getEstadoUsuario());
         usuarioEntidad.setRolUsuario(usuarioDto.getRolUsuario());
         usuarioEntidad.setEsPremium(usuarioDto.isEsPremium());
+        System.out.println(usuarioEntidad.toString());
         return usuarioEntidad;
     }
 
@@ -243,14 +244,24 @@ public class UsuarioFuncionalidades {
                 estaBorrado = false;
 
             } else {
-                usuarioInterfaz.delete(usuarioEntidad);
-                estaBorrado = true;            }
+                String email = usuarioEntidad.getEmailUsuario();
+                if (email != null && email.equalsIgnoreCase("admin@1")) {
+
+                    estaBorrado = false;
+                } else {
+                    usuarioInterfaz.delete(usuarioEntidad);
+                    estaBorrado = true;
+                }
+            }
 
         } catch (NumberFormatException nfe) {
+            nfe.printStackTrace();
         } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return estaBorrado;
     }
+
     
 }

@@ -48,7 +48,7 @@ public class ClubFuncionalidades {
 		clubDto.setFechaFundacionClub(clubEntidad.getFechaFundacionClub());
 		clubDto.setLocalidadClub(clubEntidad.getLocalidadClub());
 		clubDto.setPaisClub(clubEntidad.getPaisClub());
-		clubDto.setPasswordClub(clubEntidad.getPasswordClub());
+		clubDto.setPasswordClub(null);
 		if (clubEntidad.getLogoClub() != null) {
 			String imagenBase64 = Base64.getEncoder().encodeToString(clubEntidad.getLogoClub());
 			clubDto.setLogoClub(imagenBase64);

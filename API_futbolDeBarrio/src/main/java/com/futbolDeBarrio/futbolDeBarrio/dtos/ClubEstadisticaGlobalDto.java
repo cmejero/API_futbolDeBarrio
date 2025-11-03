@@ -5,7 +5,7 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEstadisticaGlobalEntidad;
 /**
  * Clase que se encarga de los campos de Club estadistica global
  */
-public class ClubEstadisiticaGlobalDto {
+public class ClubEstadisticaGlobalDto {
 
 	private Long idGlobal;
 	private Long clubGlobalId;
@@ -18,7 +18,7 @@ public class ClubEstadisiticaGlobalDto {
 	private String nombreClub;
 	private String localidad;
 
-	public ClubEstadisiticaGlobalDto(ClubEstadisticaGlobalEntidad clubEstadisticaGlobalEntidad) {
+	public ClubEstadisticaGlobalDto(ClubEstadisticaGlobalEntidad clubEstadisticaGlobalEntidad) {
 		this.idGlobal = clubEstadisticaGlobalEntidad.getIdClubEstadisticaGlobal();
 		this.clubGlobalId = clubEstadisticaGlobalEntidad.getClubGlobal().getIdClub();
 		this.partidosJugadosGlobal = clubEstadisticaGlobalEntidad.getPartidosJugadosGlobal();
@@ -112,7 +112,7 @@ public class ClubEstadisiticaGlobalDto {
 		this.localidad = localidad;
 	}
 
-	public ClubEstadisiticaGlobalDto() {
+	public ClubEstadisticaGlobalDto() {
 		super();
 	}
 

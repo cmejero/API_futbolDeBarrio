@@ -1,11 +1,13 @@
 package com.futbolDeBarrio.futbolDeBarrio.repositorios;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEstadisticaTorneoEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaTorneoEntidad;
 
 /**
  * Interfaz que se encarga de gestionar las operaciones CRUD básicas sobre la entidad ClubEstadisticaTorneoEntidad. 
@@ -31,6 +33,6 @@ public interface ClubEstadisticaTorneoInterfaz extends JpaRepository<ClubEstadis
      */
     Optional<ClubEstadisticaTorneoEntidad> findByClub_IdClubAndTorneo_IdTorneo(Long clubId, Long torneoId);
     
-    
+    List<ClubEstadisticaTorneoEntidad> findByClub_IdClub(Long clubId);
 
 }

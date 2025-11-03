@@ -12,18 +12,21 @@ public class LoginGoogleDto {
     private String nombreCompleto;
     private Long idTipoUsuario;
     private boolean esPremium;
+    private String imagenUsuario;
+
 
     public LoginGoogleDto() {
        
     }
 
-    public LoginGoogleDto(String token, String email, String tipoUsuario, String nombreCompleto, Long idTipoUsuario, boolean esPremium) {
+    public LoginGoogleDto(String token, String email, String tipoUsuario, String nombreCompleto, Long idTipoUsuario, boolean esPremium, String imagenUsuario) {
         this.token = token;
         this.email = email;
         this.tipoUsuario = tipoUsuario;
         this.nombreCompleto = nombreCompleto;
         this.idTipoUsuario = idTipoUsuario;
         this.esPremium = esPremium;
+        this.imagenUsuario = imagenUsuario;
     }
 
     
@@ -75,6 +78,14 @@ public class LoginGoogleDto {
 
 	public void setEsPremium(boolean esPremium) {
 		this.esPremium = esPremium;
+	}
+
+	public String getImagenUsuario() {
+		return imagenUsuario;
+	}
+
+	public void setImagenUsuario(String imagenUsuario) {
+		this.imagenUsuario = imagenUsuario;
 	}
     
     
