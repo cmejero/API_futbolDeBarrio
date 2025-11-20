@@ -496,6 +496,28 @@ public class Controlador {
 			return ResponseEntity.notFound().build();
 		}
 	}
+	
+	@GetMapping("/miembroClub/porUsuario/{usuarioId}")
+	public ResponseEntity<List<MiembroClubDto>> obtenerMisClubesPorUsuario(@PathVariable("usuarioId") Long usuarioId) {
+	    Logs.ficheroLog("Buscando clubes del usuario con ID: " + usuarioId);
+	    List<MiembroClubDto> misClubes = miembroClubFuncionalidades.obtenerMisClubesPorUsuario(usuarioId);
+	    
+	    if (!misClubes.isEmpty()) {
+	        Logs.ficheroLog("Clubes encontrados para el usuario con ID: " + usuarioId);
+	        return ResponseEntity.ok(misClubes);
+	    } else {
+	        Logs.ficheroLog("No se encontraron clubes para el usuario con ID: " + usuarioId);
+	        return ResponseEntity.notFound().build();
+	    }
+	}
+
+    /**
+     * Devuelve todos los jugadores de un club con estadísticas
+     */
+	  @GetMapping("/jugadores/porClub/{clubId}")
+	    public List<JugadorEstadisticaGlobalDto> listarJugadoresPorClub(@PathVariable Long clubId) {
+	        return jugadorEstadisticaGlobalFuncionalidades.listarJugadoresPorClub(clubId);
+	    }
 
 	/**
 	 * Metodo para guardar un nuevo miembro en el club.
@@ -528,12 +550,12 @@ public class Controlador {
 	 * @param idMiembroClub ID del miembro del club a eliminar.
 	 * @return Resultado de la operación de eliminación.
 	 */
-	@DeleteMapping("/eliminarMiembroClub/{id_miembroClub}")
-	public boolean eliminarMiembroClub(@PathVariable("id_miembroClub") String idMiembroClub) {
-		Logs.ficheroLog("Solicitud para eliminar miembro del club con ID: " + idMiembroClub);
-		boolean resultado = this.miembroClubFuncionalidades.borrarMiembroClub(idMiembroClub);
-		Logs.ficheroLog("Resultado de eliminación del miembro del club con ID " + idMiembroClub + ": " + resultado);
-		return resultado;
+	@DeleteMapping("/eliminarMiembroClub/{idMiembroClub}")
+	public boolean eliminarMiembroClub(@PathVariable Long idMiembroClub) {
+	    Logs.ficheroLog("Solicitud para eliminar miembro del club con ID: " + idMiembroClub);
+	    boolean resultado = this.miembroClubFuncionalidades.borrarMiembroClub(idMiembroClub);
+	    Logs.ficheroLog("Resultado de eliminación del miembro del club con ID " + idMiembroClub + ": " + resultado);
+	    return resultado;
 	}
 
 	/**

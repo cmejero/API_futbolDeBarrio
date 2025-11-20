@@ -84,4 +84,5 @@ public interface MiembroClubInterfaz extends JpaRepository<MiembroClubEntidad, L
      */
     List<MiembroClubEntidad> findByUsuario_IdUsuario(Long usuarioId);
 
+    
 }

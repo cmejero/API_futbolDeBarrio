@@ -1,14 +1,18 @@
 package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.JugadorEstadisticaGlobalDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaGlobalEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.JugadorEstadisticaGlobalInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.MiembroClubInterfaz;
 
 /**
  * Clase que se encarga de la lógica de los métodos CRUD de Jugador estadística
@@ -19,6 +23,8 @@ public class JugadorEstadisticaGlobalFuncionalidades {
 
 	@Autowired
 	private JugadorEstadisticaGlobalInterfaz jugadorEstadisticaGlobalInterfaz;
+	@Autowired
+	private MiembroClubInterfaz miembroClubInterfaz;
 
 	/**
 	 * Mapea una entidad JugadorEstadisticaGlobalEntidad a un DTO
@@ -72,7 +78,28 @@ public class JugadorEstadisticaGlobalFuncionalidades {
 	    return listaDto;
 	}
 
-	
+	/**
+	 * Obtiene la lista de jugadores con estadísticas globales de un club específico
+	 * @param clubId ID del club
+	 * @return Lista de JugadorEstadisticaGlobalDto
+	 */
+    public List<JugadorEstadisticaGlobalDto> listarJugadoresPorClub(Long clubId) {
+        List<MiembroClubEntidad> miembros = miembroClubInterfaz.findByClub_IdClub(clubId);
+
+        List<JugadorEstadisticaGlobalDto> jugadores = new ArrayList<>();
+        for (MiembroClubEntidad miembro : miembros) {
+            UsuarioEntidad usuario = miembro.getUsuario();
+            if (usuario.getRolUsuario() == RolUsuario.Jugador) {
+                jugadorEstadisticaGlobalInterfaz
+                    .findByJugadorGlobalId_IdUsuario(usuario.getIdUsuario())
+                    .ifPresent(estadistica -> jugadores.add(mapearAJugadorEstadisticaGlobalDto(estadistica)));
+            }
+        }
+
+
+        return jugadores;
+    }
+
 
 	public JugadorEstadisticaGlobalDto obtenerPorJugadorId(Long jugadorId) {
 		return jugadorEstadisticaGlobalInterfaz.findByJugadorGlobalId_IdUsuario(jugadorId)

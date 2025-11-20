@@ -1,12 +1,14 @@
 package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.MiembroClubDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
@@ -41,22 +43,45 @@ public class MiembroClubFuncionalidades {
      */
     public MiembroClubDto mapearAMiembroClubDto(MiembroClubEntidad miembroClubEntidad) {
         MiembroClubDto miembroClubDto = new MiembroClubDto();
+        
+        // Datos del miembro
         miembroClubDto.setIdMiembroClub(miembroClubEntidad.getIdMiembroClub());
         miembroClubDto.setFechaAltaUsuario(miembroClubEntidad.getFechaAltaUsuario());
         miembroClubDto.setFechaBajaUsuario(miembroClubEntidad.getFechaBajaUsuario());
         miembroClubDto.setIdClub(miembroClubEntidad.getClub().getIdClub());
 
-       
+        // Datos del usuario
         UsuarioEntidad usuarioEntidad = miembroClubEntidad.getUsuario();
         miembroClubDto.setUsuarioId(usuarioEntidad.getIdUsuario());
-
-       
         UsuarioDto usuarioDto = new UsuarioDto(
                 usuarioEntidad.getNombreCompletoUsuario(),
                 usuarioEntidad.getAliasUsuario(),
                 usuarioEntidad.getEmailUsuario()
         );
-        miembroClubDto.setUsuario(usuarioDto);  
+        miembroClubDto.setUsuario(usuarioDto);
+
+        // Datos del club
+        ClubEntidad clubEntidad = miembroClubEntidad.getClub();
+        if (clubEntidad != null) {
+            ClubDto clubDto = new ClubDto();
+            clubDto.setIdClub(clubEntidad.getIdClub());
+            clubDto.setNombreClub(clubEntidad.getNombreClub());
+            clubDto.setAbreviaturaClub(clubEntidad.getAbreviaturaClub());
+            clubDto.setDescripcionClub(clubEntidad.getDescripcionClub());
+            clubDto.setFechaCreacionClub(clubEntidad.getFechaCreacionClub());
+            clubDto.setFechaFundacionClub(clubEntidad.getFechaFundacionClub());
+            clubDto.setLocalidadClub(clubEntidad.getLocalidadClub());
+            clubDto.setPaisClub(clubEntidad.getPaisClub());
+        	if (clubEntidad.getLogoClub() != null) {
+    			String imagenBase64 = Base64.getEncoder().encodeToString(clubEntidad.getLogoClub());
+    			clubDto.setLogoClub(imagenBase64);
+    		}
+            clubDto.setEmailClub(clubEntidad.getEmailClub());
+            clubDto.setTelefonoClub(clubEntidad.getTelefonoClub());
+            clubDto.setEsPremium(clubEntidad.isEsPremium());
+
+            miembroClubDto.setClub(clubDto);
+        }
 
         return miembroClubDto;
     }
@@ -94,6 +119,15 @@ public class MiembroClubFuncionalidades {
             miembrosClubDto.add(mapearAMiembroClubDto(miembroClub));
         }
         return miembrosClubDto;
+    }
+    
+    public List<MiembroClubDto> obtenerMisClubesPorUsuario(Long usuarioId) {
+        List<MiembroClubEntidad> miembros = miembroClubInterfaz.findByUsuario_IdUsuario(usuarioId);
+        List<MiembroClubDto> misClubes = new ArrayList<>();
+        for (MiembroClubEntidad miembro : miembros) {
+            misClubes.add(mapearAMiembroClubDto(miembro));
+        }
+        return misClubes;
     }
 
     /**
@@ -183,15 +217,12 @@ public class MiembroClubFuncionalidades {
      * @param idMiembroClubString El ID del miembro del club a borrar.
      * @return true si el miembro fue borrado con éxito, false si no se encuentra el miembro.
      */
-    public boolean borrarMiembroClub(String idMiembroClubString) {
-    	 Long idMiembroClub = Long.parseLong(idMiembroClubString);
-         Optional<MiembroClubEntidad> miembroClubOpt = miembroClubInterfaz.findById(idMiembroClub);
+    public boolean borrarMiembroClub(Long idMiembroClub) {
+        Optional<MiembroClubEntidad> miembroClubOpt = miembroClubInterfaz.findById(idMiembroClub);
         if (miembroClubOpt.isPresent()) {
             miembroClubInterfaz.delete(miembroClubOpt.get());
-            // System.out.println("El miembro del club ha sido borrado con éxito");
             return true;
         } else {
-            // System.out.println("El id del miembro del club no existe");
             return false;
         }
     }

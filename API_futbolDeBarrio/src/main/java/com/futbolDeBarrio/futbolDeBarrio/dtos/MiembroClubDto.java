@@ -13,6 +13,7 @@ public class MiembroClubDto {
     private long idClub;
     private long usuarioId;
     private UsuarioDto usuario;
+    private ClubDto club;
 
     // Constructor sin parámetros
     public MiembroClubDto() {
@@ -120,4 +121,14 @@ public class MiembroClubDto {
     public int hashCode() {
         return Long.hashCode(idMiembroClub);
     }
+
+	public ClubDto getClub() {
+		return club;
+	}
+
+	public void setClub(ClubDto club) {
+		this.club = club;
+	}
+    
+    
 }

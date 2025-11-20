@@ -1,5 +1,6 @@
 package com.futbolDeBarrio.futbolDeBarrio.repositorios;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,7 +31,6 @@ public interface JugadorEstadisticaGlobalInterfaz extends JpaRepository<JugadorE
 	 *         o {@link Optional#empty()} si no se encuentra.
 	 */
 	Optional<JugadorEstadisticaGlobalEntidad> findByJugadorGlobalId_IdUsuario(Long idUsuario);
-	
 	
 	
 

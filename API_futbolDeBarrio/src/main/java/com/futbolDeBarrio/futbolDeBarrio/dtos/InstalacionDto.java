@@ -26,11 +26,11 @@ public class InstalacionDto {
 	@NotBlank(message = "La dirección de la instalación es obligatoria")
 	private String direccionInstalacion;
 
-	@Pattern(regexp = "^\\d{10}$", message = "El teléfono debe tener 10 dígitos")
+	@Pattern(regexp = "^\\+?[0-9]{9,15}$", message = "El teléfono debe tener entre 9 y 15 dígitos y puede empezar con +.")
 	private String telefonoInstalacion;
 
-	@Email(message = "El email debe tener un formato válido")
-	@NotBlank(message = "El email de la instalación es obligatorio")
+	@Email(message = "El correo electrónico debe ser válido.")
+	@NotBlank(message = "El correo electrónico es obligatorio.")
 	private String emailInstalacion;
 
 	private Modalidad tipoCampo1;
