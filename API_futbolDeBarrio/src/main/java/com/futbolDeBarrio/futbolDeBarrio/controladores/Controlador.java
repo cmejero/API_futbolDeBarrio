@@ -320,7 +320,27 @@ public class Controlador {
 		Logs.ficheroLog("Mostrando todos los equipos torneo");
 		return equipoTorneoFuncionalidades.obtenerEquiposTorneoDto();
 	}
+	
+    @GetMapping("/equipoTorneo/club/{clubId}")
+    /**
+     * Metodo para obtener todos los equipos de un club específico.
+     */
+    public List<EquipoTorneoDto> obtenerEquiposPorClub(@PathVariable Long clubId) {
+        Logs.ficheroLog("Obteniendo equipos del club con ID: " + clubId);
+        return equipoTorneoFuncionalidades.obtenerEquiposPorClub(clubId);
+    }
 
+    
+    @GetMapping("/equipoTorneo/usuario/{usuarioId}")
+    /**
+     * Obtiene todos los torneos de todos los clubes de un usuario.
+     */
+    public List<TorneoDto> obtenerTorneosPorUsuario(@PathVariable Long usuarioId) {
+        Logs.ficheroLog("Obteniendo torneos de todos los clubes del usuario con ID: " + usuarioId);
+        return equipoTorneoFuncionalidades.obtenerTorneosPorUsuario(usuarioId);
+    }
+
+    
 	@PostMapping("/guardarEquipoTorneo")
 	/**
 	 * Metodo para guardar un nuevo equipo en el torneo.

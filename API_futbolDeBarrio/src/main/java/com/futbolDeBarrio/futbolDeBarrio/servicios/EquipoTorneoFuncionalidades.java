@@ -8,12 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.EquipoTorneoDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.TorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.EquipoTorneoInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
 
 @Service
 /**
@@ -29,6 +33,9 @@ public class EquipoTorneoFuncionalidades {
     
     @Autowired
     ClubInterfaz clubInterfaz;
+    
+    @Autowired
+    UsuarioInterfaz usuarioInterfaz;
 
 
     /**
@@ -94,6 +101,69 @@ public class EquipoTorneoFuncionalidades {
         EquipoTorneoEntidad equipoTorneoEntidad = equipoTorneoInterfaz.findById(idEquipoTorneo).orElse(null);
         return equipoTorneoEntidad != null ? mapearAEquipoTorneoDto(equipoTorneoEntidad) : null;
     }
+    
+    
+    /**
+     * Obtiene todos los equipos de un club específico.
+     * 
+     * @param clubId ID del club
+     * @return Lista de EquipoTorneoDto de ese club
+     */
+    public List<EquipoTorneoDto> obtenerEquiposPorClub(Long clubId) {
+        List<EquipoTorneoDto> lista = new ArrayList<>();
+        List<EquipoTorneoDto> todos = obtenerEquiposTorneoDto();
+        for (EquipoTorneoDto e : todos) {
+        	if (e.getClubId() == clubId) {
+        	    lista.add(e);
+        	}
+
+        }
+        return lista;
+    }
+    
+    public List<TorneoDto> obtenerTorneosPorUsuario(Long usuarioId) {
+        List<TorneoDto> torneosTotales = new ArrayList<>();
+
+        // 1️⃣ Obtener el usuario
+        Optional<UsuarioEntidad> usuarioOpt = usuarioInterfaz.findById(usuarioId);
+        if (usuarioOpt.isEmpty()) return torneosTotales;
+
+        UsuarioEntidad usuario = usuarioOpt.get();
+
+        // 2️⃣ Recorrer todos los clubes del usuario
+        for (MiembroClubEntidad miembro : usuario.getMiembroClub()) {
+            ClubEntidad club = miembro.getClub();
+
+            // 3️⃣ Obtener todos los equipos del club
+            List<EquipoTorneoEntidad> equiposTorneo = equipoTorneoInterfaz.findByClub_IdClub(club.getIdClub());
+
+            // 4️⃣ Convertir cada torneo a DTO y añadir a la lista
+            for (EquipoTorneoEntidad equipo : equiposTorneo) {
+                TorneoEntidad torneoEntidad = equipo.getTorneo();
+                if (torneoEntidad != null) {
+                    TorneoDto torneoDto = new TorneoDto();
+                    torneoDto.setIdTorneo(torneoEntidad.getIdTorneo());
+                    torneoDto.setNombreTorneo(torneoEntidad.getNombreTorneo());
+                    torneoDto.setFechaInicioTorneo(torneoEntidad.getFechaInicioTorneo());
+                    torneoDto.setFechaFinTorneo(torneoEntidad.getFechaFinTorneo());
+                    torneoDto.setDescripcionTorneo(torneoEntidad.getDescripcionTorneo());
+                    torneoDto.setClubesInscritos(torneoEntidad.getClubesInscritos());
+                    torneoDto.setModalidad(torneoEntidad.getModalidad());
+                    torneoDto.setEstaActivo(torneoEntidad.isEstaActivo());
+                    torneoDto.setInstalacionId(torneoEntidad.getInstalacion().getIdInstalacion());
+
+                    torneosTotales.add(torneoDto);
+                }
+            }
+        }
+
+        // 5️⃣ Eliminar duplicados si un torneo está en varios clubes
+        return torneosTotales.stream()
+                .distinct()
+                .toList();
+    }
+
+
 
     /**
      * Guarda un equipo en un torneo.
