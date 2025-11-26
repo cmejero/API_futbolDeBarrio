@@ -212,18 +212,34 @@ public class MiembroClubFuncionalidades {
     }
 
     /**
-     * Borra un miembro del club por su ID.
-     * 
-     * @param idMiembroClubString El ID del miembro del club a borrar.
-     * @return true si el miembro fue borrado con éxito, false si no se encuentra el miembro.
+     * Elimina un miembro del club si la solicitud viene de un usuario que se quiere salir del club.
+     *
+     * @param idMiembroClub ID del miembro-club a eliminar.
+     * @param usuarioId     ID del usuario que solicita salir del club.
+     * @return true si se eliminó correctamente, false en caso contrario.
      */
-    public boolean borrarMiembroClub(Long idMiembroClub) {
-        Optional<MiembroClubEntidad> miembroClubOpt = miembroClubInterfaz.findById(idMiembroClub);
-        if (miembroClubOpt.isPresent()) {
-            miembroClubInterfaz.delete(miembroClubOpt.get());
+    public boolean eliminarMiembroClubPorUsuario(Long idMiembroClub, Long usuarioId) {
+        Optional<MiembroClubEntidad> miembroOpt = miembroClubInterfaz.findById(idMiembroClub);
+        if (miembroOpt.isPresent() && miembroOpt.get().getUsuario().getIdUsuario() == usuarioId) {
+            miembroClubInterfaz.delete(miembroOpt.get());
             return true;
-        } else {
-            return false;
         }
+        return false;
+    }
+
+    /**
+     * Elimina un miembro del club si la solicitud viene del club (administrador).
+     *
+     * @param idMiembroClub ID del miembro-club a eliminar.
+     * @param clubId        ID del club que solicita la eliminación.
+     * @return true si se eliminó correctamente, false en caso contrario.
+     */
+    public boolean eliminarMiembroClubPorClub(Long idMiembroClub, Long clubId) {
+        Optional<MiembroClubEntidad> miembroOpt = miembroClubInterfaz.findById(idMiembroClub);
+        if (miembroOpt.isPresent() && miembroOpt.get().getClub().getIdClub() == clubId) {
+            miembroClubInterfaz.delete(miembroOpt.get());
+            return true;
+        }
+        return false;
     }
 }

@@ -17,6 +17,9 @@ public class TorneoDto {
 	private Modalidad modalidad;
 	private boolean estaActivo;
 	private long instalacionId;
+	private String direccionInstalacion;
+	private String nombreInstalacion;
+
 
 	public TorneoDto(TorneoEntidad torneoEntidad) {
 		this.idTorneo = torneoEntidad.getIdTorneo();
@@ -107,6 +110,22 @@ public class TorneoDto {
 
 	public TorneoDto() {
 		super();
+	}
+
+	public String getDireccionInstalacion() {
+		return direccionInstalacion;
+	}
+
+	public void setDireccionInstalacion(String direccionInstalacion) {
+		this.direccionInstalacion = direccionInstalacion;
+	}
+
+	public String getNombreInstalacion() {
+		return nombreInstalacion;
+	}
+
+	public void setNombreInstalacion(String nombreInstalacion) {
+		this.nombreInstalacion = nombreInstalacion;
 	}
 
 }

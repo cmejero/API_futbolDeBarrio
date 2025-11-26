@@ -565,18 +565,38 @@ public class Controlador {
 	}
 
 	/**
-	 * Metodo para eliminar un miembro del club por su ID.
-	 * 
-	 * @param idMiembroClub ID del miembro del club a eliminar.
-	 * @return Resultado de la operación de eliminación.
+	 * Método para eliminar un miembro del club por su ID.
+	 * Puede ser invocado por un usuario (para salir del club) o por un club (para eliminar a un miembro).
+	 *
+	 * @param idMiembroClub ID de la relación miembro-club a eliminar.
+	 * @param usuarioId     (Opcional) ID del usuario que solicita la eliminación.
+	 * @param clubId        (Opcional) ID del club que solicita la eliminación.
+	 * @return true si la eliminación fue exitosa, false en caso contrario.
 	 */
 	@DeleteMapping("/eliminarMiembroClub/{idMiembroClub}")
-	public boolean eliminarMiembroClub(@PathVariable Long idMiembroClub) {
-	    Logs.ficheroLog("Solicitud para eliminar miembro del club con ID: " + idMiembroClub);
-	    boolean resultado = this.miembroClubFuncionalidades.borrarMiembroClub(idMiembroClub);
+	public boolean eliminarMiembroClub(
+	        @PathVariable Long idMiembroClub,
+	        @RequestParam(required = false) Long usuarioId,
+	        @RequestParam(required = false) Long clubId) {
+
+	    Logs.ficheroLog("Solicitud para eliminar miembro del club con ID: " + idMiembroClub +
+	                     ", usuarioId: " + usuarioId + ", clubId: " + clubId);
+
+	    boolean resultado = false;
+	    if (usuarioId != null) {
+	        resultado = miembroClubFuncionalidades.eliminarMiembroClubPorUsuario(idMiembroClub, usuarioId);
+	    } else if (clubId != null) {
+	        resultado = miembroClubFuncionalidades.eliminarMiembroClubPorClub(idMiembroClub, clubId);
+	    } else {
+	        Logs.ficheroLog("No se proporcionó usuarioId ni clubId para eliminar miembro: " + idMiembroClub);
+	        return false;
+	    }
+
 	    Logs.ficheroLog("Resultado de eliminación del miembro del club con ID " + idMiembroClub + ": " + resultado);
 	    return resultado;
 	}
+
+
 
 	/**
 	 * Metodo para modificar los detalles de un miembro del club por su ID.

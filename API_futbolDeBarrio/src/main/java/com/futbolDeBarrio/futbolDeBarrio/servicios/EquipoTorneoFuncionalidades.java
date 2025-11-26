@@ -151,6 +151,9 @@ public class EquipoTorneoFuncionalidades {
                     torneoDto.setModalidad(torneoEntidad.getModalidad());
                     torneoDto.setEstaActivo(torneoEntidad.isEstaActivo());
                     torneoDto.setInstalacionId(torneoEntidad.getInstalacion().getIdInstalacion());
+                    torneoDto.setDireccionInstalacion(torneoEntidad.getInstalacion().getDireccionInstalacion());
+                    torneoDto.setNombreInstalacion(torneoEntidad.getInstalacion().getNombreInstalacion());
+
 
                     torneosTotales.add(torneoDto);
                 }
