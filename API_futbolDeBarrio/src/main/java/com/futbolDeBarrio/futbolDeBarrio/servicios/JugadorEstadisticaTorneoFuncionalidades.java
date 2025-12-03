@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubEstadisticaTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.JugadorEstadisticaTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaTorneoEntidad;
@@ -100,6 +101,8 @@ public class JugadorEstadisticaTorneoFuncionalidades {
 
 	    return listaDto;
 	}
+
+	
 
 
 }

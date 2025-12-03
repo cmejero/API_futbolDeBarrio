@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubEstadisticaGlobalDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.JugadorEstadisticaGlobalDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaGlobalEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
@@ -106,4 +107,5 @@ public class JugadorEstadisticaGlobalFuncionalidades {
 				.map(this::mapearAJugadorEstadisticaGlobalDto).orElse(null);
 	}
 
+	
 }

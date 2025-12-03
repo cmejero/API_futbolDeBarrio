@@ -1,17 +1,13 @@
 package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubEstadisticaTorneoDto;
-import com.futbolDeBarrio.futbolDeBarrio.dtos.JugadorEstadisticaTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEstadisticaTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubEstadisticaTorneoInterfaz;
-import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
-import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
 
 /**
  * Clase que se encarga de la lógica de los métodos CRUD de Club estadística en torneo.
@@ -57,6 +53,8 @@ public class ClubEstadisticaTorneoFuncionalidades {
             .forEach(entidad -> listaDto.add(mapearAClubEstadisticaTorneoDto(entidad)));
         return listaDto;
     }
+    
+    
 
 	public ArrayList<ClubEstadisticaTorneoDto> obtenerEstadisticasDeTodosLosTorneos(Long clubId) {
 	    ArrayList<ClubEstadisticaTorneoDto> listaDto = new ArrayList<>();

@@ -2,7 +2,9 @@ package com.futbolDeBarrio.futbolDeBarrio.controladores;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -129,15 +131,24 @@ public class Controlador {
 	}
 
 	@PostMapping("/loginGoogle")
-	public ResponseEntity<LoginGoogleDto> loginGoogle(@RequestBody LoginGoogleDto dto) {
-		LoginGoogleDto respuesta = loginFuncionalidades.loginConGoogle(dto);
+	public ResponseEntity<Map<String, Object>> loginGoogle(@RequestBody LoginGoogleDto dto) {
+	    Map<String, Object> respuesta = loginFuncionalidades.loginConGoogle(dto);
 
-		if (respuesta != null) {
-			return ResponseEntity.ok(respuesta);
-		} else {
-			return ResponseEntity.status(401).body(null);
-		}
+	    if (respuesta != null) {
+	        LoginGoogleDto login = (LoginGoogleDto) respuesta.get("login");
+
+	        // Log del login básico
+	        Logs.ficheroLog("Login exitoso Google para email: " + login.getEmail() +
+	                         ", tipo: " + login.getTipoUsuario() +
+	                         ", ID: " + login.getIdTipoUsuario());
+
+	        return ResponseEntity.ok(respuesta);
+	    } else {
+	        return ResponseEntity.status(401).body(null);
+	    }
 	}
+
+
 
 	@PostMapping("/recuperar-contrasena")
 	/**
@@ -1039,6 +1050,29 @@ public class Controlador {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	
+	@GetMapping("/jugadorEstadisticaGlobal/jugador/{idUsuario}")
+	public ResponseEntity<JugadorEstadisticaGlobalDto> obtenerJugadorEstadisiticaGlobalPorJugadorId(@PathVariable Long idUsuario) {
+	    try {
+	        Logs.ficheroLog("Buscando estadística global por ID de jugador: " + idUsuario);
+
+	        JugadorEstadisticaGlobalDto dto = jugadorEstadisticaGlobalFuncionalidades.obtenerPorJugadorId(idUsuario);
+
+	        if (dto != null) {
+	            Logs.ficheroLog("Estadística encontrada para jugador ID " + idUsuario);
+	            return ResponseEntity.ok(dto);
+	        } else {
+	            Logs.ficheroLog("No se encontró estadística global para jugador ID " + idUsuario);
+	            return ResponseEntity.notFound().build();
+	        }
+
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error al obtener estadística por ID de jugador " + idUsuario + ": " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	    }
+	}
+
 
 	/* METODOS CRUD DE LA TABLA JUGADOR ESTADISTICAS TORNEO */
 
@@ -1093,12 +1127,14 @@ public class Controlador {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+
+	 
+	 
+	 @GetMapping("/jugadorEstadisticaTorneo/jugador/{usuarioId}")
+	 public ArrayList<JugadorEstadisticaTorneoDto> obtenerEstadisticasPorjugador(@PathVariable Long usuarioId) {
+	     return jugadorEstadisticaTorneoFuncionalidades.obtenerEstadisticasDeTodosLosTorneos(usuarioId);
+	 }
 	
-	
-	 @GetMapping("/jugadorEstadisticaIndividualTorneo/{jugadorId}")
-	 public ArrayList<JugadorEstadisticaTorneoDto> obtenerPorJugador(@PathVariable Long jugadorId) {
-	        return jugadorEstadisticaTorneoFuncionalidades.obtenerEstadisticasDeTodosLosTorneos(jugadorId);
-	    }
 
 	/* METODOS CRUD DE LA TABLA CLUB ESTADISTICAS GLOBAL */
 
@@ -1126,6 +1162,29 @@ public class Controlador {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	
+	@GetMapping("/clubEstadisticaGlobal/club/{idClub}")
+	public ResponseEntity<ClubEstadisticaGlobalDto> obtenerClubEstadisiticaGlobalPorClubId(@PathVariable Long idClub) {
+	    try {
+	        Logs.ficheroLog("Buscando estadística global por ID de club: " + idClub);
+
+	        ClubEstadisticaGlobalDto dto = clubEstadisticaGlobalFuncionalidades.obtenerPorClubId(idClub);
+
+	        if (dto != null) {
+	            Logs.ficheroLog("Estadística encontrada para club ID " + idClub);
+	            return ResponseEntity.ok(dto);
+	        } else {
+	            Logs.ficheroLog("No se encontró estadística global para club ID " + idClub);
+	            return ResponseEntity.notFound().build();
+	        }
+
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error al obtener estadística por ID de club " + idClub + ": " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	    }
+	}
+
 
 	/**
 	 * Método GET para obtener todas las estadísticas globales de los clubes.
@@ -1215,10 +1274,12 @@ public class Controlador {
 		}
 	}
 	
-	 @GetMapping("/clubEstadisticaIndividualTorneo/{clubId}")
-	 public ArrayList<ClubEstadisticaTorneoDto> obtenerPorClub(@PathVariable Long clubId) {
-	        return clubEstadisticaTorneoFuncionalidades.obtenerEstadisticasDeTodosLosTorneos(clubId);
-	    }
+	
+
+	 @GetMapping("/clubEstadisticaTorneo/club/{clubId}")
+	 public ArrayList<ClubEstadisticaTorneoDto> obtenerEstadisticasPorClub(@PathVariable Long clubId) {
+	     return clubEstadisticaTorneoFuncionalidades.obtenerEstadisticasDeTodosLosTorneos(clubId);
+	 }
 
 	/* METODOS CRUD DE LA TABLA PARTIDO TORNEO */
 

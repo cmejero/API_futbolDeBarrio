@@ -22,7 +22,7 @@ public class ClubDto {
 	@NotBlank(message = "La abreviatura del club es obligatoria") // Validación de campo no vacío
 	private String abreviaturaClub;
 
-	@NotBlank(message = "La descripción del club es obligatoria")
+
 	private String descripcionClub;
 
 	private String fechaCreacionClub;
@@ -51,22 +51,25 @@ public class ClubDto {
 	private boolean esPremium = false;
 
 	public ClubDto(ClubEntidad clubEntidad) {
-		this.idClub = clubEntidad.getIdClub();
-		this.nombreClub = clubEntidad.getNombreClub();
-		this.abreviaturaClub = clubEntidad.getAbreviaturaClub();
-		this.descripcionClub = clubEntidad.getDescripcionClub();
-		this.fechaCreacionClub = clubEntidad.getFechaCreacionClub();
-		this.fechaFundacionClub = clubEntidad.getFechaFundacionClub();
-		this.localidadClub = clubEntidad.getLocalidadClub();
-		this.paisClub = clubEntidad.getPaisClub();
-		if (clubEntidad.getLogoClub() != null) {
-			this.logoClub = Base64.getEncoder().encodeToString(clubEntidad.getLogoClub());
-		}
-		this.emailClub = clubEntidad.getEmailClub();
-		this.passwordClub = clubEntidad.getPasswordClub();
-		this.telefonoClub = clubEntidad.getTelefonoClub();
-		this.esPremium = clubEntidad.isEsPremium();
+	    this.idClub = clubEntidad.getIdClub();
+	    this.nombreClub = clubEntidad.getNombreClub() != null ? clubEntidad.getNombreClub() : "";
+	    this.abreviaturaClub = clubEntidad.getAbreviaturaClub() != null ? clubEntidad.getAbreviaturaClub() : "";
+	    this.descripcionClub = clubEntidad.getDescripcionClub() != null ? clubEntidad.getDescripcionClub() : "";
+	    this.fechaCreacionClub = clubEntidad.getFechaCreacionClub() != null ? clubEntidad.getFechaCreacionClub() : "";
+	    this.fechaFundacionClub = clubEntidad.getFechaFundacionClub() != null ? clubEntidad.getFechaFundacionClub() : "";
+	    this.localidadClub = clubEntidad.getLocalidadClub() != null ? clubEntidad.getLocalidadClub() : "";
+	    this.paisClub = clubEntidad.getPaisClub() != null ? clubEntidad.getPaisClub() : "";
+	    if (clubEntidad.getLogoClub() != null) {
+	        this.logoClub = Base64.getEncoder().encodeToString(clubEntidad.getLogoClub());
+	    } else {
+	        this.logoClub = "";
+	    }
+	    this.emailClub = clubEntidad.getEmailClub() != null ? clubEntidad.getEmailClub() : "";
+	    this.passwordClub = clubEntidad.getPasswordClub() != null ? clubEntidad.getPasswordClub() : "";
+	    this.telefonoClub = clubEntidad.getTelefonoClub() != null ? clubEntidad.getTelefonoClub() : "";
+	    this.esPremium = clubEntidad.isEsPremium();
 	}
+
 
 	public long getIdClub() {
 		return idClub;
