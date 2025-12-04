@@ -252,43 +252,42 @@ public class LoginFuncionalidades {
 
     // ------------------ Instalación ------------------
     private InstalacionDto loginInstalacion(LoginGoogleDto loginGoogleDto) {
-    	String email = loginGoogleDto.getEmail();
-    	String nombreCompleto = loginGoogleDto.getNombreCompleto() != null ? loginGoogleDto.getNombreCompleto() : "Desconocido";
-    	String imagenBase64 = loginGoogleDto.getImagenUsuario();
+        String email = loginGoogleDto.getEmail();
+        String nombreCompleto = loginGoogleDto.getNombreCompleto() != null ? loginGoogleDto.getNombreCompleto() : "Desconocido";
+        String imagenBase64 = loginGoogleDto.getImagenUsuario();
 
-    	InstalacionEntidad instalacion = instalacionInterfaz.findByEmailInstalacion(email).orElse(null);
-    	if (instalacion == null) {
-    	    instalacion = inicializarInstalacionPorDefecto(email, nombreCompleto, imagenBase64);
-    	    instalacionInterfaz.save(instalacion);
-    	}
+        
+        InstalacionEntidad instalacion = instalacionInterfaz.findByEmailInstalacion(email).orElse(null);
+        if (instalacion == null) {
+            instalacion = inicializarInstalacionPorDefecto(email, nombreCompleto, imagenBase64);
+            instalacion = instalacionInterfaz.save(instalacion);
+        }
 
-    	if (instalacion.getImagenInstalacion() != null) {
-    	    imagenBase64 = Base64.getEncoder().encodeToString(instalacion.getImagenInstalacion());
-    	}
 
-    	String token = jwtUtil.obtenerToken(email, Rol.Instalacion);
+        if (instalacion.getImagenInstalacion() != null) {
+            imagenBase64 = Base64.getEncoder().encodeToString(instalacion.getImagenInstalacion());
+        }
 
-    	InstalacionDto dto = new InstalacionDto();
-    	dto.setIdInstalacion(instalacion.getIdInstalacion());
-    	dto.setNombreInstalacion(instalacion.getNombreInstalacion());
-    	dto.setDireccionInstalacion(instalacion.getDireccionInstalacion());
-    	dto.setTelefonoInstalacion(instalacion.getTelefonoInstalacion());
-    	dto.setEmailInstalacion(instalacion.getEmailInstalacion());
-    	dto.setTipoCampo1(instalacion.getTipoCampo1());
-    	dto.setTipoCampo2(instalacion.getTipoCampo2());
-    	dto.setTipoCampo3(instalacion.getTipoCampo3());
-    	dto.setServiciosInstalacion(instalacion.getServiciosInstalacion());
-    	dto.setEstadoInstalacion(instalacion.getEstadoInstalacion());
-    	dto.setPasswordInstalacion(instalacion.getPasswordInstalacion());
-    	if (dto.getImagenInstalacion() != null) {
-			byte[] imagenBytes = Base64.getDecoder().decode(dto.getImagenInstalacion());
-			instalacion.setImagenInstalacion(imagenBytes);
-		}    	dto.setTorneoIds(instalacion.getTorneoIds());
-    	
+        String token = jwtUtil.obtenerToken(email, Rol.Instalacion);
 
-    	return dto;
+        InstalacionDto dto = new InstalacionDto();
+        dto.setIdInstalacion(instalacion.getIdInstalacion());
+        dto.setNombreInstalacion(instalacion.getNombreInstalacion());
+        dto.setDireccionInstalacion(instalacion.getDireccionInstalacion());
+        dto.setTelefonoInstalacion(instalacion.getTelefonoInstalacion());
+        dto.setEmailInstalacion(instalacion.getEmailInstalacion());
+        dto.setTipoCampo1(instalacion.getTipoCampo1());
+        dto.setTipoCampo2(instalacion.getTipoCampo2());
+        dto.setTipoCampo3(instalacion.getTipoCampo3());
+        dto.setServiciosInstalacion(instalacion.getServiciosInstalacion());
+        dto.setEstadoInstalacion(instalacion.getEstadoInstalacion());
+        dto.setPasswordInstalacion(instalacion.getPasswordInstalacion());
+        dto.setTorneoIds(instalacion.getTorneoIds());
+        dto.setImagenInstalacion(imagenBase64); 
 
-    	}
+        return dto;
+    }
+
 
     private InstalacionEntidad inicializarInstalacionPorDefecto(String email, String nombreCompleto, String imagenBase64) {
     InstalacionEntidad instalacion = new InstalacionEntidad();

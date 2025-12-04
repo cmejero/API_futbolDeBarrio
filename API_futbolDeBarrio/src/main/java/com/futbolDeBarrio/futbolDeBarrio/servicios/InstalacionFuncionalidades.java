@@ -111,6 +111,8 @@ public class InstalacionFuncionalidades {
 		InstalacionEntidad instalacionEntidad = instalacionInterfaz.findById(idInstalacion).orElse(null);
 		return instalacionEntidad != null ? mapearAInstalacionDto(instalacionEntidad) : null;
 	}
+	
+	
 
 	/**
 	 * Método que guarda una nueva instalación en la base de datos, recibiendo un
