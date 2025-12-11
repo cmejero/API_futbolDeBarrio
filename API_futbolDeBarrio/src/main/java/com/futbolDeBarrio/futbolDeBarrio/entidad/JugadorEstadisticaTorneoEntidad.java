@@ -1,7 +1,11 @@
 package com.futbolDeBarrio.futbolDeBarrio.entidad;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -9,19 +13,21 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idJugadorEstadisticaTorneo")
 @Entity
 @Table(name = "jugador_estadistica_torneo", schema = "sch")
 public class JugadorEstadisticaTorneoEntidad {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id_jugador_estadistica_torneo")
 	private Long idJugadorEstadisticaTorneo;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "jugador_id", referencedColumnName = "id_usuario", nullable = false)
 	private UsuarioEntidad jugador;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "torneo_id", referencedColumnName = "id_torneo", nullable = false)
 	private TorneoEntidad torneo;
 
@@ -39,20 +45,17 @@ public class JugadorEstadisticaTorneoEntidad {
 
 	@Column(name = "partidos__jugados_torneo")
 	private int partidosJugadosTorneo;
-	
-	  
-    @Column(name = "partidos_ganados_torneo")
-    private int partidosGanadosTorneo;
-    
-    @Column(name = "partidos_perdidos_torneo")
-    private int partidosPerdidosTorneo;
-    
+
+	@Column(name = "partidos_ganados_torneo")
+	private int partidosGanadosTorneo;
+
+	@Column(name = "partidos_perdidos_torneo")
+	private int partidosPerdidosTorneo;
 
 	@Column(name = "minutos_jugados_torneo")
 	private int minutosJugadosTorneo;
 
 	// Getters y setters
-
 	public Long getIdJugadorEstadisticaTorneo() {
 		return idJugadorEstadisticaTorneo;
 	}
@@ -124,8 +127,6 @@ public class JugadorEstadisticaTorneoEntidad {
 	public void setMinutosJugadosTorneo(int minutosJugadosTorneo) {
 		this.minutosJugadosTorneo = minutosJugadosTorneo;
 	}
-	
-	
 
 	public int getPartidosGanadosTorneo() {
 		return partidosGanadosTorneo;
@@ -146,7 +147,4 @@ public class JugadorEstadisticaTorneoEntidad {
 	public JugadorEstadisticaTorneoEntidad() {
 		super();
 	}
-	
-	
-	
 }

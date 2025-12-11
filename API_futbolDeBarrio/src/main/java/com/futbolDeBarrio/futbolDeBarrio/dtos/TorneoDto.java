@@ -19,6 +19,7 @@ public class TorneoDto {
 	private long instalacionId;
 	private String direccionInstalacion;
 	private String nombreInstalacion;
+	
 
 
 	public TorneoDto(TorneoEntidad torneoEntidad) {

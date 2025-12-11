@@ -1,7 +1,11 @@
 package com.futbolDeBarrio.futbolDeBarrio.entidad;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -11,6 +15,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "club_estadistica_global", schema = "sch")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idClubEstadisticaGlobal")
 public class ClubEstadisticaGlobalEntidad {
 
     @Id
@@ -18,7 +23,7 @@ public class ClubEstadisticaGlobalEntidad {
     @Column(name = "id_club_estadistica_global")
     private Long idClubEstadisticaGlobal;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id_global", referencedColumnName = "id_club", nullable = false)
     private ClubEntidad clubGlobal;
 
@@ -40,74 +45,72 @@ public class ClubEstadisticaGlobalEntidad {
     @Column(name = "goles_contra_global")
     private int golesContraGlobal;
 
-	public Long getIdClubEstadisticaGlobal() {
-		return idClubEstadisticaGlobal;
-	}
+    // Getters / setters
+    public Long getIdClubEstadisticaGlobal() {
+        return idClubEstadisticaGlobal;
+    }
 
-	public void setIdClubEstadisticaGlobal(Long idClubEstadisticaGlobal) {
-		this.idClubEstadisticaGlobal = idClubEstadisticaGlobal;
-	}
+    public void setIdClubEstadisticaGlobal(Long idClubEstadisticaGlobal) {
+        this.idClubEstadisticaGlobal = idClubEstadisticaGlobal;
+    }
 
-	public ClubEntidad getClubGlobal() {
-		return clubGlobal;
-	}
+    public ClubEntidad getClubGlobal() {
+        return clubGlobal;
+    }
 
-	public void setClubGlobal(ClubEntidad clubGlobal) {
-		this.clubGlobal = clubGlobal;
-	}
+    public void setClubGlobal(ClubEntidad clubGlobal) {
+        this.clubGlobal = clubGlobal;
+    }
 
-	public int getPartidosJugadosGlobal() {
-		return partidosJugadosGlobal;
-	}
+    public int getPartidosJugadosGlobal() {
+        return partidosJugadosGlobal;
+    }
 
-	public void setPartidosJugadosGlobal(int partidosJugadosGlobal) {
-		this.partidosJugadosGlobal = partidosJugadosGlobal;
-	}
+    public void setPartidosJugadosGlobal(int partidosJugadosGlobal) {
+        this.partidosJugadosGlobal = partidosJugadosGlobal;
+    }
 
-	public int getGanadosGlobal() {
-		return ganadosGlobal;
-	}
+    public int getGanadosGlobal() {
+        return ganadosGlobal;
+    }
 
-	public void setGanadosGlobal(int ganadosGlobal) {
-		this.ganadosGlobal = ganadosGlobal;
-	}
+    public void setGanadosGlobal(int ganadosGlobal) {
+        this.ganadosGlobal = ganadosGlobal;
+    }
 
-	public int getEmpatadosGlobal() {
-		return empatadosGlobal;
-	}
+    public int getEmpatadosGlobal() {
+        return empatadosGlobal;
+    }
 
-	public void setEmpatadosGlobal(int empatadosGlobal) {
-		this.empatadosGlobal = empatadosGlobal;
-	}
+    public void setEmpatadosGlobal(int empatadosGlobal) {
+        this.empatadosGlobal = empatadosGlobal;
+    }
 
-	public int getPerdidosGlobal() {
-		return perdidosGlobal;
-	}
+    public int getPerdidosGlobal() {
+        return perdidosGlobal;
+    }
 
-	public void setPerdidosGlobal(int perdidosGlobal) {
-		this.perdidosGlobal = perdidosGlobal;
-	}
+    public void setPerdidosGlobal(int perdidosGlobal) {
+        this.perdidosGlobal = perdidosGlobal;
+    }
 
-	public int getGolesFavorGlobal() {
-		return golesFavorGlobal;
-	}
+    public int getGolesFavorGlobal() {
+        return golesFavorGlobal;
+    }
 
-	public void setGolesFavorGlobal(int golesFavorGlobal) {
-		this.golesFavorGlobal = golesFavorGlobal;
-	}
+    public void setGolesFavorGlobal(int golesFavorGlobal) {
+        this.golesFavorGlobal = golesFavorGlobal;
+    }
 
-	public int getGolesContraGlobal() {
-		return golesContraGlobal;
-	}
+    public int getGolesContraGlobal() {
+        return golesContraGlobal;
+    }
 
-	public void setGolesContraGlobal(int golesContraGlobal) {
-		this.golesContraGlobal = golesContraGlobal;
-	}
+    public void setGolesContraGlobal(int golesContraGlobal) {
+        this.golesContraGlobal = golesContraGlobal;
+    }
 
-	public ClubEstadisticaGlobalEntidad() {
-		super();
-	}
-
-   
+    public ClubEstadisticaGlobalEntidad() {
+        super();
+    }
 }
-

@@ -3,9 +3,14 @@ package com.futbolDeBarrio.futbolDeBarrio.entidad;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,9 +19,9 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "club", schema = "sch")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idClub")
 public class ClubEntidad {
 
-	
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_club")
@@ -24,7 +29,7 @@ public class ClubEntidad {
 
     @Column(name = "nombre_club")
     private String nombreClub;
-    
+
     @Column(name = "abreviatura_club")
     private String abreviaturaClub;
 
@@ -57,27 +62,34 @@ public class ClubEntidad {
 
     @Column(name = "es_premium")
     private boolean esPremium;
-    
+
     // Relación con los clubes
-    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<EquipoTorneoEntidad> equipoTorneo = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<MiembroClubEntidad> miembroClub = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "clubLocal", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "clubLocal", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<ActaPartidoEntidad> actasComoLocal = new ArrayList<>();
 
-    @OneToMany(mappedBy = "clubVisitante", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "clubVisitante", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<ActaPartidoEntidad> actasComoVisitante = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<EventoPartidoEntidad> eventoPartido = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "clubGlobal", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "clubGlobal", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<ClubEstadisticaGlobalEntidad> clubEstadisticaGlobal = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<ClubEstadisticaTorneoEntidad> clubEstadisticaTorneo = new ArrayList<>();
 
     // Getters y Setters
@@ -104,11 +116,10 @@ public class ClubEntidad {
     public void setAbreviaturaClub(String abreviaturaClub) {
         this.abreviaturaClub = abreviaturaClub;
     }
-    
+
     public String getDescripcionClub() {
         return descripcionClub;
     }
-    
 
     public void setDescripcionClub(String descripcionClub) {
         this.descripcionClub = descripcionClub;
@@ -178,69 +189,67 @@ public class ClubEntidad {
         this.telefonoClub = telefonoClub;
     }
 
-	public List<EquipoTorneoEntidad> getEquipoTorneo() {
-		return equipoTorneo;
-	}
+    public List<EquipoTorneoEntidad> getEquipoTorneo() {
+        return equipoTorneo;
+    }
 
-	public void setEquipoTorneo(List<EquipoTorneoEntidad> equipoTorneo) {
-		this.equipoTorneo = equipoTorneo;
-	}
+    public void setEquipoTorneo(List<EquipoTorneoEntidad> equipoTorneo) {
+        this.equipoTorneo = equipoTorneo;
+    }
 
-	public List<MiembroClubEntidad> getMiembroClub() {
-		return miembroClub;
-	}
+    public List<MiembroClubEntidad> getMiembroClub() {
+        return miembroClub;
+    }
 
-	public void setMiembroClub(List<MiembroClubEntidad> miembroClub) {
-		this.miembroClub = miembroClub;
-	}
+    public void setMiembroClub(List<MiembroClubEntidad> miembroClub) {
+        this.miembroClub = miembroClub;
+    }
 
-	public List<ActaPartidoEntidad> getActasComoLocal() {
-		return actasComoLocal;
-	}
+    public List<ActaPartidoEntidad> getActasComoLocal() {
+        return actasComoLocal;
+    }
 
-	public void setActasComoLocal(List<ActaPartidoEntidad> actasComoLocal) {
-		this.actasComoLocal = actasComoLocal;
-	}
+    public void setActasComoLocal(List<ActaPartidoEntidad> actasComoLocal) {
+        this.actasComoLocal = actasComoLocal;
+    }
 
-	public List<ActaPartidoEntidad> getActasComoVisitante() {
-		return actasComoVisitante;
-	}
+    public List<ActaPartidoEntidad> getActasComoVisitante() {
+        return actasComoVisitante;
+    }
 
-	public void setActasComoVisitante(List<ActaPartidoEntidad> actasComoVisitante) {
-		this.actasComoVisitante = actasComoVisitante;
-	}
+    public void setActasComoVisitante(List<ActaPartidoEntidad> actasComoVisitante) {
+        this.actasComoVisitante = actasComoVisitante;
+    }
 
-	public List<EventoPartidoEntidad> getEventoPartido() {
-		return eventoPartido;
-	}
+    public List<EventoPartidoEntidad> getEventoPartido() {
+        return eventoPartido;
+    }
 
-	public void setEventoPartido(List<EventoPartidoEntidad> eventoPartido) {
-		this.eventoPartido = eventoPartido;
-	}
+    public void setEventoPartido(List<EventoPartidoEntidad> eventoPartido) {
+        this.eventoPartido = eventoPartido;
+    }
 
-	public List<ClubEstadisticaGlobalEntidad> getClubEstadisticaGlobal() {
-		return clubEstadisticaGlobal;
-	}
+    public List<ClubEstadisticaGlobalEntidad> getClubEstadisticaGlobal() {
+        return clubEstadisticaGlobal;
+    }
 
-	public void setClubEstadisticaGlobal(List<ClubEstadisticaGlobalEntidad> clubEstadisticaGlobal) {
-		this.clubEstadisticaGlobal = clubEstadisticaGlobal;
-	}
+    public void setClubEstadisticaGlobal(List<ClubEstadisticaGlobalEntidad> clubEstadisticaGlobal) {
+        this.clubEstadisticaGlobal = clubEstadisticaGlobal;
+    }
 
-	public List<ClubEstadisticaTorneoEntidad> getClubEstadisticaTorneo() {
-		return clubEstadisticaTorneo;
-	}
+    public List<ClubEstadisticaTorneoEntidad> getClubEstadisticaTorneo() {
+        return clubEstadisticaTorneo;
+    }
 
-	public void setClubEstadisticaTorneo(List<ClubEstadisticaTorneoEntidad> clubEstadisticaTorneo) {
-		this.clubEstadisticaTorneo = clubEstadisticaTorneo;
-	}
+    public void setClubEstadisticaTorneo(List<ClubEstadisticaTorneoEntidad> clubEstadisticaTorneo) {
+        this.clubEstadisticaTorneo = clubEstadisticaTorneo;
+    }
 
-	public boolean isEsPremium() {
-		return esPremium;
-	}
+    public boolean isEsPremium() {
+        return esPremium;
+    }
 
-	public void setEsPremium(boolean esPremium) {
-		this.esPremium = esPremium;
-	}
-
-   
+    public void setEsPremium(boolean esPremium) {
+        this.esPremium = esPremium;
+    }
 }

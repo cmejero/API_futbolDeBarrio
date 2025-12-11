@@ -3,7 +3,9 @@ package com.futbolDeBarrio.futbolDeBarrio.entidad;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Modalidad;
 
 import jakarta.persistence.CascadeType;
@@ -20,6 +22,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idTorneo")
 @Entity
 @Table(name = "torneo", schema = "sch")
 public class TorneoEntidad {
@@ -51,26 +54,29 @@ public class TorneoEntidad {
 	@Column(name = "modalidad")
 	@Enumerated(EnumType.STRING)
 	private Modalidad modalidad;
-	
+
 	@Column(name = "esta_activo")
 	private boolean estaActivo;
 
 	@NotNull
-	@ManyToOne
+	@ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
 	@JoinColumn(name = "instalacion_id", referencedColumnName = "id_instalacion", nullable = false)
-	@JsonBackReference
 	private InstalacionEntidad instalacion;
 
 	@OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
 	private List<EquipoTorneoEntidad> equipoTorneo = new ArrayList<>();
 
 	@OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
 	private List<ActaPartidoEntidad> actasPartidos = new ArrayList<>();
 
 	@OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
 	private List<ClubEstadisticaTorneoEntidad> clubEstadisticaTorneo = new ArrayList<>();
 
 	@OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
 	private List<JugadorEstadisticaTorneoEntidad> jugadorEstadisticaTorneo = new ArrayList<>();
 
 	public TorneoEntidad() {
@@ -131,7 +137,6 @@ public class TorneoEntidad {
 	public void setModalidad(Modalidad modalidad) {
 		this.modalidad = modalidad;
 	}
-	
 
 	public boolean isEstaActivo() {
 		return estaActivo;
@@ -180,5 +185,4 @@ public class TorneoEntidad {
 	public void setJugadorEstadisticaTorneo(List<JugadorEstadisticaTorneoEntidad> jugadorEstadisticaTorneo) {
 		this.jugadorEstadisticaTorneo = jugadorEstadisticaTorneo;
 	}
-
 }

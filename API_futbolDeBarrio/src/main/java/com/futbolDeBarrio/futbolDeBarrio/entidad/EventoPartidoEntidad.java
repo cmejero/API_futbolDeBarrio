@@ -1,7 +1,11 @@
 package com.futbolDeBarrio.futbolDeBarrio.entidad;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -9,36 +13,37 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idEventoPartido")
 @Entity
 @Table(name = "evento_partido", schema = "sch")
 public class EventoPartidoEntidad {
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_evento_partido")
-    private Long idEventoPartido;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_evento_partido")
+	private Long idEventoPartido;
 
-    @ManyToOne
-    @JoinColumn(name = "acta_partido_id", referencedColumnName = "id_acta_partido", nullable = false)
-    private ActaPartidoEntidad actaPartido;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "acta_partido_id", referencedColumnName = "id_acta_partido", nullable = false)
+	private ActaPartidoEntidad actaPartido;
 
-    @ManyToOne
-    @JoinColumn(name = "jugador_id", referencedColumnName = "id_usuario", nullable = false)
-    private UsuarioEntidad jugador;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "jugador_id", referencedColumnName = "id_usuario", nullable = false)
+	private UsuarioEntidad jugador;
 
-    @ManyToOne
-    @JoinColumn(name = "club_id", referencedColumnName = "id_club", nullable = false)
-    private ClubEntidad club;
-  
-    @ManyToOne
-    @JoinColumn(name = "equipo_torneo_id", referencedColumnName = "id_equipo_torneo", nullable = false)
-    private EquipoTorneoEntidad equipoTorneo;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "club_id", referencedColumnName = "id_club", nullable = false)
+	private ClubEntidad club;
 
-    @Column(name = "tipo_evento") // GOL, ASISTENCIA, AMARILLA, ROJA
-    private String tipoEvento;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "equipo_torneo_id", referencedColumnName = "id_equipo_torneo", nullable = false)
+	private EquipoTorneoEntidad equipoTorneo;
 
-    @Column(name = "minuto")
-    private int minuto;
+	@Column(name = "tipo_evento")
+	private String tipoEvento;
+
+	@Column(name = "minuto")
+	private int minuto;
 
 	public Long getIdEventoPartido() {
 		return idEventoPartido;
@@ -95,7 +100,4 @@ public class EventoPartidoEntidad {
 	public void setMinuto(int minuto) {
 		this.minuto = minuto;
 	}
-
-    
 }
-

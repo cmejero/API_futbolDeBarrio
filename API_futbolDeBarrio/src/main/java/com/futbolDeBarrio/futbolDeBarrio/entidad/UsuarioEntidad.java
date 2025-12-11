@@ -3,8 +3,9 @@ package com.futbolDeBarrio.futbolDeBarrio.entidad;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Estado;
 import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
 
@@ -20,6 +21,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idUsuario")
 @Entity
 @Table(name = "usuario", schema = "sch")
 public class UsuarioEntidad {
@@ -37,7 +39,6 @@ public class UsuarioEntidad {
 	@Column(name = "alias_usuario")
 	private String aliasUsuario;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@Column(name = "fecha_nacimiento_usuario")
 	private String fechaNacimientoUsuario;
 
@@ -69,16 +70,23 @@ public class UsuarioEntidad {
 	private boolean esPremium;
 
 	@OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
 	private List<MiembroClubEntidad> miembroClub = new ArrayList<>();
 
 	@OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
 	private List<EventoPartidoEntidad> eventoPartido = new ArrayList<>();
 
 	@OneToMany(mappedBy = "jugadorGlobalId", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
 	private List<JugadorEstadisticaGlobalEntidad> jugadorEstadisticaGlobal = new ArrayList<>();
 
 	@OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
 	private List<JugadorEstadisticaTorneoEntidad> jugadorEstadisticaTorneo = new ArrayList<>();
+
+	public UsuarioEntidad() {
+	}
 
 	public long getIdUsuario() {
 		return idUsuario;
@@ -168,9 +176,6 @@ public class UsuarioEntidad {
 		this.rolUsuario = rolUsuario;
 	}
 
-	public UsuarioEntidad() {
-	}
-
 	public List<MiembroClubEntidad> getMiembroClub() {
 		return miembroClub;
 	}
@@ -210,5 +215,4 @@ public class UsuarioEntidad {
 	public void setEsPremium(boolean esPremium) {
 		this.esPremium = esPremium;
 	}
-
 }

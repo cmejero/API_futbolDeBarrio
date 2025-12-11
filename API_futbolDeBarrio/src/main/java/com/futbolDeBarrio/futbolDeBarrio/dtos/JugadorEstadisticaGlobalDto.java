@@ -21,6 +21,7 @@ public class JugadorEstadisticaGlobalDto {
     private String nombreJugador;
     private String aliasJugador;
     
+    
     public JugadorEstadisticaGlobalDto(JugadorEstadisticaGlobalEntidad jugadorEstadisticaGlobalEntidad) {
         this.idGlobal = jugadorEstadisticaGlobalEntidad.getIdJugadorEstadisticaGlobal();
         this.jugadorGlobalId = jugadorEstadisticaGlobalEntidad.getJugadorGlobalId().getIdUsuario();

@@ -1,8 +1,12 @@
 package com.futbolDeBarrio.futbolDeBarrio.entidad;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -11,159 +15,119 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idPartidoTorneo")
 @Entity
 @Table(name = "partido_torneo", schema = "sch")
 public class PartidoTorneoEntidad {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_partido_torneo")
-    private Long idPartidoTorneo;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_partido_torneo")
+	private Long idPartidoTorneo;
 
-    @ManyToOne
-    @JoinColumn(name = "torneo_id", referencedColumnName = "id_torneo", nullable = false)
-    private TorneoEntidad torneo;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "torneo_id", referencedColumnName = "id_torneo", nullable = false)
+	private TorneoEntidad torneo;
 
-    @ManyToOne
-    @JoinColumn(name = "instalacion_id", referencedColumnName = "id_instalacion")
-    private InstalacionEntidad instalacion;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "instalacion_id", referencedColumnName = "id_instalacion")
+	private InstalacionEntidad instalacion;
 
-    @ManyToOne
-    @JoinColumn(name = "club_local_id", referencedColumnName = "id_club", nullable = false)
-    private ClubEntidad clubLocal;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "club_local_id", referencedColumnName = "id_club", nullable = false)
+	private ClubEntidad clubLocal;
 
-    @ManyToOne
-    @JoinColumn(name = "club_visitante_id", referencedColumnName = "id_club", nullable = false)
-    private ClubEntidad clubVisitante;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "club_visitante_id", referencedColumnName = "id_club", nullable = false)
+	private ClubEntidad clubVisitante;
 
-    @ManyToOne
-    @JoinColumn(name = "equipo_local_id", referencedColumnName = "id_equipo_torneo", nullable = false)
-    private EquipoTorneoEntidad equipoLocal;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "equipo_local_id", referencedColumnName = "id_equipo_torneo", nullable = false)
+	private EquipoTorneoEntidad equipoLocal;
 
-    @ManyToOne
-    @JoinColumn(name = "equipo_visitante_id", referencedColumnName = "id_equipo_torneo", nullable = false)
-    private EquipoTorneoEntidad equipoVisitante;
-    
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = true)
-    @JoinColumn(name = "acta_partido_id") 
-    private ActaPartidoEntidad actaPartido;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "equipo_visitante_id", referencedColumnName = "id_equipo_torneo", nullable = false)
+	private EquipoTorneoEntidad equipoVisitante;
 
-    
-    @Column(name = "goles_local")
-    private int golesLocal;
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, optional = true)
+	@JoinColumn(name = "acta_partido_id")
+	private ActaPartidoEntidad actaPartido;
 
-    @Column(name = "goles_visitante")
-    private int golesVisitante;
+	@Column(name = "goles_local")
+	private int golesLocal;
 
-    @Column(name = "fecha_partido")
-    private String fechaPartido;
+	@Column(name = "goles_visitante")
+	private int golesVisitante;
 
-    @Column(name = "ronda", nullable = false)
-    private String ronda; // Ej: "OCTAVOS", "CUARTOS", "SEMIFINAL", "FINAL"
+	@Column(name = "fecha_partido")
+	private String fechaPartido;
 
-    @Column(name = "estado", nullable = false)
-    private String estado; // PENDIENTE, JUGADO, CERRADO
-    
-    @Column(name = "ubicacion_ronda")
-    private int ubicacionRonda;
+	@Column(name = "ronda", nullable = false)
+	private String ronda;
 
-    // Getters y setters
+	@Column(name = "estado", nullable = false)
+	private String estado;
 
-    public Long getIdPartidoTorneo() {
-        return idPartidoTorneo;
-    }
+	@Column(name = "ubicacion_ronda")
+	private int ubicacionRonda;
 
-    public void setIdPartidoTorneo(Long idPartidoTorneo) {
-        this.idPartidoTorneo = idPartidoTorneo;
-    }
+	// Getters y setters
 
-    public TorneoEntidad getTorneo() {
-        return torneo;
-    }
+	public Long getIdPartidoTorneo() {
+		return idPartidoTorneo;
+	}
 
-    public void setTorneo(TorneoEntidad torneo) {
-        this.torneo = torneo;
-    }
+	public void setIdPartidoTorneo(Long idPartidoTorneo) {
+		this.idPartidoTorneo = idPartidoTorneo;
+	}
 
-    public InstalacionEntidad getInstalacion() {
-        return instalacion;
-    }
+	public TorneoEntidad getTorneo() {
+		return torneo;
+	}
 
-    public void setInstalacion(InstalacionEntidad instalacion) {
-        this.instalacion = instalacion;
-    }
+	public void setTorneo(TorneoEntidad torneo) {
+		this.torneo = torneo;
+	}
 
-    public ClubEntidad getClubLocal() {
-        return clubLocal;
-    }
+	public InstalacionEntidad getInstalacion() {
+		return instalacion;
+	}
 
-    public void setClubLocal(ClubEntidad clubLocal) {
-        this.clubLocal = clubLocal;
-    }
+	public void setInstalacion(InstalacionEntidad instalacion) {
+		this.instalacion = instalacion;
+	}
 
-    public ClubEntidad getClubVisitante() {
-        return clubVisitante;
-    }
+	public ClubEntidad getClubLocal() {
+		return clubLocal;
+	}
 
-    public void setClubVisitante(ClubEntidad clubVisitante) {
-        this.clubVisitante = clubVisitante;
-    }
+	public void setClubLocal(ClubEntidad clubLocal) {
+		this.clubLocal = clubLocal;
+	}
 
-    public EquipoTorneoEntidad getEquipoLocal() {
-        return equipoLocal;
-    }
+	public ClubEntidad getClubVisitante() {
+		return clubVisitante;
+	}
 
-    public void setEquipoLocal(EquipoTorneoEntidad equipoLocal) {
-        this.equipoLocal = equipoLocal;
-    }
+	public void setClubVisitante(ClubEntidad clubVisitante) {
+		this.clubVisitante = clubVisitante;
+	}
 
-    public EquipoTorneoEntidad getEquipoVisitante() {
-        return equipoVisitante;
-    }
+	public EquipoTorneoEntidad getEquipoLocal() {
+		return equipoLocal;
+	}
 
-    public void setEquipoVisitante(EquipoTorneoEntidad equipoVisitante) {
-        this.equipoVisitante = equipoVisitante;
-    }
+	public void setEquipoLocal(EquipoTorneoEntidad equipoLocal) {
+		this.equipoLocal = equipoLocal;
+	}
 
-    public int getGolesLocal() {
-        return golesLocal;
-    }
+	public EquipoTorneoEntidad getEquipoVisitante() {
+		return equipoVisitante;
+	}
 
-    public void setGolesLocal(int golesLocal) {
-        this.golesLocal = golesLocal;
-    }
-
-    public int getGolesVisitante() {
-        return golesVisitante;
-    }
-
-    public void setGolesVisitante(int golesVisitante) {
-        this.golesVisitante = golesVisitante;
-    }
-
-    public String getFechaPartido() {
-        return fechaPartido;
-    }
-
-    public void setFechaPartido(String fechaPartido) {
-        this.fechaPartido = fechaPartido;
-    }
-
-    public String getRonda() {
-        return ronda;
-    }
-
-    public void setRonda(String ronda) {
-        this.ronda = ronda;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
+	public void setEquipoVisitante(EquipoTorneoEntidad equipoVisitante) {
+		this.equipoVisitante = equipoVisitante;
+	}
 
 	public ActaPartidoEntidad getActaPartido() {
 		return actaPartido;
@@ -173,6 +137,46 @@ public class PartidoTorneoEntidad {
 		this.actaPartido = actaPartido;
 	}
 
+	public int getGolesLocal() {
+		return golesLocal;
+	}
+
+	public void setGolesLocal(int golesLocal) {
+		this.golesLocal = golesLocal;
+	}
+
+	public int getGolesVisitante() {
+		return golesVisitante;
+	}
+
+	public void setGolesVisitante(int golesVisitante) {
+		this.golesVisitante = golesVisitante;
+	}
+
+	public String getFechaPartido() {
+		return fechaPartido;
+	}
+
+	public void setFechaPartido(String fechaPartido) {
+		this.fechaPartido = fechaPartido;
+	}
+
+	public String getRonda() {
+		return ronda;
+	}
+
+	public void setRonda(String ronda) {
+		this.ronda = ronda;
+	}
+
+	public String getEstado() {
+		return estado;
+	}
+
+	public void setEstado(String estado) {
+		this.estado = estado;
+	}
+
 	public int getUbicacionRonda() {
 		return ubicacionRonda;
 	}
@@ -180,6 +184,4 @@ public class PartidoTorneoEntidad {
 	public void setUbicacionRonda(int ubicacionRonda) {
 		this.ubicacionRonda = ubicacionRonda;
 	}
-    
-    
 }

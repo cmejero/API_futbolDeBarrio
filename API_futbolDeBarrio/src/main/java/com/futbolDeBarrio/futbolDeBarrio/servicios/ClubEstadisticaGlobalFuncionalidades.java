@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubEstadisticaGlobalDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEstadisticaGlobalEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubEstadisticaGlobalInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.MiembroClubInterfaz;
 
 /**
  * Clase que se encarga de la lógica de los métodos CRUD de Club estadística global
@@ -19,6 +20,8 @@ public class ClubEstadisticaGlobalFuncionalidades {
 
     @Autowired
     private ClubEstadisticaGlobalInterfaz clubEstadisticaGlobalInterfaz;
+    @Autowired
+    private MiembroClubInterfaz miembroClubInterfaz;
 
     /**
      * Mapea una entidad ClubEstadisticaGlobalEntidad a un DTO ClubEstadisiticaGlobalDto.
@@ -49,10 +52,23 @@ public class ClubEstadisticaGlobalFuncionalidades {
      */
     public ArrayList<ClubEstadisticaGlobalDto> mostrarClubEstadisticaGlobal() {
         ArrayList<ClubEstadisticaGlobalDto> listaDto = new ArrayList<>();
-        clubEstadisticaGlobalInterfaz.findAll()
-            .forEach(entidad -> listaDto.add(mapearAClubEstadisticaGlobalDto(entidad)));
+
+        clubEstadisticaGlobalInterfaz.findAll().forEach(entidad -> {
+            ClubEstadisticaGlobalDto dto = mapearAClubEstadisticaGlobalDto(entidad);
+
+            int jugadoresActivos = (int) miembroClubInterfaz.findByClub_IdClub(entidad.getClubGlobal().getIdClub())
+                .stream()
+                .filter(m -> m.getFechaBajaUsuario() == null || "9999-01-01".equals(m.getFechaBajaUsuario()))
+                .count();
+
+            dto.setTotalJugadoresActivos(jugadoresActivos); 
+
+            listaDto.add(dto);
+        });
+
         return listaDto;
     }
+
     
     public ClubEstadisticaGlobalDto obtenerPorClubId(Long clubId) {
 		return clubEstadisticaGlobalInterfaz.findByClubGlobal_IdClub(clubId)
