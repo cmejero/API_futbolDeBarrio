@@ -36,6 +36,9 @@ public class TokenRecuperacionContrasenaEntidad {
 
 	@Column(name = "fecha_expiracion", nullable = false)
 	private LocalDateTime fechaExpiracion;
+	
+	@Column(name = "email_verificado")
+	private boolean emailVerificado;
 
 	public TokenRecuperacionContrasenaEntidad() {
 	}
@@ -91,4 +94,14 @@ public class TokenRecuperacionContrasenaEntidad {
 	public boolean estaExpirado() {
 		return LocalDateTime.now().isAfter(fechaExpiracion);
 	}
+
+	public boolean isEmailVerificado() {
+		return emailVerificado;
+	}
+
+	public void setEmailVerificado(boolean emailVerificado) {
+		this.emailVerificado = emailVerificado;
+	}
+	
+	
 }

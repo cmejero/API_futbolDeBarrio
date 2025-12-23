@@ -1,5 +1,6 @@
 	package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Optional;
@@ -8,11 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.CuentaEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaGlobalEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.enums.Rol;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.CuentaInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.JugadorEstadisticaGlobalInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
+import com.futbolDeBarrio.futbolDeBarrio.verificacion.VerificacionEmailFuncionalidad;
 
 /**
  * Clase que se encarga de la lógica interna de los métodos CRUD para Usuario
@@ -24,8 +29,12 @@ public class UsuarioFuncionalidades {
     UsuarioInterfaz usuarioInterfaz;
     @Autowired
     JugadorEstadisticaGlobalInterfaz jugadorEstadisticaGlobalInterfaz;
+    @Autowired
+    CuentaInterfaz cuentaInterfaz;
+    @Autowired
+    VerificacionEmailFuncionalidad verificacionEmailFuncionalidad;
     
-
+    
     /**
      * Método para buscar un usuario por su email.
      * 
@@ -124,19 +133,29 @@ public class UsuarioFuncionalidades {
             throw new IllegalArgumentException("El rol del usuario es obligatorio.");
         }
 
-        Optional<UsuarioEntidad> usuarioExistente = buscarUsuarioPorEmail(usuarioDto.getEmailUsuario());
-        if (usuarioExistente.isPresent()) {
-            throw new IllegalArgumentException("El email proporcionado ya está siendo utilizado por otro usuario.");
-        }
+        // Validar email existente
+        cuentaInterfaz.findByEmailAndRol(usuarioDto.getEmailUsuario(), Rol.Usuario)
+            .ifPresent(c -> { throw new IllegalArgumentException("El email ya está en uso."); });
 
-        // 1️⃣ Guardar usuario
+        // 1️⃣ Crear y guardar Cuenta
+        CuentaEntidad cuenta = new CuentaEntidad();
+        cuenta.setEmail(usuarioDto.getEmailUsuario());
+        cuenta.setPassword(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
+        cuenta.setRol(Rol.Usuario);
+        cuenta.setEmailVerificado(false);
+        cuenta.setFechaCreacion(LocalDateTime.now());
+        cuenta = cuentaInterfaz.save(cuenta);
+
+        // 2️⃣ Crear Usuario y asociar Cuenta
         UsuarioEntidad usuarioEntidad = mapearADtoAEntidad(usuarioDto);
+        usuarioEntidad.setCuenta(cuenta);
         usuarioEntidad.setPasswordUsuario(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
+
         usuarioEntidad = usuarioInterfaz.save(usuarioEntidad);
 
-        // 2️⃣ Crear estadísticas iniciales en cero
+        // 3️⃣ Crear estadísticas globales
         JugadorEstadisticaGlobalEntidad estadistica = new JugadorEstadisticaGlobalEntidad();
-        estadistica.setJugadorGlobalId(usuarioEntidad); 
+        estadistica.setJugadorGlobalId(usuarioEntidad);
         estadistica.setGolesGlobal(0);
         estadistica.setAsistenciasGlobal(0);
         estadistica.setAmarillasGlobal(0);
@@ -145,12 +164,12 @@ public class UsuarioFuncionalidades {
         estadistica.setPartidosGanadosGlobal(0);
         estadistica.setPartidosPerdidosGlobal(0);
         estadistica.setMinutosJugadosGlobal(0);
-
         jugadorEstadisticaGlobalInterfaz.save(estadistica);
+
+        verificacionEmailFuncionalidad.generarYEnviarToken(cuenta);
 
         return usuarioEntidad;
     }
-
     /**
      * Método que se encarga de modificar un usuario en la base de datos.
      * 
@@ -195,7 +214,7 @@ public class UsuarioFuncionalidades {
             }
         } catch (NumberFormatException nfe) {
             // ID inválido
-        } catch (Exception e) {
+        } catch (Exception e) {	
             e.printStackTrace();
         }
         return esModificado;

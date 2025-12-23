@@ -1,5 +1,6 @@
 package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -9,9 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.CuentaEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.enums.Rol;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.CuentaInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
+import com.futbolDeBarrio.futbolDeBarrio.verificacion.VerificacionEmailFuncionalidad;
 
 /**
  * Clase que se encarga de la logica interna de los metodos CRUD de isntalacion
@@ -21,6 +26,11 @@ public class InstalacionFuncionalidades {
 
 	@Autowired
 	InstalacionInterfaz instalacionInterfaz;
+	@Autowired
+    CuentaInterfaz cuentaInterfaz;
+    @Autowired
+    VerificacionEmailFuncionalidad verificacionEmailFuncionalidad;
+    
 
 	/**
 	 * Método que busca una instalación por su email.
@@ -131,6 +141,16 @@ public class InstalacionFuncionalidades {
 			throw new IllegalArgumentException("El email proporcionado ya está siendo utilizado por otra instalación.");
 		}
 
+		
+        CuentaEntidad cuenta = new CuentaEntidad();
+        cuenta.setEmail(instalacionDto.getEmailInstalacion());
+        cuenta.setPassword(Utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
+        cuenta.setRol(Rol.Instalacion);
+        cuenta.setEmailVerificado(false);
+        cuenta.setFechaCreacion(LocalDateTime.now());
+        cuenta = cuentaInterfaz.save(cuenta);
+        
+        
 		InstalacionEntidad instalacionEntidad = mapearADtoAEntidad(instalacionDto);
 
 		if (instalacionDto.getPasswordInstalacion() == null || instalacionDto.getPasswordInstalacion().isEmpty()) {
@@ -138,7 +158,12 @@ public class InstalacionFuncionalidades {
 		}
 		instalacionEntidad
 				.setPasswordInstalacion(Utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
-		return instalacionInterfaz.save(instalacionEntidad);
+		instalacionEntidad.setCuenta(cuenta); 
+		instalacionInterfaz.save(instalacionEntidad);
+        verificacionEmailFuncionalidad.generarYEnviarToken(cuenta);
+        
+        return instalacionEntidad;
+
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package com.futbolDeBarrio.futbolDeBarrio.servicios;
+package com.futbolDeBarrio.futbolDeBarrio.jwt;
 
 import java.security.Key;
 import java.sql.Date;

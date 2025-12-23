@@ -19,7 +19,9 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idInstalacion")
@@ -68,6 +70,10 @@ public class InstalacionEntidad {
 
 	@Column(name = "imagen_instalacion")
 	private byte[] imagenInstalacion;
+	
+	@OneToOne
+	@JoinColumn(name = "id_cuenta")
+	private CuentaEntidad cuenta;
 
 	@OneToMany(mappedBy = "instalacion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	@JsonIgnore
@@ -176,6 +182,15 @@ public class InstalacionEntidad {
 
 	public void setImagenInstalacion(byte[] imagenInstalacion) {
 		this.imagenInstalacion = imagenInstalacion;
+	}
+	
+
+	public CuentaEntidad getCuenta() {
+		return cuenta;
+	}
+
+	public void setCuenta(CuentaEntidad cuenta) {
+		this.cuenta = cuenta;
 	}
 
 	public List<TorneoEntidad> getTorneo() {

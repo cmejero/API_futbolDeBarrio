@@ -23,6 +23,7 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Estado;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Rol;
 import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
+import com.futbolDeBarrio.futbolDeBarrio.jwt.JwtFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubEstadisticaGlobalInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
@@ -60,43 +61,75 @@ public class LoginFuncionalidades {
      * @return Objeto RespuestaLoginDto si las credenciales son válidas, o null si no lo son
      */
     public RespuestaLoginDto verificarCredenciales(LoginDto loginDto) {
-        String tipoUsuario = loginDto.getTipoUsuario(); // nuevo
+        String tipoUsuario = loginDto.getTipoUsuario(); 
 
-        switch (tipoUsuario) {
+        switch (tipoUsuario.toLowerCase()) {
             case "jugador":
             case "administrador":
-                Optional<UsuarioEntidad> usuario = usuarioInterfaz.findByEmailUsuario(loginDto.getEmail());
-                if (usuario.isPresent() && Utilidades.verificarContrasena(loginDto.getPassword(), usuario.get().getPasswordUsuario())) {
-                    String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Usuario);
-                    String tipo = usuario.get().getRolUsuario() == RolUsuario.Administrador ? "administrador" : "jugador";   
-                    
-                    UsuarioDto usuarioDto = new UsuarioDto(usuario.get());
-                    return new RespuestaLoginDto(tipo, token, usuarioDto);
+                Optional<UsuarioEntidad> usuarioOpt = usuarioInterfaz.findByEmailUsuario(loginDto.getEmail());
+                if (usuarioOpt.isPresent()) {
+                    UsuarioEntidad usuario = usuarioOpt.get();
+
+                   
+                    if (usuario.getCuenta() != null && !usuario.getCuenta().isEmailVerificado()) {
+                        throw new IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada.");
+                    }
+
+                    if (Utilidades.verificarContrasena(loginDto.getPassword(), usuario.getPasswordUsuario())) {
+                        String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Usuario);
+                        String tipo = usuario.getRolUsuario() == RolUsuario.Administrador ? "administrador" : "jugador";
+                        UsuarioDto usuarioDto = new UsuarioDto(usuario);
+                        return new RespuestaLoginDto(tipo, token, usuarioDto);
+                    } else {
+                        throw new IllegalArgumentException("Contraseña incorrecta.");
+                    }
+                } else {
+                    throw new IllegalArgumentException("Usuario no encontrado.");
                 }
-                break;
 
             case "club":
-                Optional<ClubEntidad> club = clubInterfaz.findByEmailClub(loginDto.getEmail());
-                if (club.isPresent() && Utilidades.verificarContrasena(loginDto.getPassword(), club.get().getPasswordClub())) {
-                    String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Club);
-                    return new RespuestaLoginDto("club", token, club.get());
+                Optional<ClubEntidad> clubOpt = clubInterfaz.findByEmailClub(loginDto.getEmail());
+                if (clubOpt.isPresent()) {
+                    ClubEntidad club = clubOpt.get();
+                    
+                    if (club.getCuenta() != null && !club.getCuenta().isEmailVerificado()) {
+                        throw new IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada.");
+                    }
+
+                    if (Utilidades.verificarContrasena(loginDto.getPassword(), club.getPasswordClub())) {
+                        String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Club);
+                        return new RespuestaLoginDto("club", token, club);
+                    } else {
+                        throw new IllegalArgumentException("Contraseña incorrecta.");
+                    }
+                } else {
+                    throw new IllegalArgumentException("Club no encontrado.");
                 }
-                break;
 
             case "instalacion":
-                Optional<InstalacionEntidad> instalacion = instalacionInterfaz.findByEmailInstalacion(loginDto.getEmail());
-                if (instalacion.isPresent() && Utilidades.verificarContrasena(loginDto.getPassword(), instalacion.get().getPasswordInstalacion())) {
-                    String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Instalacion);
-                    return new RespuestaLoginDto("instalacion", token, instalacion.get());
+                Optional<InstalacionEntidad> instalacionOpt = instalacionInterfaz.findByEmailInstalacion(loginDto.getEmail());
+                if (instalacionOpt.isPresent()) {
+                    InstalacionEntidad instalacion = instalacionOpt.get();
+                    
+                    if (instalacion.getCuenta() != null && !instalacion.getCuenta().isEmailVerificado()) {
+                        throw new IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada.");
+                    }
+                    
+                    if (Utilidades.verificarContrasena(loginDto.getPassword(), instalacion.getPasswordInstalacion())) {
+                        String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Instalacion);
+                        return new RespuestaLoginDto("instalacion", token, instalacion);
+                    } else {
+                        throw new IllegalArgumentException("Contraseña incorrecta.");
+                    }
+                } else {
+                    throw new IllegalArgumentException("Instalación no encontrada.");
                 }
-                break;
 
             default:
-                return null; // tipo de usuario desconocido
+                throw new IllegalArgumentException("Tipo de usuario desconocido.");
         }
-
-        return null; // si no encontró credenciales válidas
     }
+
     
     /**
      * Verifica si el email ya existe en alguno de los tipos de usuario y genera token.

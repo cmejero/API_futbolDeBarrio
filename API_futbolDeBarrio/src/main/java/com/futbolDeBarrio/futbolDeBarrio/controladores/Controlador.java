@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,6 +62,7 @@ import com.futbolDeBarrio.futbolDeBarrio.servicios.PartidoTorneoFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.RecuperarContrasenaFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.TorneoFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.UsuarioFuncionalidades;
+import com.futbolDeBarrio.futbolDeBarrio.verificacion.VerificacionEmailFuncionalidad;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -106,6 +106,8 @@ public class Controlador {
 	@Autowired
 	PartidoTorneoFuncionalidades partidoTorneoFuncionalidades;
 	@Autowired
+	VerificacionEmailFuncionalidad verificacionEmailFuncionalidad;
+	@Autowired
 	EquipoTorneoInterfaz equipoTorneoInterfaz;
 	@Autowired
 	JugadorEstadisticaGlobalInterfaz jugadorEstadisticaGlobalInterfaz;
@@ -148,6 +150,27 @@ public class Controlador {
 	    }
 	}
 
+	
+	  /**
+     * Endpoint que verifica el email a partir del token recibido.
+     */
+	@GetMapping("/verificarEmail")
+	public ResponseEntity<String> verificarEmail(@RequestParam String token) {
+	    Logs.ficheroLog("Intento de verificación de email con token: " + token);
+	    try {
+	        String resultado = verificacionEmailFuncionalidad.verificarToken(token);
+	        Logs.ficheroLog("Verificación de email exitosa para token: " + token);
+	        return ResponseEntity.ok(resultado); // 200 OK
+	    } catch (RuntimeException e) {
+	        Logs.ficheroLog("Error verificando token: " + token + ". Error: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                             .body("Error al verificar el email: " + e.getMessage());
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error interno verificando token: " + token + ". Error: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                             .body("Error interno del servidor");
+	    }
+	}
 
 
 	@PostMapping("/recuperar-contrasena")

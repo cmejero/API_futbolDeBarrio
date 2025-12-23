@@ -17,7 +17,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 
@@ -68,6 +70,11 @@ public class UsuarioEntidad {
 
 	@Column(name = "es_premium")
 	private boolean esPremium;
+	
+	
+    @OneToOne
+    @JoinColumn(name = "id_cuenta", nullable = false)
+    private CuentaEntidad cuenta;
 
 	@OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonIgnore
@@ -178,6 +185,15 @@ public class UsuarioEntidad {
 
 	public List<MiembroClubEntidad> getMiembroClub() {
 		return miembroClub;
+	}
+	
+
+	public CuentaEntidad getCuenta() {
+		return cuenta;
+	}
+
+	public void setCuenta(CuentaEntidad cuenta) {
+		this.cuenta = cuenta;
 	}
 
 	public void setMiembroClub(List<MiembroClubEntidad> miembroClub) {
