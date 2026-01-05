@@ -14,6 +14,7 @@ import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
 import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.MiembroClubInterfaz;
@@ -164,82 +165,76 @@ public class MiembroClubFuncionalidades {
      * @return La entidad {@link MiembroClubEntidad} del miembro del club guardado.
      * @throws RuntimeException Si el miembro ya existe en el club.
      */
-    public MiembroClubEntidad guardarMiembroClub(MiembroClubDto miembroClubDto) {
-        Logs.ficheroLog("Verificando si el miembro ya existe en el club con usuario ID " + miembroClubDto.getUsuarioId() + " y club ID " + miembroClubDto.getIdClub());
-        
-        Optional<MiembroClubEntidad> miembroExistente = miembroClubInterfaz
-            .findByUsuario_IdUsuarioAndClub_IdClub(miembroClubDto.getUsuarioId(), miembroClubDto.getIdClub());
+    public MiembroClubDto guardarMiembroClub(MiembroClubDto miembroClubDto, String emailUsuarioLogueado) {
+        Logs.ficheroLog("Procesando miembro para club con usuario: " + emailUsuarioLogueado);
 
-        if (miembroExistente.isPresent()) {
-            Logs.ficheroLog("El miembro ya existe en el club");
-            throw new RuntimeException("El miembro con ID de usuario " + miembroClubDto.getUsuarioId() + 
-                                       " ya pertenece al club con ID " + miembroClubDto.getIdClub());
+        // 1️⃣ Asegurar que UsuarioDto exista
+        if (miembroClubDto.getUsuario() == null) {
+            miembroClubDto.setUsuario(new UsuarioDto());
         }
 
-        MiembroClubEntidad miembroClubEntidad = mapearADtoAEntidad(miembroClubDto);
-        Logs.ficheroLog("Guardando miembro del club...");
-        return miembroClubInterfaz.save(miembroClubEntidad);
+        // 2️⃣ Forzar email y rol
+        miembroClubDto.getUsuario().setEmailUsuario(emailUsuarioLogueado);
+        miembroClubDto.getUsuario().setRolUsuario(RolUsuario.Jugador);
+
+        // 3️⃣ Validación de negocio
+        if (miembroClubDto.getUsuario().getRolUsuario() != RolUsuario.Jugador
+                || !miembroClubDto.getUsuario().getEmailUsuario().equals(emailUsuarioLogueado)) {
+            Logs.ficheroLog("Intento no autorizado de añadir miembro al club por: " + emailUsuarioLogueado);
+            throw new RuntimeException("Usuario no autorizado para unirse al club");
+        }
+
+        // 4️⃣ Verificar que el usuario no esté ya en el club
+        Optional<MiembroClubEntidad> existente = miembroClubInterfaz
+                .findByUsuario_IdUsuarioAndClub_IdClub(miembroClubDto.getUsuarioId(), miembroClubDto.getIdClub());
+
+        if (existente.isPresent()) {
+            Logs.ficheroLog("El miembro ya existe en el club");
+            throw new RuntimeException("El miembro ya pertenece al club");
+        }
+
+        // 5️⃣ Guardar
+        MiembroClubEntidad miembroEntidad = mapearADtoAEntidad(miembroClubDto);
+        miembroEntidad = miembroClubInterfaz.save(miembroEntidad);
+
+        // 6️⃣ Mapear de vuelta a DTO
+        return mapearAMiembroClubDto(miembroEntidad);
     }
 
 
-    /**
-     * Modifica un miembro del club existente en la base de datos.
-     * 
-     * @param idMiembroClubString El ID del miembro del club a modificar.
-     * @param miembroClubDto El DTO con los nuevos datos del miembro del club.
-     * @return true si el miembro fue modificado con éxito, false si no se encuentra el miembro.
-     */
-    public boolean modificarMiembroClub(String idMiembroClubString, MiembroClubDto miembroClubDto) {
-    	 Long idMiembroClub = Long.parseLong(idMiembroClubString);
-        Optional<MiembroClubEntidad> miembroClubOpt = miembroClubInterfaz.findById(idMiembroClub);
-        if (miembroClubOpt.isPresent()) {
-            MiembroClubEntidad miembroClub = miembroClubOpt.get();
-            miembroClub.setFechaAltaUsuario(miembroClubDto.getFechaAltaUsuario());
-            miembroClub.setFechaBajaUsuario(miembroClubDto.getFechaBajaUsuario());
 
-            Optional<ClubEntidad> clubOpt = clubInterfaz.findById(miembroClubDto.getIdClub());
-            clubOpt.ifPresent(miembroClub::setClub);
+    public boolean eliminarMiembroClub(Long idMiembroClub, Long usuarioId, Long clubId, String emailLogueado) {
+        Optional<MiembroClubEntidad> miembroOpt = miembroClubInterfaz.findById(idMiembroClub);
+        if (miembroOpt.isEmpty()) return false;
 
-            Optional<UsuarioEntidad> usuarioOpt = usuarioInterfaz.findById(miembroClubDto.getUsuarioId());
-            usuarioOpt.ifPresent(miembroClub::setUsuario);
+        MiembroClubEntidad miembro = miembroOpt.get();
 
-            miembroClubInterfaz.save(miembroClub);
-            return true;
-        } else {
-            // System.out.println("El ID proporcionado no existe");
+        if (usuarioId != null) {
+            // Verificar que el usuario logueado coincide con el miembro
+            UsuarioEntidad usuario = usuarioInterfaz.findById(usuarioId).orElse(null);
+            if (usuario != null && emailLogueado.equals(usuario.getEmailUsuario())
+                    && miembro.getUsuario().getIdUsuario() == usuarioId) {
+                miembroClubInterfaz.delete(miembro);
+                return true;
+            }
+            Logs.ficheroLog("Intento no autorizado de eliminar miembro por usuario: " + emailLogueado);
             return false;
         }
-    }
 
-    /**
-     * Elimina un miembro del club si la solicitud viene de un usuario que se quiere salir del club.
-     *
-     * @param idMiembroClub ID del miembro-club a eliminar.
-     * @param usuarioId     ID del usuario que solicita salir del club.
-     * @return true si se eliminó correctamente, false en caso contrario.
-     */
-    public boolean eliminarMiembroClubPorUsuario(Long idMiembroClub, Long usuarioId) {
-        Optional<MiembroClubEntidad> miembroOpt = miembroClubInterfaz.findById(idMiembroClub);
-        if (miembroOpt.isPresent() && miembroOpt.get().getUsuario().getIdUsuario() == usuarioId) {
-            miembroClubInterfaz.delete(miembroOpt.get());
-            return true;
+        if (clubId != null) {
+            // Verificar que el club logueado coincide con el miembro
+            ClubEntidad club = clubInterfaz.findById(clubId).orElse(null);
+            if (club != null && emailLogueado.equals(club.getEmailClub())
+                    && miembro.getClub().getIdClub() == clubId) {
+                miembroClubInterfaz.delete(miembro);
+                return true;
+            }
+            Logs.ficheroLog("Intento no autorizado de eliminar miembro por club: " + emailLogueado);
+            return false;
         }
+
+        Logs.ficheroLog("No se proporcionó usuarioId ni clubId para eliminar miembro: " + idMiembroClub);
         return false;
     }
 
-    /**
-     * Elimina un miembro del club si la solicitud viene del club (administrador).
-     *
-     * @param idMiembroClub ID del miembro-club a eliminar.
-     * @param clubId        ID del club que solicita la eliminación.
-     * @return true si se eliminó correctamente, false en caso contrario.
-     */
-    public boolean eliminarMiembroClubPorClub(Long idMiembroClub, Long clubId) {
-        Optional<MiembroClubEntidad> miembroOpt = miembroClubInterfaz.findById(idMiembroClub);
-        if (miembroOpt.isPresent() && miembroOpt.get().getClub().getIdClub() == clubId) {
-            miembroClubInterfaz.delete(miembroOpt.get());
-            return true;
-        }
-        return false;
-    }
 }

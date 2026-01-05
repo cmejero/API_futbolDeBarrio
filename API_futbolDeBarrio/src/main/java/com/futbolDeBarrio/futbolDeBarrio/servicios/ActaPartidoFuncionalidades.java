@@ -1,6 +1,7 @@
 	package com.futbolDeBarrio.futbolDeBarrio.servicios;
 	
-	import java.util.ArrayList;
+	import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -11,6 +12,7 @@ import com.futbolDeBarrio.futbolDeBarrio.dtos.ActaPartidoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.EventoPartidoDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ActaPartidoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EventoPartidoEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ActaPartidoInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
@@ -158,112 +160,56 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
 		 * @param ActaPartidoDto el DTO del actaPartido a guardar
 		 * @return la entidad del ActaPartido guardada
 		 */
-		public ActaPartidoEntidad guardarActaPartido(ActaPartidoDto actaPartidoDto) {
-		    // 1️⃣ Mapear DTO a entidad
+		public ActaPartidoEntidad guardarActaPartido(ActaPartidoDto actaPartidoDto, Principal principal) {
+		    // 1️⃣ Obtener instalación logueada
+		    InstalacionEntidad instalacionLogueada = instalacionInterfaz
+		            .findByEmailInstalacion(principal.getName())
+		            .orElseThrow(() -> new IllegalStateException("Instalación logueada no encontrada"));
+
+		    // 2️⃣ ⚠️ Validar permisos
+		    if (actaPartidoDto.getPartidoTorneoId() != null) {
+		        PartidoTorneoEntidad partidoTorneo = partidoTorneoInterfaz
+		                .findById(actaPartidoDto.getPartidoTorneoId())
+		                .orElseThrow(() -> new IllegalArgumentException("PartidoTorneo no encontrado"));
+
+		        if (partidoTorneo.getInstalacion().getIdInstalacion() != instalacionLogueada.getIdInstalacion()) {
+		            throw new IllegalStateException("No tienes permisos para guardar el acta de este partido");
+		        }
+		    }
+
+		    // 3️⃣ Guardar acta como antes
 		    ActaPartidoEntidad actaPartidoEntidad = mapearAActaPartidoEntidad(actaPartidoDto);
 		    actaPartidoEntidad.setEventoPartido(new ArrayList<>()); // temporalmente vacío
 
-		    // 2️⃣ Asociar partido torneo si existe
 		    if (actaPartidoDto.getPartidoTorneoId() != null) {
 		        PartidoTorneoEntidad partidoTorneo = partidoTorneoInterfaz
-		            .findById(actaPartidoDto.getPartidoTorneoId())
-		            .orElseThrow(() -> new RuntimeException("PartidoTorneo no encontrado"));
+		                .findById(actaPartidoDto.getPartidoTorneoId())
+		                .orElseThrow(() -> new RuntimeException("PartidoTorneo no encontrado"));
 		        actaPartidoEntidad.setPartidoTorneo(partidoTorneo);
-		        partidoTorneo.setActaPartido(actaPartidoEntidad); // sincroniza objetos en memoria
+		        partidoTorneo.setActaPartido(actaPartidoEntidad);
 		    }
 
-		    // 3️⃣ Guardar acta para generar ID
+		    // Guardar acta
 		    actaPartidoEntidad = actaPartidoInterfaz.save(actaPartidoEntidad);
 
-		    // 4️⃣ Mapear y agregar eventos
-		    if (actaPartidoDto.getEventos() != null && !actaPartidoDto.getEventos().isEmpty()) {
-		        for (EventoPartidoDto eventoDto : actaPartidoDto.getEventos()) {
-		            eventoDto.setActaPartidoId(actaPartidoEntidad.getIdActaPartido());
-		            EventoPartidoEntidad eventoEntidad = eventoPartidoFuncionalidades
-		                .mapearAEventoPartidoEntidad(eventoDto);
-		            actaPartidoEntidad.getEventoPartido().add(eventoEntidad);
-		        }
-		        actaPartidoEntidad = actaPartidoInterfaz.save(actaPartidoEntidad);
-		        actualizarEstadisticasFuncionalidades.actualizarCamposPartidoTorneo(actaPartidoEntidad);
-		    }
-
-		    // 5️⃣ Actualizar estadísticas globales
-		    actualizarEstadisticasFuncionalidades.actualizarEstadisticas(actaPartidoEntidad);
-
-		    return actaPartidoEntidad;
-		}
-
-
-	
-	
-		/**
-		 * Modifica un acta de partido existente.
-		 * 
-		 * @param id             el ID del acta a modificar
-		 * @param actaPartidoDto el DTO actualizado del actaPartido
-		 * @return true si la modificación fue exitosa, false en caso contrario
-		 */
-		public boolean modificarActaPartido(Long idActaPartido, ActaPartidoDto actaPartidoDto) {
-		    Optional<ActaPartidoEntidad> actaPartidoOpt = actaPartidoInterfaz.findById(idActaPartido);
-		    if (actaPartidoOpt.isEmpty()) return false;
-
-		    ActaPartidoEntidad actaPartidoEntidad = actaPartidoOpt.get();
-
-		    // Actualizar relaciones si existen
-		    torneoInterfaz.findById(actaPartidoDto.getTorneoId()).ifPresent(actaPartidoEntidad::setTorneo);
-		    instalacionInterfaz.findById(actaPartidoDto.getInstalacionId()).ifPresent(actaPartidoEntidad::setInstalacion);
-		    clubInterfaz.findById(actaPartidoDto.getClubLocalId()).ifPresent(actaPartidoEntidad::setClubLocal);
-		    clubInterfaz.findById(actaPartidoDto.getClubVisitanteId()).ifPresent(actaPartidoEntidad::setClubVisitante);
-		    equipoTorneoInterfaz.findById(actaPartidoDto.getEquipoLocalId()).ifPresent(actaPartidoEntidad::setEquipoLocal);
-		    equipoTorneoInterfaz.findById(actaPartidoDto.getEquipoVisitanteId()).ifPresent(actaPartidoEntidad::setEquipoVisitante);
-		    partidoTorneoInterfaz.findById(actaPartidoDto.getPartidoTorneoId()).ifPresent(actaPartidoEntidad::setPartidoTorneo);
-		    clubInterfaz.findById(actaPartidoDto.getClubGanadorId()).ifPresent(actaPartidoEntidad::setClubGanador);
-
-		    // Actualizar campos simples
-		    actaPartidoEntidad.setGolesLocal(actaPartidoDto.getGolesLocal());
-		    actaPartidoEntidad.setGolesVisitante(actaPartidoDto.getGolesVisitante());
-		    actaPartidoEntidad.setGolesPenaltisLocal(actaPartidoDto.getGolesPenaltisLocal());
-		    actaPartidoEntidad.setGolesPenaltisVisitante(actaPartidoDto.getGolesPenaltisVisitante());
-		    actaPartidoEntidad.setFechaPartido(actaPartidoDto.getFechaPartido());
-		    actaPartidoEntidad.setObservaciones(actaPartidoDto.getObservaciones());
-		    actaPartidoEntidad.setCerrado(actaPartidoDto.isCerrado());
-
-		    // Manejar eventos
-		    actaPartidoEntidad.getEventoPartido().clear(); // borrar eventos previos
+		    // Mapear eventos si existen
 		    if (actaPartidoDto.getEventos() != null && !actaPartidoDto.getEventos().isEmpty()) {
 		        for (EventoPartidoDto eventoDto : actaPartidoDto.getEventos()) {
 		            eventoDto.setActaPartidoId(actaPartidoEntidad.getIdActaPartido());
 		            EventoPartidoEntidad eventoEntidad = eventoPartidoFuncionalidades.mapearAEventoPartidoEntidad(eventoDto);
 		            actaPartidoEntidad.getEventoPartido().add(eventoEntidad);
 		        }
+		        actaPartidoEntidad = actaPartidoInterfaz.save(actaPartidoEntidad);
+		        actualizarEstadisticasFuncionalidades.actualizarCamposPartidoTorneo(actaPartidoEntidad);
 		    }
 
-		    actaPartidoInterfaz.save(actaPartidoEntidad);
 		    actualizarEstadisticasFuncionalidades.actualizarEstadisticas(actaPartidoEntidad);
 
-		    return true;
+		    return actaPartidoEntidad;
 		}
+
 	
-		/**
-		 * Método que borra un acta de partido por su ID.
-		 * 
-		 * @param idActaPartidoString el ID del acta como cadena
-		 * @return true si el acta fue borrado correctamente, false en caso contrario
-		 */
-		public boolean borrarActaPartido(String idActaPartidoString) {
-			boolean estaBorrado = false;
 	
-			Long idActaPartido = Long.parseLong(idActaPartidoString);
-			ActaPartidoEntidad actaPartidoEntidad = actaPartidoInterfaz.findByIdActaPartido(idActaPartido);
-	
-			if (actaPartidoEntidad == null) {
-				estaBorrado = false;
-			} else {
-				actaPartidoInterfaz.delete(actaPartidoEntidad);
-				estaBorrado = true;
-			}
-	
-			return estaBorrado;
-		}
+		
 	
 	}

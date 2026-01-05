@@ -1,11 +1,12 @@
 package com.futbolDeBarrio.futbolDeBarrio.verificacion;
 
 import java.time.LocalDateTime;
-
 import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.futbolDeBarrio.futbolDeBarrio.entidad.CuentaEntidad;
@@ -66,6 +67,8 @@ public class VerificacionEmailFuncionalidad {
 	    
 	    mailSender.send(mensaje);
 	}
+	
+	@Async
 	public void generarYEnviarToken(CuentaEntidad cuenta) {
 	    TokenVerificacionEmailEntidad token = generarToken(cuenta); 
 	    enviarEmailVerificacion(cuenta, token.getToken());         

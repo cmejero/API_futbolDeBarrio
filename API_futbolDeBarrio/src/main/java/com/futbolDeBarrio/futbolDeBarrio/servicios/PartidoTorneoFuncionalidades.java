@@ -13,6 +13,7 @@ import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ActaPartidoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
@@ -211,49 +212,51 @@ public class PartidoTorneoFuncionalidades {
 	 * @param dto el DTO a guardar.
 	 * @return la entidad guardada.
 	 */
-	public PartidoTorneoEntidad guardarPartidoTorneo(PartidoTorneoDto dto) {
+	public PartidoTorneoEntidad guardarPartidoTorneo(PartidoTorneoDto dto, String emailInstalacionLogueada) {
 
-	    // ⚠️ Comprobar si ya existe un partido con los mismos equipos, torneo y ronda
+	    // 1️⃣ Obtener la instalación que está logueada
+	    InstalacionEntidad instalacionLogueada = instalacionInterfaz.findByEmailInstalacion(emailInstalacionLogueada)
+	        .orElseThrow(() -> new IllegalArgumentException("Instalación logueada no encontrada"));
+
+	    // 2️⃣ Obtener el torneo
+	    TorneoEntidad torneo = torneoInterfaz.findById(dto.getTorneoId())
+	        .orElseThrow(() -> new IllegalArgumentException("El torneo con ID " + dto.getTorneoId() + " no existe"));
+
+	    // 3️⃣ Verificar que la instalación logueada creó el torneo
+	    if (torneo.getInstalacion().getIdInstalacion() != instalacionLogueada.getIdInstalacion()) {
+	        Logs.ficheroLog("⚠️ Intento no autorizado de guardar partido en torneo " + torneo.getIdTorneo() +
+	                        " por instalación " + emailInstalacionLogueada);
+	        throw new IllegalArgumentException("No tienes permisos para agregar partidos a este torneo");
+	    }
+
+	    // 4️⃣ Validar duplicados (como ya haces)
 	    Optional<PartidoTorneoEntidad> existente =
-	            partidoTorneoInterfaz.findByTorneo_IdTorneoAndRondaAndEquipoLocal_IdEquipoTorneoAndEquipoVisitante_IdEquipoTorneo(
-	                    dto.getTorneoId(),
-	                    dto.getRonda(),
-	                    dto.getEquipoLocalId(),
-	                    dto.getEquipoVisitanteId()
-	            );
+	        partidoTorneoInterfaz.findByTorneo_IdTorneoAndRondaAndEquipoLocal_IdEquipoTorneoAndEquipoVisitante_IdEquipoTorneo(
+	            dto.getTorneoId(),
+	            dto.getRonda(),
+	            dto.getEquipoLocalId(),
+	            dto.getEquipoVisitanteId()
+	        );
 
 	    if (existente.isPresent()) {
 	        Logs.ficheroLog("⚠️ Partido duplicado detectado. No se creará uno nuevo. " +
 	                "Torneo=" + dto.getTorneoId() + ", Ronda=" + dto.getRonda() +
 	                ", Local=" + dto.getEquipoLocalId() + ", Visitante=" + dto.getEquipoVisitanteId());
-	        return existente.get(); // ✅ Evita crear un duplicado
+	        return existente.get();
 	    }
 
+	    // 5️⃣ Crear el partido (igual que ahora)
 	    PartidoTorneoEntidad entidad = new PartidoTorneoEntidad();
-
-	    TorneoEntidad torneo = torneoInterfaz.findById(dto.getTorneoId())
-	            .orElseThrow(() -> new IllegalArgumentException("El torneo con ID " + dto.getTorneoId() + " no existe"));
 	    entidad.setTorneo(torneo);
-
-	    ClubEntidad clubLocal = clubInterfaz.findById(dto.getClubLocalId())
-	            .orElseThrow(() -> new IllegalArgumentException("El club local con ID " + dto.getClubLocalId() + " no existe"));
-	    entidad.setClubLocal(clubLocal);
-
-	    ClubEntidad clubVisitante = clubInterfaz.findById(dto.getClubVisitanteId())
-	            .orElseThrow(() -> new IllegalArgumentException("El club visitante con ID " + dto.getClubVisitanteId() + " no existe"));
-	    entidad.setClubVisitante(clubVisitante);
-
-	    EquipoTorneoEntidad equipoLocal = equipoTorneoInterfaz.findById(dto.getEquipoLocalId())
-	            .orElseThrow(() -> new IllegalArgumentException("El equipo local con ID " + dto.getEquipoLocalId() + " no existe"));
-	    entidad.setEquipoLocal(equipoLocal);
-
-	    EquipoTorneoEntidad equipoVisitante = equipoTorneoInterfaz.findById(dto.getEquipoVisitanteId())
-	            .orElseThrow(() -> new IllegalArgumentException("El equipo visitante con ID " + dto.getEquipoVisitanteId() + " no existe"));
-	    entidad.setEquipoVisitante(equipoVisitante);
-
-	    entidad.setInstalacion(instalacionInterfaz.findById(dto.getInstalacionId())
-	            .orElseThrow(() -> new IllegalArgumentException("La instalación con ID " + dto.getInstalacionId() + " no existe")));
-
+	    entidad.setClubLocal(clubInterfaz.findById(dto.getClubLocalId())
+	            .orElseThrow(() -> new IllegalArgumentException("El club local no existe")));
+	    entidad.setClubVisitante(clubInterfaz.findById(dto.getClubVisitanteId())
+	            .orElseThrow(() -> new IllegalArgumentException("El club visitante no existe")));
+	    entidad.setEquipoLocal(equipoTorneoInterfaz.findById(dto.getEquipoLocalId())
+	            .orElseThrow(() -> new IllegalArgumentException("El equipo local no existe")));
+	    entidad.setEquipoVisitante(equipoTorneoInterfaz.findById(dto.getEquipoVisitanteId())
+	            .orElseThrow(() -> new IllegalArgumentException("El equipo visitante no existe")));
+	    entidad.setInstalacion(instalacionLogueada); // ⚡ Asignamos la instalación logueada
 	    entidad.setGolesLocal(dto.getGolesLocal());
 	    entidad.setGolesVisitante(dto.getGolesVisitante());
 	    entidad.setFechaPartido(dto.getFechaPartido());
@@ -263,10 +266,12 @@ public class PartidoTorneoFuncionalidades {
 
 	    Logs.ficheroLog("✅ Partido nuevo guardado: " +
 	            "Torneo=" + dto.getTorneoId() + ", Ronda=" + dto.getRonda() +
-	            ", Local=" + dto.getEquipoLocalId() + ", Visitante=" + dto.getEquipoVisitanteId());
+	            ", Local=" + dto.getEquipoLocalId() + ", Visitante=" + dto.getEquipoVisitanteId() +
+	            ", por instalación=" + emailInstalacionLogueada);
 
 	    return partidoTorneoInterfaz.save(entidad);
 	}
+
 
 
 
@@ -277,64 +282,48 @@ public class PartidoTorneoFuncionalidades {
 	 * @param dto             el DTO actualizado.
 	 * @return true si la modificación fue exitosa, false si el partido no existe.
 	 */
-	public boolean modificarPartidoTorneo(Long idPartidoTorneo, PartidoTorneoDto dto) {
-		Optional<PartidoTorneoEntidad> opt = partidoTorneoInterfaz.findById(idPartidoTorneo);
+	public boolean modificarPartidoTorneo(Long idPartidoTorneo, PartidoTorneoDto dto, String emailLogueado) {
+	    Optional<PartidoTorneoEntidad> opt = partidoTorneoInterfaz.findById(idPartidoTorneo);
 
-		if (opt.isPresent()) {
-			PartidoTorneoEntidad entidad = opt.get();
+	    if (opt.isEmpty()) return false;
 
-			if (entidad.getActaPartido() != null && Boolean.TRUE.equals(entidad.getActaPartido().isCerrado())) {
-				throw new IllegalStateException("No se puede modificar el partido porque el acta ya está cerrada");
-			}
+	    PartidoTorneoEntidad entidad = opt.get();
 
-			entidad.setFechaPartido(dto.getFechaPartido());
-			entidad.setRonda(dto.getRonda());
-			entidad.setEstado(dto.getEstado());
+	    // ⚠️ Evitar modificar si el acta está cerrada
+	    if (entidad.getActaPartido() != null && Boolean.TRUE.equals(entidad.getActaPartido().isCerrado())) {
+	        throw new IllegalStateException("No se puede modificar el partido porque el acta ya está cerrada");
+	    }
 
-			entidad.setEquipoLocal(equipoTorneoInterfaz.findById(dto.getEquipoLocalId())
-					.orElseThrow(() -> new IllegalArgumentException("Equipo local no encontrado")));
+	    // ⚠️ Validar que la instalación creadora sea la misma que la logueada
+	    InstalacionEntidad instalacionLogueada = instalacionInterfaz.findByEmailInstalacion(emailLogueado)
+	            .orElseThrow(() -> new IllegalStateException("Instalación logueada no encontrada"));
 
-			entidad.setEquipoVisitante(equipoTorneoInterfaz.findById(dto.getEquipoVisitanteId())
-					.orElseThrow(() -> new IllegalArgumentException("Equipo visitante no encontrado")));
+	    if (entidad.getInstalacion().getIdInstalacion() != instalacionLogueada.getIdInstalacion()) {
+	        throw new IllegalStateException("No tienes permisos para modificar este partido");
+	    }
 
-			entidad.setClubLocal(clubInterfaz.findById(dto.getClubLocalId())
-					.orElseThrow(() -> new IllegalArgumentException("Club local no encontrado")));
+	    // Guardar los cambios
+	    entidad.setFechaPartido(dto.getFechaPartido());
+	    entidad.setRonda(dto.getRonda());
+	    entidad.setEstado(dto.getEstado());
+	    entidad.setEquipoLocal(equipoTorneoInterfaz.findById(dto.getEquipoLocalId())
+	            .orElseThrow(() -> new IllegalArgumentException("Equipo local no encontrado")));
+	    entidad.setEquipoVisitante(equipoTorneoInterfaz.findById(dto.getEquipoVisitanteId())
+	            .orElseThrow(() -> new IllegalArgumentException("Equipo visitante no encontrado")));
+	    entidad.setClubLocal(clubInterfaz.findById(dto.getClubLocalId())
+	            .orElseThrow(() -> new IllegalArgumentException("Club local no encontrado")));
+	    entidad.setClubVisitante(clubInterfaz.findById(dto.getClubVisitanteId())
+	            .orElseThrow(() -> new IllegalArgumentException("Club visitante no encontrado")));
+	    entidad.setInstalacion(instalacionInterfaz.findById(dto.getInstalacionId())
+	            .orElseThrow(() -> new IllegalArgumentException("Instalación no encontrada")));
 
-			entidad.setClubVisitante(clubInterfaz.findById(dto.getClubVisitanteId())
-					.orElseThrow(() -> new IllegalArgumentException("Club visitante no encontrado")));
+	    partidoTorneoInterfaz.save(entidad);
 
-			entidad.setInstalacion(instalacionInterfaz.findById(dto.getInstalacionId())
-					.orElseThrow(() -> new IllegalArgumentException("Instalación no encontrada")));
+	    Logs.ficheroLog("Partido modificado por la instalación: " + instalacionLogueada.getNombreInstalacion());
 
-			partidoTorneoInterfaz.save(entidad);
-			return true;
-		} else {
-			return false;
-		}
+	    return true;
 	}
 
-	/**
-	 * Elimina un partido de torneo por su ID.
-	 *
-	 * @param idPartidoTorneo el ID del partido.
-	 * @return true si se eliminó, false si no existe.
-	 */
-	public boolean eliminarPartidoTorneo(Long idPartidoTorneo) {
-		Optional<PartidoTorneoEntidad> entidadOpt = partidoTorneoInterfaz.findById(idPartidoTorneo);
-
-		if (entidadOpt.isPresent()) {
-			PartidoTorneoEntidad entidad = entidadOpt.get();
-
-			if (entidad.getActaPartido() != null && Boolean.TRUE.equals(entidad.getActaPartido().isCerrado())) {
-				throw new IllegalStateException("No se puede eliminar el partido porque el acta ya está cerrada");
-			}
-
-			partidoTorneoInterfaz.delete(entidad);
-			return true;
-		} else {
-			return false;
-		}
-	}
 
 	
 }

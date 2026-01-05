@@ -18,6 +18,8 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 import com.futbolDeBarrio.futbolDeBarrio.verificacion.VerificacionEmailFuncionalidad;
 
+import jakarta.transaction.Transactional;
+
 /**
  * Clase que se encarga de la logica interna de los metodos CRUD de isntalacion
  */
@@ -117,11 +119,21 @@ public class InstalacionFuncionalidades {
 	 * @param idInstalacion El ID de la instalación a buscar.
 	 * @return El DTO de la instalación, o null si no se encuentra.
 	 */
-	public InstalacionDto obtenerInstalacionDtoPorId(Long idInstalacion) {
-		InstalacionEntidad instalacionEntidad = instalacionInterfaz.findById(idInstalacion).orElse(null);
-		return instalacionEntidad != null ? mapearAInstalacionDto(instalacionEntidad) : null;
+	public InstalacionDto obtenerInstalacionDtoPorId(
+	        Long idInstalacion,
+	        String emailLogueado) {
+
+	    InstalacionEntidad instalacion = instalacionInterfaz.findById(idInstalacion)
+	            .orElseThrow(() -> new RuntimeException("Instalación no encontrada"));
+
+	    // 🔐 AUTORIZACIÓN DE NEGOCIO
+	    if (!instalacion.getEmailInstalacion().equals(emailLogueado)) {
+	        throw new SecurityException("No autorizado para acceder a esta instalación");
+	    }
+
+	    return mapearAInstalacionDto(instalacion);
 	}
-	
+
 	
 
 	/**
@@ -134,6 +146,7 @@ public class InstalacionFuncionalidades {
 	 * @throws IllegalArgumentException Si el email ya está en uso o si la
 	 *                                  contraseña es nula o vacía.
 	 */
+    @Transactional
 	public InstalacionEntidad guardarInstalacion(InstalacionDto instalacionDto) {
 		Optional<InstalacionEntidad> instalacionExistente = instalacionInterfaz
 				.findByEmailInstalacion(instalacionDto.getEmailInstalacion());

@@ -174,15 +174,25 @@ public class EquipoTorneoFuncionalidades {
      * @param dto DTO con los datos del equipo torneo
      * @return entidad guardada
      */
-    public EquipoTorneoEntidad guardarEquipoTorneo(EquipoTorneoDto equipoTorneoDto) {
-        // Verificar si el club ya está inscrito en este torneo
+    public EquipoTorneoEntidad guardarEquipoTorneo(EquipoTorneoDto equipoTorneoDto, String emailClubLogueado) {
+        // 1️⃣ Validar que el club logueado coincide con el clubId del DTO
+        ClubEntidad club = clubInterfaz.findById(equipoTorneoDto.getClubId())
+                .orElseThrow(() -> new IllegalStateException("Club no encontrado"));
+
+        if (!club.getEmailClub().equals(emailClubLogueado)) {
+            throw new IllegalStateException("Solo el club logueado puede inscribirse en este torneo");
+        }
+
+        // 2️⃣ Verificar si el club ya está inscrito
         if (estaInscritoEnTorneo(equipoTorneoDto.getTorneoId(), equipoTorneoDto.getClubId())) {
             throw new RuntimeException("El club ya está inscrito en este torneo");
         }
 
+        // 3️⃣ Mapear DTO a entidad y guardar
         EquipoTorneoEntidad equipoTorneoEntidad = mapearADtoAEntidad(equipoTorneoDto);
         return equipoTorneoInterfaz.save(equipoTorneoEntidad);
     }
+
 
     
     public boolean estaInscritoEnTorneo(Long torneoId, Long clubId) {

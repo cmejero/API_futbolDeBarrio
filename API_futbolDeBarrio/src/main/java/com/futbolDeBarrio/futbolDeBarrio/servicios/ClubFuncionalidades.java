@@ -20,6 +20,8 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.CuentaInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 import com.futbolDeBarrio.futbolDeBarrio.verificacion.VerificacionEmailFuncionalidad;
 
+import jakarta.transaction.Transactional;
+
 @Service
 /**
  * Clase que se encarga de la lógica de los métodos CRUD relacionados con los
@@ -104,13 +106,14 @@ public class ClubFuncionalidades {
 	 * @return Lista de ClubDto.
 	 */
 	public List<ClubDto> obtenerClubesDto() {
-		List<ClubEntidad> clubesEntidad = (List<ClubEntidad>) clubInterfaz.findAll();
-		List<ClubDto> clubesDto = new ArrayList<>();
-		for (ClubEntidad club : clubesEntidad) {
-			clubesDto.add(mapearAClubDto(club));
-		}
-		return clubesDto;
+	    List<ClubEntidad> clubesEntidad = (List<ClubEntidad>) clubInterfaz.findAll();
+	    List<ClubDto> clubesDto = new ArrayList<>();
+	    for (ClubEntidad club : clubesEntidad) {
+	        clubesDto.add(mapearAClubDto(club));
+	    }
+	    return clubesDto;
 	}
+
 
 	/**
 	 * Obtiene un ClubDto por su ID.
@@ -131,6 +134,7 @@ public class ClubFuncionalidades {
 	 * @throws IllegalArgumentException si el email ya existe o la contraseña es
 	 *                                  inválida.
 	 */
+    @Transactional
 	public ClubEntidad guardarClub(ClubDto clubDto) {
 		if (clubDto.getEmailClub() == null || clubDto.getEmailClub().isEmpty()) {
 			throw new IllegalArgumentException("El email del club es obligatorio.");
@@ -171,9 +175,8 @@ public class ClubFuncionalidades {
 		estadistica.setGolesFavorGlobal(0);
 		estadistica.setGolesContraGlobal(0);
 		clubEstadisticaGlobalInterfaz.save(estadistica);
-		
-        verificacionEmailFuncionalidad.generarYEnviarToken(cuenta);
 
+		verificacionEmailFuncionalidad.generarYEnviarToken(cuenta);
 
 		return clubEntidad;
 	}
@@ -229,13 +232,19 @@ public class ClubFuncionalidades {
 	 * @param nuevoEstado Valor del campo esPremium (true o false).
 	 * @return true si se actualizó correctamente, false si no se encontró el club.
 	 */
-	public boolean actualizarPremium(Long idClub, boolean nuevoEstado) {
+	public boolean marcarClubPremium(Long idClub, String emailClubLogueado) {
 		try {
 			Optional<ClubEntidad> clubOpt = clubInterfaz.findById(idClub);
 
 			if (clubOpt.isPresent()) {
 				ClubEntidad club = clubOpt.get();
-				club.setEsPremium(nuevoEstado);
+
+				// ✅ Validar que el email logueado coincide con el club
+				if (!club.getEmailClub().equals(emailClubLogueado)) {
+					return false;
+				}
+
+				club.setEsPremium(true);
 				clubInterfaz.save(club);
 				return true;
 			}

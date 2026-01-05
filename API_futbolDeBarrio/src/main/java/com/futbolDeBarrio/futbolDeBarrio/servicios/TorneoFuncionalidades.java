@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.TorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
 
@@ -99,10 +100,24 @@ public class TorneoFuncionalidades {
 	 * @param torneoDto el DTO del torneo a guardar
 	 * @return la entidad del torneo guardada
 	 */
-	public TorneoEntidad guardarTorneo(TorneoDto torneoDto) {
-		TorneoEntidad torneoEntidad = mapearADtoAEntidad(torneoDto);
-		return torneoInterfaz.save(torneoEntidad);
+	public TorneoDto guardarTorneo(TorneoDto torneoDto, String emailInstalacion) {
+
+
+	    InstalacionEntidad instalacion =
+	            instalacionInterfaz.findByEmailInstalacion(emailInstalacion)
+	            .orElseThrow(() ->
+	                new IllegalStateException("Instalación no autorizada"));
+
+	    TorneoEntidad torneoEntidad = mapearADtoAEntidad(torneoDto);
+
+	    torneoEntidad.setInstalacion(instalacion);
+
+	    TorneoEntidad torneoGuardado = torneoInterfaz.save(torneoEntidad);
+
+
+	    return mapearATorneoDto(torneoGuardado);
 	}
+
 
 	/**
 	 * Modifica un torneo existente.
@@ -111,31 +126,39 @@ public class TorneoFuncionalidades {
 	 * @param torneoDto el DTO actualizado del torneo
 	 * @return true si la modificación fue exitosa, false en caso contrario
 	 */
-	public boolean modificarTorneo(String id, TorneoDto torneoDto) {
-		Long idTorneo = Long.parseLong(id);
-		Optional<TorneoEntidad> torneoOpt = torneoInterfaz.findById(idTorneo);
+	public boolean modificarTorneo(String id, TorneoDto torneoDto, String emailLogueado) {
+	    Long idTorneo = Long.parseLong(id);
+	    Optional<TorneoEntidad> torneoOpt = torneoInterfaz.findById(idTorneo);
 
-		if (torneoOpt.isPresent()) {
-			TorneoEntidad torneoEntidad = torneoOpt.get();
-			torneoEntidad.setNombreTorneo(torneoDto.getNombreTorneo());
-			torneoEntidad.setFechaInicioTorneo(torneoDto.getFechaInicioTorneo());
-			torneoEntidad.setFechaFinTorneo(torneoDto.getFechaFinTorneo());
-			torneoEntidad.setDescripcionTorneo(torneoDto.getDescripcionTorneo());
-			torneoEntidad.setClubesInscritos(torneoDto.getClubesInscritos());
-			torneoEntidad.setModalidad(torneoDto.getModalidad());
-			torneoEntidad.setEstaActivo(torneoDto.isEstaActivo());
+	    if (torneoOpt.isPresent()) {
+	        TorneoEntidad torneoEntidad = torneoOpt.get();
 
-			// Actualizar la instalación si es necesario
-			Optional<InstalacionEntidad> instalacionOpt = instalacionInterfaz.findById(torneoDto.getInstalacionId());
-			instalacionOpt.ifPresent(torneoEntidad::setInstalacion);
+	        // Validar que la instalación logueada sea la dueña del torneo
+	        if (!torneoEntidad.getInstalacion().getEmailInstalacion().equals(emailLogueado)) {
+	            Logs.ficheroLog("Intento no autorizado de modificar torneo por: " + emailLogueado);
+	            return false;
+	        }
 
-			torneoInterfaz.save(torneoEntidad);
-			return true;
-		} else {
-			// System.out.println("El ID proporcionado no existe");
-			return false;
-		}
+	        // Actualizar campos
+	        torneoEntidad.setNombreTorneo(torneoDto.getNombreTorneo());
+	        torneoEntidad.setFechaInicioTorneo(torneoDto.getFechaInicioTorneo());
+	        torneoEntidad.setFechaFinTorneo(torneoDto.getFechaFinTorneo());
+	        torneoEntidad.setDescripcionTorneo(torneoDto.getDescripcionTorneo());
+	        torneoEntidad.setClubesInscritos(torneoDto.getClubesInscritos());
+	        torneoEntidad.setModalidad(torneoDto.getModalidad());
+	        torneoEntidad.setEstaActivo(torneoDto.isEstaActivo());
+
+	        // Actualizar la instalación si se proporciona
+	        Optional<InstalacionEntidad> instalacionOpt = instalacionInterfaz.findById(torneoDto.getInstalacionId());
+	        instalacionOpt.ifPresent(torneoEntidad::setInstalacion);
+
+	        torneoInterfaz.save(torneoEntidad);
+	        return true;
+	    } else {
+	        return false;
+	    }
 	}
+
 
 	/**
 	 * Borra un torneo por su ID.
@@ -144,16 +167,19 @@ public class TorneoFuncionalidades {
 	 * @return true si el torneo fue borrado, false si el torneo no existe
 	 */
 	public boolean borrarTorneo(String idTorneoString) {
-		Long idTorneo = Long.parseLong(idTorneoString);
-		Optional<TorneoEntidad> torneoOpt = torneoInterfaz.findById(idTorneo);
+	    try {
+	        Long idTorneo = Long.parseLong(idTorneoString);
+	        Optional<TorneoEntidad> torneoOpt = torneoInterfaz.findById(idTorneo);
 
-		if (torneoOpt.isPresent()) {
-			torneoInterfaz.delete(torneoOpt.get());
-			// System.out.println("El torneo ha sido borrado con éxito");
-			return true;
-		} else {
-			// System.out.println("El id del Torneo no existe");
-			return false;
-		}
+	        if (torneoOpt.isPresent()) {
+	            torneoInterfaz.delete(torneoOpt.get());
+	            return true;
+	        } else {
+	            return false;
+	        }
+	    } catch (NumberFormatException e) {
+	        throw new RuntimeException("ID de torneo inválido: " + idTorneoString);
+	    }
 	}
+
 }

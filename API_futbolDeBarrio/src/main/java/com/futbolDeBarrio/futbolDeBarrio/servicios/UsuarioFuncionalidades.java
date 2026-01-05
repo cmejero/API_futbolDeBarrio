@@ -13,11 +13,15 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.CuentaEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaGlobalEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Rol;
+import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
+import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.CuentaInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.JugadorEstadisticaGlobalInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 import com.futbolDeBarrio.futbolDeBarrio.verificacion.VerificacionEmailFuncionalidad;
+
+import jakarta.transaction.Transactional;
 
 /**
  * Clase que se encarga de la lógica interna de los métodos CRUD para Usuario
@@ -102,14 +106,17 @@ public class UsuarioFuncionalidades {
      * 
      * @return la lista de DTOs de usuarios
      */
-    public ArrayList<UsuarioDto> obtenerUsuariosDto() {
+    public ArrayList<UsuarioDto> obtenerUsuariosDto(String emailLogueado) {
+
         ArrayList<UsuarioEntidad> usuariosEntidad = (ArrayList<UsuarioEntidad>) usuarioInterfaz.findAll();
         ArrayList<UsuarioDto> usuariosDto = new ArrayList<>();
         for (UsuarioEntidad usuario : usuariosEntidad) {
             usuariosDto.add(mapearAUsuarioDto(usuario));
         }
+
         return usuariosDto;
     }
+
     
     /**
      * Método que obtiene un usuario por su ID.
@@ -128,6 +135,7 @@ public class UsuarioFuncionalidades {
      * @param usuarioDto el DTO del usuario
      * @return la entidad del usuario guardada
      */
+    @Transactional
     public UsuarioEntidad guardarUsuario(UsuarioDto usuarioDto) {
         if (usuarioDto.getRolUsuario() == null) {
             throw new IllegalArgumentException("El rol del usuario es obligatorio.");
@@ -177,67 +185,58 @@ public class UsuarioFuncionalidades {
      * @param usuarioDto el DTO con los nuevos datos del usuario
      * @return true si el usuario fue modificado correctamente, false en caso contrario
      */
-    public boolean modificarUsuario(String id, UsuarioDto usuarioDto) {
-        boolean esModificado = false;
+    public boolean modificarUsuario(String idUsuario, UsuarioDto usuarioDto, String emailAdminLogueado) {
         try {
-            Long idUsuario = Long.parseLong(id);
-            UsuarioEntidad usuario = usuarioInterfaz.findByIdUsuario(idUsuario);
-
+            Long id = Long.parseLong(idUsuario);
+            UsuarioEntidad usuario = usuarioInterfaz.findByIdUsuario(id);
             if (usuario == null) {
-                // El ID no existe, no hacemos nada
+                return false; // usuario no existe
+            }
+
+            UsuarioEntidad adminLogueado = usuarioInterfaz
+                    .findByEmailUsuario(emailAdminLogueado)
+                    .orElseThrow(() -> new IllegalStateException("No se encontró el usuario logueado"));
+
+            if (adminLogueado.getRolUsuario() != RolUsuario.Administrador) {
+                throw new IllegalStateException("No tienes permisos de administrador");
+            }
+
+            String emailPrincipal = "futboldebarriosevilla@gmail.com";
+
+            if (adminLogueado.getEmailUsuario().equals(emailPrincipal)) {
             } else {
-                usuario.setNombreCompletoUsuario(usuarioDto.getNombreCompletoUsuario());
-                usuario.setAliasUsuario(usuarioDto.getAliasUsuario());
-                usuario.setFechaNacimientoUsuario(usuarioDto.getFechaNacimientoUsuario());
-                usuario.setEmailUsuario(usuarioDto.getEmailUsuario());
-                usuario.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
-
-                if (usuarioDto.getPasswordUsuario() != null && !usuarioDto.getPasswordUsuario().isEmpty()) {
-                    // Actualizar contraseña sólo si viene una nueva (encriptándola)
-                    usuario.setPasswordUsuario(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
-                } // sino dejamos la contraseña actual intacta
-
-                usuario.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
-
-                if (usuarioDto.getImagenUsuario() != null) {
-                    byte[] imagenBytes = Base64.getDecoder().decode(usuarioDto.getImagenUsuario());
-                    usuario.setImagenUsuario(imagenBytes);
+                if (usuario.getRolUsuario() == RolUsuario.Administrador && 
+                    !usuario.getEmailUsuario().equals(emailAdminLogueado)) {
+                    throw new IllegalStateException(
+                        "No puedes modificar a otro administrador, salvo que seas el principal");
                 }
-                
-                // Estado y rol siempre se actualizan aunque no haya imagen
-                usuario.setEstadoUsuario(usuarioDto.getEstadoUsuario());
-                usuario.setRolUsuario(usuarioDto.getRolUsuario());
-                usuario.setEsPremium(usuarioDto.isEsPremium());
-
-                usuarioInterfaz.save(usuario);
-                esModificado = true;
             }
-        } catch (NumberFormatException nfe) {
-            // ID inválido
-        } catch (Exception e) {	
-            e.printStackTrace();
-        }
-        return esModificado;
-    }
-    
-    
-    /**
-     * Método para actualizar solo el campo esPremium de un usuario.
-     *
-     * @param idUsuario ID del usuario a actualizar.
-     * @param nuevoEstado Valor del campo esPremium (true o false).
-     * @return true si se actualizó correctamente, false si no se encontró el usuario.
-     */
-    public boolean actualizarPremium(Long idUsuario, boolean nuevoEstado) {
-        try {
-            Optional<UsuarioEntidad> usuarioOpt = usuarioInterfaz.findById(idUsuario);
 
-            if (usuarioOpt.isPresent()) {
-                UsuarioEntidad usuario = usuarioOpt.get();
-                usuario.setEsPremium(nuevoEstado);
-                usuarioInterfaz.save(usuario);
-                return true;
+            // Actualizar los datos del usuario
+            usuario.setNombreCompletoUsuario(usuarioDto.getNombreCompletoUsuario());
+            usuario.setAliasUsuario(usuarioDto.getAliasUsuario());
+            usuario.setFechaNacimientoUsuario(usuarioDto.getFechaNacimientoUsuario());
+            usuario.setEmailUsuario(usuarioDto.getEmailUsuario());
+            usuario.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
+
+            if (usuarioDto.getPasswordUsuario() != null && !usuarioDto.getPasswordUsuario().isEmpty()) {
+                usuario.setPasswordUsuario(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
             }
+
+            usuario.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
+
+            if (usuarioDto.getImagenUsuario() != null) {
+                usuario.setImagenUsuario(Base64.getDecoder().decode(usuarioDto.getImagenUsuario()));
+            }
+
+            usuario.setEstadoUsuario(usuarioDto.getEstadoUsuario());
+            usuario.setRolUsuario(usuarioDto.getRolUsuario());
+            usuario.setEsPremium(usuarioDto.isEsPremium());
+
+            usuarioInterfaz.save(usuario);
+            return true;
+
+        } catch (NumberFormatException e) {
             return false;
         } catch (Exception e) {
             e.printStackTrace();
@@ -245,6 +244,40 @@ public class UsuarioFuncionalidades {
         }
     }
 
+
+    
+    /**
+     * Actualiza el campo esPremium de un jugador, validando que el email
+     * del usuario logueado coincide y que el rol es JUGADOR.
+     *
+     * @param idUsuario ID del usuario a actualizar
+     * @param emailLogueado Email del usuario que hace la solicitud (del token)
+     * @return true si se actualizó correctamente, false si no tiene permisos o usuario no existe
+     */
+    public boolean actualizarPremiumJugador(Long idUsuario, String emailLogueado) {
+        try {
+            Optional<UsuarioEntidad> usuarioOpt = usuarioInterfaz.findById(idUsuario);
+            if (usuarioOpt.isEmpty()) return false;
+
+            UsuarioEntidad usuario = usuarioOpt.get();
+
+            // Validamos que sea jugador y que coincida el email
+            if (!emailLogueado.equals(usuario.getEmailUsuario()) ||
+                usuario.getRolUsuario() != RolUsuario.Jugador) {
+                Logs.ficheroLog("Intento no autorizado de modificar Premium por: " + emailLogueado);
+                return false;
+            }
+
+            // Actualizamos esPremium
+            usuario.setEsPremium(true);
+            usuarioInterfaz.save(usuario);
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     
     /**
@@ -255,27 +288,37 @@ public class UsuarioFuncionalidades {
      */
     public boolean borrarUsuario(String idUsuarioString) {
         boolean estaBorrado = false;
+        final String EMAIL_ADMIN_PRINCIPAL = "futboldebarriosevilla@gmail.com";
+
         try {
             Long idUsuario = Long.parseLong(idUsuarioString);
             UsuarioEntidad usuarioEntidad = usuarioInterfaz.findByIdUsuario(idUsuario);
 
             if (usuarioEntidad == null) {
+                Logs.ficheroLog("Usuario no encontrado con ID: " + idUsuario);
                 estaBorrado = false;
 
             } else {
                 String email = usuarioEntidad.getEmailUsuario();
-                if (email != null && email.equalsIgnoreCase("admin@1")) {
 
+                // Verificamos que no sea el admin principal
+                if (EMAIL_ADMIN_PRINCIPAL.equalsIgnoreCase(email)) {
+                    Logs.ficheroLog("Intento de eliminar el administrador principal: " + email);
                     estaBorrado = false;
+
                 } else {
                     usuarioInterfaz.delete(usuarioEntidad);
+                    Logs.ficheroLog("Usuario eliminado: " + email);
                     estaBorrado = true;
                 }
             }
 
         } catch (NumberFormatException nfe) {
+            Logs.ficheroLog("ID de usuario inválido: " + idUsuarioString);
             nfe.printStackTrace();
+
         } catch (Exception e) {
+            Logs.ficheroLog("Error al eliminar usuario con ID: " + idUsuarioString);
             e.printStackTrace();
         }
 

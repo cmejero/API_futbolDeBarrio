@@ -27,7 +27,7 @@ import java.util.Collections;
 public class JwtFiltroAutentificacion extends OncePerRequestFilter {
 
     // Clave secreta para firmar y verificar el JWT
-    private final String CLAVE_SECRETA = "altair"; 
+	private final String CLAVE_SECRETA = "AltairFutbolDeBarrioSuperSecreto123456";
 
     /**
      * Método para interceptar y verificar el token JWT en cada solicitud.

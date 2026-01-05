@@ -1,5 +1,6 @@
 package com.futbolDeBarrio.futbolDeBarrio.controladores;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +46,7 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
 import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.EquipoTorneoInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.JugadorEstadisticaGlobalInterfaz;
@@ -219,33 +222,64 @@ public class Controlador {
 	@GetMapping("/club/{id_club}")
 	/**
 	 * Metodo para obtener los detalles de un club por su ID.
+	 * Solo puede acceder el club logueado.
 	 * 
 	 * @param idClub ID del club a buscar.
-	 * @return ResponseEntity con el club encontrado o un error 404 si no se
-	 *         encuentra.
+	 * @param principal Email del usuario logueado (del token JWT).
+	 * @return ResponseEntity con el club encontrado o un error 403/404.
 	 */
-	public ResponseEntity<ClubDto> obtenerClubPorId(@PathVariable("id_club") Long idClub) {
-		Logs.ficheroLog("Buscando club con ID: " + idClub);
-		ClubDto clubDto = clubFuncionalidades.obtenerClubDtoPorId(idClub);
-		if (clubDto != null) {
-			Logs.ficheroLog("Club encontrado con ID: " + idClub);
-			return ResponseEntity.ok(clubDto);
-		} else {
-			Logs.ficheroLog("No se encontró club con ID: " + idClub);
-			return ResponseEntity.notFound().build();
-		}
+	public ResponseEntity<ClubDto> obtenerClubPorId(
+	        @PathVariable("id_club") Long idClub,
+	        Principal principal) {
+
+	    Logs.ficheroLog("Buscando club con ID: " + idClub);
+
+	    // 1️⃣ Obtener el email del club logueado
+	    String emailLogueado = principal.getName();
+
+	    // 2️⃣ Obtener el club desde el servicio
+	    ClubDto clubDto = clubFuncionalidades.obtenerClubDtoPorId(idClub);
+
+	    if (clubDto == null) {
+	        Logs.ficheroLog("No se encontró club con ID: " + idClub);
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    // 3️⃣ Validar que solo el club logueado pueda ver su info
+	    if (!emailLogueado.equals(clubDto.getEmailClub())) {
+	        Logs.ficheroLog("Intento no autorizado de ver club ID " + idClub + " por: " + emailLogueado);
+	        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+	    }
+
+	    Logs.ficheroLog("Club encontrado con ID: " + idClub + " y autorizado para: " + emailLogueado);
+	    return ResponseEntity.ok(clubDto);
 	}
 
+	
+	
 	@GetMapping("/mostrarClubes")
 	/**
 	 * Metodo para mostrar todos los clubes disponibles.
 	 * 
 	 * @return Lista de objetos ClubDto.
 	 */
-	public List<ClubDto> mostrarClubes() {
-		Logs.ficheroLog("Mostrando todos los clubes");
-		return clubFuncionalidades.obtenerClubesDto(); // Retorna lista de clubes.
+
+	public ResponseEntity<?> mostrarClubes(Principal principal) {
+	    String emailAdmin = principal.getName();  // Usuario logueado
+	    Logs.ficheroLog("Admin logueado: " + emailAdmin + " solicita lista de clubes");
+
+	    try {
+	        List<ClubDto> clubes = clubFuncionalidades.obtenerClubesDto();
+	        return ResponseEntity.ok(clubes);
+
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error al obtener clubes por admin: " + emailAdmin);
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                             .body("Error al obtener clubes");
+	    }
 	}
+
 
 	@PostMapping("/guardarClub")
 	/**
@@ -271,32 +305,60 @@ public class Controlador {
 
 	@DeleteMapping("/eliminarClub/{id_club}")
 	/**
-	 * Metodo para eliminar un club por su ID.
-	 * 
+	 * Método para eliminar un club por su ID.
+	 *
 	 * @param id_club ID del club a eliminar.
-	 * @return Resultado de la eliminación.
+	 * @param principal Usuario logueado (admin)
+	 * @return Resultado de la eliminación
 	 */
-	public boolean borrarClub(@PathVariable("id_club") String id_club) {
-		Logs.ficheroLog("Solicitud para eliminar club con ID: " + id_club);
-		boolean resultado = this.clubFuncionalidades.borrarClub(id_club);
-		Logs.ficheroLog("Resultado de eliminación del club con ID " + id_club + ": " + resultado);
-		return resultado;
+	public ResponseEntity<?> borrarClub(@PathVariable("id_club") String id_club, Principal principal) {
+	    String emailAdmin = principal.getName();
+	    Logs.ficheroLog("Admin " + emailAdmin + " solicita eliminar club con ID: " + id_club);
+
+	    boolean resultado = this.clubFuncionalidades.borrarClub(id_club);
+
+	    Logs.ficheroLog("Resultado de eliminación del club con ID " + id_club + ": " + resultado +
+	                     " (realizado por " + emailAdmin + ")");
+
+	    if (resultado) {
+	        return ResponseEntity.ok("Club eliminado correctamente.");
+	    } else {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                             .body("No se pudo eliminar el club. Verifica el ID.");
+	    }
 	}
+
 
 	@PutMapping("/modificarClub/{id_club}")
 	/**
-	 * Metodo para modificar los detalles de un club.
-	 * 
+	 * Método para modificar los detalles de un club.
+	 *
 	 * @param idClub  ID del club a modificar.
 	 * @param clubDto Datos actualizados del club.
-	 * @return Resultado de la modificación.
+	 * @param principal Usuario logueado (admin)
+	 * @return Resultado de la modificación
 	 */
-	public boolean modificarClub(@PathVariable("id_club") String idClub, @RequestBody ClubDto clubDto) {
-		Logs.ficheroLog("Solicitud para modificar club con ID: " + idClub);
-		boolean resultado = this.clubFuncionalidades.modificarClub(idClub, clubDto);
-		Logs.ficheroLog("Resultado de modificación del club con ID " + idClub + ": " + resultado);
-		return resultado;
+	public ResponseEntity<?> modificarClub(
+	        @PathVariable("id_club") String idClub,
+	        @RequestBody ClubDto clubDto,
+	        Principal principal) {
+
+	    String emailAdmin = principal.getName();  // 🔑 Email del admin logueado
+	    Logs.ficheroLog("Admin " + emailAdmin + " solicita modificar club con ID: " + idClub);
+
+	    boolean resultado = clubFuncionalidades.modificarClub(idClub, clubDto);
+
+	    Logs.ficheroLog("Resultado de modificación del club con ID " + idClub + ": " + resultado +
+	                     " (realizado por " + emailAdmin + ")");
+
+	    if (resultado) {
+	        return ResponseEntity.ok("Club modificado correctamente.");
+	    } else {
+	        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+	                             .body("No se pudo modificar el club. Verifica los datos o permisos.");
+	    }
 	}
+
 
 	/**
 	 * Método PUT para actualizar el campo esPremium de un club.
@@ -305,21 +367,26 @@ public class Controlador {
 	 * @return Mensaje de confirmación.
 	 */
 	@PutMapping("/modificarPremiumClub/{id_club}")
-	public ResponseEntity<?> modificarPremiumClub(@PathVariable("id_club") Long idClub) {
-		try {
-			boolean resultado = clubFuncionalidades.actualizarPremium(idClub, true);
+	public ResponseEntity<?> modificarPremiumClub(@PathVariable("id_club") Long idClub, Principal principal) {
+	    try {
+	        // 1️⃣ Email del club logueado desde el token
+	        String emailClubLogueado = principal.getName();
 
-			if (resultado) {
-				return ResponseEntity.ok("Club actualizado a Premium correctamente.");
-			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Club no encontrado.");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Error al actualizar el estado Premium del club.");
-		}
+	        // 2️⃣ Llamada al servicio para actualizar a Premium solo si el club coincide
+	        boolean resultado = clubFuncionalidades.marcarClubPremium(idClub, emailClubLogueado);
+
+	        if (resultado) {
+	            return ResponseEntity.ok("Club actualizado a Premium correctamente.");
+	        } else {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Club no encontrado o no autorizado.");
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("Error al actualizar el estado Premium del club.");
+	    }
 	}
+
 
 	/* METODOS CRUD DE LA TABLA EQUIPO_TORNEO */
 
@@ -382,16 +449,41 @@ public class Controlador {
 	 * @param equipoTorneoDto Datos del equipo torneo a guardar.
 	 * @return El objeto EquipoTorneoDto del equipo guardado.
 	 */
-	public ResponseEntity<String> guardarEquipoTorneo(@RequestBody EquipoTorneoDto equipoTorneoDto) {
-		try {
-			EquipoTorneoEntidad guardado = equipoTorneoFuncionalidades.guardarEquipoTorneo(equipoTorneoDto);
-			return ResponseEntity.ok("Te has unido al torneo correctamente.");
-		} catch (RuntimeException e) {
-			Logs.ficheroLog("Intento de inscripción duplicada: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.CONFLICT)
-					.body("No puedes unirte, tu club ya está inscrito en este torneo.");
-		}
+	public ResponseEntity<String> guardarEquipoTorneo(
+	        @RequestBody EquipoTorneoDto equipoTorneoDto,
+	        Principal principal) {
+
+	    try {
+	        Logs.ficheroLog("Solicitud para inscribir club en torneo");
+
+	        // 1️⃣ Email del club logueado
+	        String emailClubLogueado = principal.getName();
+
+	        // 2️⃣ Guardar inscripción a través del servicio
+	        EquipoTorneoEntidad equipoGuardado =
+	                equipoTorneoFuncionalidades.guardarEquipoTorneo(
+	                        equipoTorneoDto,
+	                        emailClubLogueado);
+
+	        Logs.ficheroLog("Club inscrito correctamente en torneo con ID: " + equipoTorneoDto.getTorneoId());
+
+	        return ResponseEntity.ok("Te has unido al torneo correctamente.");
+
+	    } catch (IllegalStateException e) {
+	        Logs.ficheroLog("Error de autorización: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+
+	    } catch (RuntimeException e) {
+	        Logs.ficheroLog("Intento de inscripción duplicada: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error al inscribirse en torneo: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("Error al intentar unirse al torneo.");
+	    }
 	}
+
 
 	@DeleteMapping("/eliminarEquipoTorneo/{id_equipoTorneo}")
 	/**
@@ -433,28 +525,43 @@ public class Controlador {
 	 *         no se encuentra.
 	 */
 	@GetMapping("/instalacion/{id_instalacion}")
-	public ResponseEntity<InstalacionDto> obtenerInstalacionPorId(@PathVariable("id_instalacion") Long idInstalacion) {
-		Logs.ficheroLog("Buscando instalación con ID: " + idInstalacion);
-		InstalacionDto instalacionDto = instalacionFuncionalidades.obtenerInstalacionDtoPorId(idInstalacion);
-		if (instalacionDto != null) {
-			Logs.ficheroLog("Instalación encontrada con ID: " + idInstalacion);
-			return ResponseEntity.ok(instalacionDto);
-		} else {
-			Logs.ficheroLog("No se encontró instalación con ID: " + idInstalacion);
-			return ResponseEntity.notFound().build();
-		}
+	public ResponseEntity<InstalacionDto> obtenerInstalacionPorId(
+	        @PathVariable("id_instalacion") Long idInstalacion,
+	        Principal principal) {
+
+	    String emailLogueado = principal.getName();
+
+	    InstalacionDto instalacionDto =
+	            instalacionFuncionalidades.obtenerInstalacionDtoPorId(
+	                    idInstalacion, emailLogueado);
+
+	    return ResponseEntity.ok(instalacionDto);
 	}
 
-	@GetMapping("mostrarInstalaciones")
+
+	@GetMapping("/mostrarInstalaciones")
 	/**
-	 * Metodo para obtener todas las instalaciones.
-	 * 
-	 * @return Lista de instalaciones.
+	 * Método para obtener todas las instalaciones.
+	 *
+	 * @param principal Usuario logueado (admin)
+	 * @return Lista de instalaciones
 	 */
-	public List<InstalacionDto> mostrarInstalaciones() {
-		Logs.ficheroLog("Mostrando todas las instalaciones");
-		return instalacionFuncionalidades.obtenerInstalacionesDto();
+	public ResponseEntity<?> mostrarInstalaciones(Principal principal) {
+	    String emailAdmin = principal.getName();  // 🔑 Para logs
+	    Logs.ficheroLog("Admin " + emailAdmin + " solicita mostrar todas las instalaciones");
+
+	    try {
+	        List<InstalacionDto> instalaciones = instalacionFuncionalidades.obtenerInstalacionesDto();
+	        return ResponseEntity.ok(instalaciones);
+
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error al obtener instalaciones por admin: " + emailAdmin);
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                             .body("Error al obtener instalaciones");
+	    }
 	}
+
 
 	/**
 	 * Metodo para guardar una nueva instalación.
@@ -479,35 +586,66 @@ public class Controlador {
 		}
 	}
 
-	/**
-	 * Metodo para eliminar una instalación por su ID.
-	 * 
-	 * @param id_instalacion ID de la instalación a eliminar.
-	 * @return Resultado de la operación de eliminación.
-	 */
 	@DeleteMapping("/eliminarInstalacion/{id_instalacion}")
-	public boolean eliminarInstalacion(@PathVariable("id_instalacion") String id_instalacion) {
-		Logs.ficheroLog("Solicitud para eliminar instalación con ID: " + id_instalacion);
-		boolean resultado = this.instalacionFuncionalidades.borrarInstalacion(id_instalacion);
-		Logs.ficheroLog("Resultado de eliminación de instalación con ID " + id_instalacion + ": " + resultado);
-		return resultado;
+	/**
+	 * Método para eliminar una instalación.
+	 *
+	 * @param id_instalacion ID de la instalación a eliminar.
+	 * @param principal Usuario logueado (admin)
+	 * @return Resultado de la eliminación
+	 */
+	public ResponseEntity<?> eliminarInstalacion(
+	        @PathVariable("id_instalacion") String id_instalacion,
+	        Principal principal) {
+
+	    String emailAdmin = principal.getName();  // 🔑 Para auditoría
+	    Logs.ficheroLog("Admin " + emailAdmin + " solicita eliminar instalación con ID: " + id_instalacion);
+
+	    boolean resultado = this.instalacionFuncionalidades.borrarInstalacion(id_instalacion);
+
+	    Logs.ficheroLog("Resultado de eliminación de instalación con ID " + id_instalacion +
+	                     ": " + resultado + " (realizado por " + emailAdmin + ")");
+
+	    if (resultado) {
+	        return ResponseEntity.ok("Instalación eliminada correctamente.");
+	    } else {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                             .body("No se pudo eliminar la instalación. Verifica el ID.");
+	    }
 	}
 
+
+
+	@PutMapping("/modificarInstalacion/{id_instalacion}")
 	/**
-	 * Metodo para modificar los detalles de una instalación por su ID.
-	 * 
+	 * Método para modificar una instalación.
+	 *
 	 * @param id_instalacion ID de la instalación a modificar.
 	 * @param instalacionDto Datos actualizados de la instalación.
-	 * @return Resultado de la modificación.
+	 * @param principal Usuario logueado (admin)
+	 * @return Resultado de la modificación
 	 */
-	@PutMapping("/modificarInstalacion/{id_instalacion}")
-	public boolean modificarInstalacion(@PathVariable("id_instalacion") String id_instalacion,
-			@RequestBody InstalacionDto instalacionDto) {
-		Logs.ficheroLog("Solicitud para modificar instalación con ID: " + id_instalacion);
-		boolean resultado = this.instalacionFuncionalidades.modificarInstalacion(id_instalacion, instalacionDto);
-		Logs.ficheroLog("Resultado de modificación de instalación con ID " + id_instalacion + ": " + resultado);
-		return resultado;
+	public ResponseEntity<?> modificarInstalacion(
+	        @PathVariable("id_instalacion") String id_instalacion,
+	        @RequestBody InstalacionDto instalacionDto,
+	        Principal principal) {
+
+	    String emailAdmin = principal.getName();  // 🔑 Para logs
+	    Logs.ficheroLog("Admin " + emailAdmin + " solicita modificar instalación con ID: " + id_instalacion);
+
+	    boolean resultado = this.instalacionFuncionalidades.modificarInstalacion(id_instalacion, instalacionDto);
+
+	    Logs.ficheroLog("Resultado de modificación de instalación con ID " + id_instalacion +
+	                     ": " + resultado + " (realizado por " + emailAdmin + ")");
+
+	    if (resultado) {
+	        return ResponseEntity.ok("Instalación modificada correctamente.");
+	    } else {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+	                             .body("No se pudo modificar la instalación. Verifica el ID.");
+	    }
 	}
+
 
 	/* METODOS CRUD DE LA TABLA MIEMBRO_CLUB */
 
@@ -579,24 +717,26 @@ public class Controlador {
 	 * @param miembroClubDto Datos del miembro a guardar.
 	 * @return ResponseEntity con el miembro guardado o un error 409 si ya existe.
 	 */
-	@PostMapping("/guardarMiembroClub")
-	public ResponseEntity<MiembroClubDto> guardarMiembroClub(@RequestBody MiembroClubDto miembroClubDto) {
-		Logs.ficheroLog("Solicitud para guardar miembro del club con datos: " + miembroClubDto.toString());
+	  @PostMapping("/guardarMiembroClub")
+	  public ResponseEntity<MiembroClubDto> guardarMiembroClub(
+	          @RequestBody MiembroClubDto miembroClubDto,
+	          Principal principal) {
 
-		try {
+	      Logs.ficheroLog("Solicitud para guardar miembro del club con datos: " + miembroClubDto.toString());
 
-			MiembroClubEntidad miembroClubEntidad = miembroClubFuncionalidades.guardarMiembroClub(miembroClubDto);
+	      try {
+	          // Delegar toda la lógica al servicio
+	          MiembroClubDto miembroGuardado = miembroClubFuncionalidades.guardarMiembroClub(miembroClubDto, principal.getName());
+	          Logs.ficheroLog("Miembro del club guardado exitosamente con ID: " + miembroGuardado.getIdMiembroClub());
+	          return ResponseEntity.status(HttpStatus.CREATED).body(miembroGuardado);
 
-			MiembroClubDto miembroClubDtoResult = miembroClubFuncionalidades.mapearAMiembroClubDto(miembroClubEntidad);
+	      } catch (RuntimeException e) {
+	          Logs.ficheroLog("Error al guardar miembro del club: " + e.getMessage());
+	          return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+	      }
+	  }
 
-			Logs.ficheroLog(
-					"Miembro del club guardado exitosamente con ID: " + miembroClubDtoResult.getIdMiembroClub());
-			return ResponseEntity.status(HttpStatus.CREATED).body(miembroClubDtoResult);
-		} catch (RuntimeException e) {
-			Logs.ficheroLog("Error al guardar miembro del club: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
-		}
-	}
+
 
 	/**
 	 * Método para eliminar un miembro del club por su ID.
@@ -607,46 +747,21 @@ public class Controlador {
 	 * @param clubId        (Opcional) ID del club que solicita la eliminación.
 	 * @return true si la eliminación fue exitosa, false en caso contrario.
 	 */
-	@DeleteMapping("/eliminarMiembroClub/{idMiembroClub}")
-	public boolean eliminarMiembroClub(
-	        @PathVariable Long idMiembroClub,
-	        @RequestParam(required = false) Long usuarioId,
-	        @RequestParam(required = false) Long clubId) {
+	  @DeleteMapping("/eliminarMiembroClub/{idMiembroClub}")
+	  public boolean eliminarMiembroClub(
+	          @PathVariable Long idMiembroClub,
+	          @RequestParam(required = false) Long usuarioId,
+	          @RequestParam(required = false) Long clubId,
+	          Principal principal) {
 
-	    Logs.ficheroLog("Solicitud para eliminar miembro del club con ID: " + idMiembroClub +
-	                     ", usuarioId: " + usuarioId + ", clubId: " + clubId);
+	      Logs.ficheroLog("Solicitud para eliminar miembro del club con ID: " + idMiembroClub +
+	                       ", usuarioId: " + usuarioId + ", clubId: " + clubId);
 
-	    boolean resultado = false;
-	    if (usuarioId != null) {
-	        resultado = miembroClubFuncionalidades.eliminarMiembroClubPorUsuario(idMiembroClub, usuarioId);
-	    } else if (clubId != null) {
-	        resultado = miembroClubFuncionalidades.eliminarMiembroClubPorClub(idMiembroClub, clubId);
-	    } else {
-	        Logs.ficheroLog("No se proporcionó usuarioId ni clubId para eliminar miembro: " + idMiembroClub);
-	        return false;
-	    }
-
-	    Logs.ficheroLog("Resultado de eliminación del miembro del club con ID " + idMiembroClub + ": " + resultado);
-	    return resultado;
-	}
+	      return miembroClubFuncionalidades.eliminarMiembroClub(idMiembroClub, usuarioId, clubId, principal.getName());
+	  }
 
 
 
-	/**
-	 * Metodo para modificar los detalles de un miembro del club por su ID.
-	 * 
-	 * @param idMiembroClub  ID del miembro del club a modificar.
-	 * @param miembroClubDto Datos actualizados del miembro del club.
-	 * @return Resultado de la modificación.
-	 */
-	@PutMapping("/modificarMiembroClub/{id_miembroClub}")
-	public boolean modificarMiembroClub(@PathVariable("id_miembroClub") String idMiembroClub,
-			@RequestBody MiembroClubDto miembroClubDto) {
-		Logs.ficheroLog("Solicitud para modificar miembro del club con ID: " + idMiembroClub);
-		boolean resultado = this.miembroClubFuncionalidades.modificarMiembroClub(idMiembroClub, miembroClubDto);
-		Logs.ficheroLog("Resultado de modificación del miembro del club con ID " + idMiembroClub + ": " + resultado);
-		return resultado; // Retorna el resultado de la modificación.
-	}
 
 	/* METODOS CRUD DE LA TABLA TORNEO */
 
@@ -687,12 +802,34 @@ public class Controlador {
 	 * @return El torneo guardado con su ID.
 	 */
 	@PostMapping("/guardarTorneo")
-	public TorneoDto guardarTorneo(@RequestBody TorneoDto torneoDto) {
-		Logs.ficheroLog("Solicitud para guardar torneo con datos: " + torneoDto.toString());
-		TorneoEntidad torneoEntidad = torneoFuncionalidades.guardarTorneo(torneoDto);
-		Logs.ficheroLog("Torneo guardado exitosamente con ID: " + torneoEntidad.getIdTorneo());
-		return torneoFuncionalidades.mapearATorneoDto(torneoEntidad);
+	public ResponseEntity<TorneoDto> guardarTorneo(
+	        @RequestBody TorneoDto torneoDto,
+	        Principal principal) {
+
+	    try {
+	        Logs.ficheroLog("Solicitud para guardar torneo");
+
+	        String emailInstalacionLogueada = principal.getName();
+
+	        TorneoDto torneoGuardado =
+	                torneoFuncionalidades.guardarTorneo(
+	                        torneoDto,
+	                        emailInstalacionLogueada);
+
+	        Logs.ficheroLog("Torneo guardado con ID: " + torneoGuardado.getIdTorneo());
+
+	        return ResponseEntity.ok(torneoGuardado);
+
+	    } catch (IllegalStateException e) {
+	        Logs.ficheroLog("Error de autorización: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error al guardar torneo: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	    }
 	}
+
 
 	/**
 	 * Metodo para eliminar un torneo por su ID.
@@ -701,12 +838,22 @@ public class Controlador {
 	 * @return Resultado de la operación de eliminación.
 	 */
 	@DeleteMapping("/eliminarTorneo/{id_torneo}")
-	public boolean borrarTorneo(@PathVariable("id_torneo") String idTorneo) {
-		Logs.ficheroLog("Solicitud para eliminar torneo con ID: " + idTorneo);
-		boolean resultado = this.torneoFuncionalidades.borrarTorneo(idTorneo);
-		Logs.ficheroLog("Resultado de eliminación del torneo con ID " + idTorneo + ": " + resultado);
-		return resultado; // Retorna el resultado de la eliminación.
+	public ResponseEntity<Boolean> borrarTorneo(@PathVariable("id_torneo") String idTorneo, Principal principal) {
+	    Logs.ficheroLog("Solicitud para eliminar torneo con ID: " + idTorneo);
+
+	    try {
+	        // opcional: validar que el torneo pertenece a la instalación logueada usando principal.getName()
+	        boolean resultado = torneoFuncionalidades.borrarTorneo(idTorneo);
+
+	        Logs.ficheroLog("Resultado de eliminación del torneo con ID " + idTorneo + ": " + resultado);
+	        return ResponseEntity.ok(resultado);
+
+	    } catch (RuntimeException e) {
+	        Logs.ficheroLog("Error al eliminar torneo con ID " + idTorneo + ": " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+	    }
 	}
+
 
 	/**
 	 * Metodo para modificar los detalles de un torneo por su ID.
@@ -716,12 +863,30 @@ public class Controlador {
 	 * @return Resultado de la modificación.
 	 */
 	@PutMapping("/modificarTorneo/{id_torneo}")
-	public boolean modificarTorneo(@PathVariable("id_torneo") String idTorneo, @RequestBody TorneoDto torneoDto) {
-		Logs.ficheroLog("Solicitud para modificar torneo con ID: " + idTorneo);
-		boolean resultado = this.torneoFuncionalidades.modificarTorneo(idTorneo, torneoDto); // Modifica el torneo.
-		Logs.ficheroLog("Resultado de modificación del torneo con ID " + idTorneo + ": " + resultado);
-		return resultado; // Retorna el resultado de la modificación.
+	public ResponseEntity<?> modificarTorneo(
+	        @PathVariable("id_torneo") String idTorneo,
+	        @RequestBody TorneoDto torneoDto,
+	        Principal principal) {  // Email de la instalación logueada
+
+	    Logs.ficheroLog("Solicitud para modificar torneo con ID: " + idTorneo);
+
+	    try {
+	        String emailLogueado = principal.getName();
+	        boolean resultado = torneoFuncionalidades.modificarTorneo(idTorneo, torneoDto, emailLogueado);
+
+	        if (resultado) {
+	            Logs.ficheroLog("Torneo modificado exitosamente con ID: " + idTorneo);
+	            return ResponseEntity.ok(true);
+	        } else {
+	            Logs.ficheroLog("No se pudo modificar el torneo con ID: " + idTorneo);
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+	        }
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error al modificar torneo: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+	    }
 	}
+
 
 	/* METODOS CRUD DE LA TABLA USUARIO */
 
@@ -734,16 +899,28 @@ public class Controlador {
 	 */
 	@GetMapping("/usuarios/{id_usuario}")
 	public ResponseEntity<UsuarioDto> obtenerUsuarioPorId(@PathVariable("id_usuario") Long idUsuario) {
-		Logs.ficheroLog("Buscando usuario con ID: " + idUsuario);
-		UsuarioDto usuarioDto = usuarioFuncionalidades.obtenerUsuarioDtoPorId(idUsuario); // Busca el usuario por ID.
-		if (usuarioDto != null) {
-			Logs.ficheroLog("Usuario encontrado con ID: " + idUsuario);
-			return ResponseEntity.ok(usuarioDto);
-		} else {
-			Logs.ficheroLog("No se encontró usuario con ID: " + idUsuario);
-			return ResponseEntity.notFound().build();
-		}
+	    Logs.ficheroLog("Buscando usuario con ID: " + idUsuario);
+
+	    UsuarioDto usuarioDto = usuarioFuncionalidades.obtenerUsuarioDtoPorId(idUsuario);
+	    if (usuarioDto == null) {
+	        Logs.ficheroLog("No se encontró usuario con ID: " + idUsuario);
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    // Obtener email del usuario logueado desde el JWT
+	    String emailUsuarioLogueado = SecurityContextHolder.getContext().getAuthentication().getName();
+
+	    // Validar que el usuario logueado solo acceda a su propio usuario
+	    if (!usuarioDto.getEmailUsuario().equals(emailUsuarioLogueado)) {
+	        Logs.ficheroLog("Intento de acceso denegado a usuario ID: " + idUsuario + " por usuario: " + emailUsuarioLogueado);
+	        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+	    }
+
+	    Logs.ficheroLog("Usuario encontrado con ID: " + idUsuario);
+	    return ResponseEntity.ok(usuarioDto);
 	}
+
+
 
 	/**
 	 * Método GET para obtener todos los usuarios como una lista de DTOs.
@@ -751,10 +928,24 @@ public class Controlador {
 	 * @return Lista de todos los usuarios.
 	 */
 	@GetMapping("/mostrarUsuarios")
-	public ArrayList<UsuarioDto> mostrarUsuarios() {
-		Logs.ficheroLog("Mostrando todos los usuarios.");
-		return usuarioFuncionalidades.obtenerUsuariosDto();
+	public ResponseEntity<ArrayList<UsuarioDto>> mostrarUsuarios(Principal principal) {
+	    try {
+	        String emailLogueado = principal.getName();
+
+	        ArrayList<UsuarioDto> usuarios = usuarioFuncionalidades.obtenerUsuariosDto(emailLogueado);
+
+	        return ResponseEntity.ok(usuarios);
+
+	    } catch (IllegalStateException e) {
+	        Logs.ficheroLog("Intento no autorizado de mostrar usuarios: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error al mostrar usuarios: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	    }
 	}
+
 
 	/**
 	 * Método POST para crear un nuevo usuario.
@@ -785,12 +976,33 @@ public class Controlador {
 	 * @return Resultado de la operación de eliminación.
 	 */
 	@DeleteMapping("/eliminarUsuario/{id_usuario}")
-	public boolean eliminarUsuario(@PathVariable("id_usuario") String idUsuario) {
-		Logs.ficheroLog("Solicitud para eliminar usuario con ID: " + idUsuario);
-		boolean resultado = usuarioFuncionalidades.borrarUsuario(idUsuario);
-		Logs.ficheroLog("Resultado de la eliminación del usuario con ID " + idUsuario + ": " + resultado);
-		return resultado;
+	public ResponseEntity<?> eliminarUsuario(@PathVariable("id_usuario") String idUsuario) {
+	    Logs.ficheroLog("Solicitud para eliminar usuario con ID: " + idUsuario);
+
+	    try {
+	        boolean resultado = usuarioFuncionalidades.borrarUsuario(idUsuario);
+
+	        if (resultado) {
+	            Logs.ficheroLog("Usuario eliminado correctamente con ID: " + idUsuario);
+	            return ResponseEntity.ok("Usuario eliminado correctamente.");
+	        } else {
+	            Logs.ficheroLog("No se pudo eliminar el usuario con ID: " + idUsuario);
+	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+	                                 .body("No se puede eliminar este usuario o no existe.");
+	        }
+
+	    } catch (IllegalArgumentException e) {
+	        Logs.ficheroLog("Error al eliminar usuario con ID " + idUsuario + ": " + e.getMessage());
+	        return ResponseEntity.badRequest().body(e.getMessage());
+
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error inesperado al eliminar usuario con ID " + idUsuario);
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                             .body("Error interno del servidor");
+	    }
 	}
+
 
 	/**
 	 * Método PUT para actualizar un usuario por su ID.
@@ -800,21 +1012,31 @@ public class Controlador {
 	 * @return Resultado de la modificación.
 	 */
 	@PutMapping("/modificarUsuario/{id_Usuario}")
-	public ResponseEntity<?> modificarUsuario(@PathVariable("id_Usuario") String idUsuario,
-			@RequestBody UsuarioDto usuarioDto) {
-		Logs.ficheroLog("Solicitud para modificar usuario con ID: " + idUsuario);
-		try {
-			boolean resultado = usuarioFuncionalidades.modificarUsuario(idUsuario, usuarioDto);
-			Logs.ficheroLog("Resultado de la modificación del usuario con ID " + idUsuario + ": " + resultado);
-			if (resultado) {
-				return ResponseEntity.ok("Usuario modificado exitosamente");
-			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
-			}
-		} catch (Exception e) {
-			Logs.ficheroLog("Error al modificar usuario con ID " + idUsuario + ": " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al modificar usuario");
-		}
+	public ResponseEntity<?> modificarUsuario(
+	        @PathVariable("id_Usuario") String idUsuario,
+	        @RequestBody UsuarioDto usuarioDto,
+	        Principal principal) {
+
+	    try {
+	        String emailAdminLogueado = principal.getName();
+
+	        boolean resultado = usuarioFuncionalidades.modificarUsuario(
+	                idUsuario, usuarioDto, emailAdminLogueado);
+
+	        if (resultado) {
+	            return ResponseEntity.ok("Usuario modificado exitosamente");
+	        } else {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+	        }
+
+	    } catch (IllegalStateException e) {
+	        Logs.ficheroLog("Error de permisos: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error al modificar usuario: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("Error al modificar usuario");
+	    }
 	}
 
 	/**
@@ -824,24 +1046,32 @@ public class Controlador {
 	 * @return Mensaje de confirmación.
 	 */
 	@PutMapping("/modificarPremiumUsuario/{id_usuario}")
-	public ResponseEntity<?> modificarPremiumUsuario(@PathVariable("id_usuario") Long idUsuario) {
-		System.out.println("API llamada para modificarPremiumUsuario, id=" + idUsuario);
+	public ResponseEntity<?> modificarPremiumUsuario(
+	        @PathVariable("id_usuario") Long idUsuario,
+	        Principal principal) {
 
-		try {
-			boolean resultado = usuarioFuncionalidades.actualizarPremium(idUsuario, true);
-			System.out.println("Resultado de actualizarPremium en API: " + resultado);
+	    String emailLogueado = principal.getName(); // email del jugador logueado
+	    System.out.println("API llamada para modificarPremiumUsuario, id=" + idUsuario +
+	                       ", email logueado=" + emailLogueado);
 
-			if (resultado) {
-				return ResponseEntity.ok("Usuario actualizado a Premium correctamente.");
-			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Error al actualizar el estado Premium del usuario.");
-		}
+	    try {
+	        // Llamamos al servicio, que hace toda la validación
+	        boolean resultado = usuarioFuncionalidades.actualizarPremiumJugador(idUsuario, emailLogueado);
+
+	        if (resultado) {
+	            return ResponseEntity.ok("Usuario actualizado a Premium correctamente.");
+	        } else {
+	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+	                    .body("No tienes permisos para modificar este usuario o usuario no encontrado.");
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("Error al actualizar el estado Premium del usuario.");
+	    }
 	}
+
 
 	/* METODOS CRUD DE LA TABLA ACTA PARTIDO */
 
@@ -888,77 +1118,28 @@ public class Controlador {
 	 * @return El acta de partido con su ID
 	 */
 	@PostMapping("/guardarActaPartido")
-	public ResponseEntity<?> guardarActaPartido(@RequestBody ActaPartidoDto actaPartidoDto) {
-		Logs.ficheroLog("Solicitud para guardar Acta de partido con datos: " + actaPartidoDto.toString());
-		try {
-			ActaPartidoEntidad actaPartidoEntidad = actaPartidoFuncionalidades.guardarActaPartido(actaPartidoDto);
-			Logs.ficheroLog("Acta del partido guardado exitosamente con ID: " + actaPartidoEntidad.getIdActaPartido());
-			return ResponseEntity.ok(actaPartidoFuncionalidades.mapearAActaPartidoDto(actaPartidoEntidad));
-		} catch (IllegalArgumentException e) {
-			Logs.ficheroLog("Error al guardar acta de partido: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-		} catch (Exception e) {
-			// Loguea la excepción completa para ver la causa raíz
-			Logs.ficheroLog("Error inesperado al guardar acta de partido: " + e.toString());
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
-		}
+	public ResponseEntity<?> guardarActaPartido(@RequestBody ActaPartidoDto actaPartidoDto, Principal principal) {
+	    Logs.ficheroLog("Solicitud para guardar Acta de partido con datos: " + actaPartidoDto.toString());
+
+	    try {
+	        // Llamamos al servicio y le pasamos la instalación logueada
+	        ActaPartidoEntidad actaPartidoEntidad = actaPartidoFuncionalidades.guardarActaPartido(actaPartidoDto, principal);
+
+	        Logs.ficheroLog("Acta del partido guardado exitosamente con ID: " + actaPartidoEntidad.getIdActaPartido());
+	        return ResponseEntity.ok(actaPartidoFuncionalidades.mapearAActaPartidoDto(actaPartidoEntidad));
+
+	    } catch (IllegalArgumentException | IllegalStateException e) {
+	        Logs.ficheroLog("Error al guardar acta de partido: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error inesperado al guardar acta de partido: " + e.toString());
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
+	    }
 	}
 
-	/**
-	 * Método PUT para actualizar un acta de partido por su ID.
-	 * 
-	 * @param idActaPartido  ID del acta partido a modificar.
-	 * @param actaPartidoDto Datos actualizados del ActaPartido.
-	 * @return Resultado de la modificación.
-	 */
-	@PutMapping("/modificarActaPartido/{id_ActaPartido}")
-	public ResponseEntity<?> modificarActaPartido(@PathVariable("id_ActaPartido") String idActaPartidoStr,
-			@RequestBody ActaPartidoDto actaPartidoDto) {
-		Logs.ficheroLog("Solicitud para modificar Acta del partido con ID: " + idActaPartidoStr);
-		try {
 
-			Long idActaPartido = Long.parseLong(idActaPartidoStr);
-			boolean resultado = actaPartidoFuncionalidades.modificarActaPartido(idActaPartido, actaPartidoDto);
-			Logs.ficheroLog("Resultado de la modificación del actaPartido con ID " + idActaPartido + ": " + resultado);
-			if (resultado) {
-				return ResponseEntity.ok("Acta de partido modificado exitosamente");
-			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Acta de partido no encontrado");
-			}
-		} catch (Exception e) {
-			Logs.ficheroLog("Error al modificar acta de partido con ID " + idActaPartidoStr + ": " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al modificar acta de partido");
-		}
-	}
-
-	/**
-	 * Método DELETE para eliminar un acta de partido por su ID.
-	 * 
-	 * @param idActaPartido ID del acta a eliminar.
-	 * @return Resultado de la operación de eliminación.
-	 */
-	@DeleteMapping("/eliminarActaPartido/{id_ActaPartido}")
-	public ResponseEntity<Boolean> eliminarActaPartido(@PathVariable("id_ActaPartido") String idActaPartido) {
-		try {
-			Logs.ficheroLog("Solicitud para eliminar acta con ID: " + idActaPartido);
-
-			boolean resultado = actaPartidoFuncionalidades.borrarActaPartido(idActaPartido);
-
-			if (resultado) {
-				Logs.ficheroLog(
-						"Resultado de la eliminación del acta de partido con ID " + idActaPartido + ": " + resultado);
-				return ResponseEntity.ok(true);
-			} else {
-				Logs.ficheroLog("No se pudo eliminar el acta con ID " + idActaPartido + " (no encontrada)");
-				return ResponseEntity.notFound().build();
-			}
-
-		} catch (Exception e) {
-			Logs.ficheroLog("Error eliminando el acta con ID " + idActaPartido + ": " + e.getMessage());
-			return ResponseEntity.status(500).body(false);
-		}
-	}
+	
 
 	/* METODOS CRUD DE LA TABLA EVENTO PARTIDO */
 
@@ -1370,20 +1551,25 @@ public class Controlador {
 	 * @return El partido guardado en formato DTO.
 	 */
 	@PostMapping("/guardarPartidoTorneo")
-	public ResponseEntity<?> guardarPartidoTorneo(@RequestBody PartidoTorneoDto partidoTorneoDto) {
-		Logs.ficheroLog("Solicitud para guardar partido: " + partidoTorneoDto.toString());
-		try {
-			PartidoTorneoEntidad partidoEntidad = partidoTorneoFuncionalidades.guardarPartidoTorneo(partidoTorneoDto);
-			Logs.ficheroLog("Partido guardado exitosamente con ID: " + partidoEntidad.getIdPartidoTorneo());
-			return ResponseEntity.ok(partidoTorneoFuncionalidades.mapearAPartidoTorneoDto(partidoEntidad));
-		} catch (IllegalArgumentException e) {
-			Logs.ficheroLog("Error al guardar partido: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-		} catch (Exception e) {
-			Logs.ficheroLog("Error inesperado al guardar partido: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
-		}
+	public ResponseEntity<?> guardarPartidoTorneo(@RequestBody PartidoTorneoDto partidoTorneoDto,
+	                                              Principal principal) {
+	    String emailInstalacionLogueada = principal.getName(); // email de la instalación logueada
+	    Logs.ficheroLog("Solicitud para guardar partido: " + partidoTorneoDto.toString() +
+	                     ", realizada por instalación: " + emailInstalacionLogueada);
+	    try {
+	        PartidoTorneoEntidad partidoEntidad = 
+	                partidoTorneoFuncionalidades.guardarPartidoTorneo(partidoTorneoDto, emailInstalacionLogueada);
+	        Logs.ficheroLog("Partido guardado exitosamente con ID: " + partidoEntidad.getIdPartidoTorneo());
+	        return ResponseEntity.ok(partidoTorneoFuncionalidades.mapearAPartidoTorneoDto(partidoEntidad));
+	    } catch (IllegalArgumentException e) {
+	        Logs.ficheroLog("Error al guardar partido: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error inesperado al guardar partido: " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
+	    }
 	}
+
 
 	/**
 	 * Método PUT para actualizar los datos de un partido.
@@ -1393,38 +1579,33 @@ public class Controlador {
 	 * @return Resultado de la actualización.
 	 */
 	@PutMapping("/modificarPartidoTorneo/{idPartidoTorneo}")
-	public ResponseEntity<?> modificarPartidoTorneo(@PathVariable("idPartidoTorneo") Long idPartidoTorneo,
-			@RequestBody PartidoTorneoDto partidoTorneoDto) {
-		Logs.ficheroLog("Solicitud para modificar partido con ID: " + idPartidoTorneo);
-		try {
-			boolean resultado = partidoTorneoFuncionalidades.modificarPartidoTorneo(idPartidoTorneo, partidoTorneoDto);
-			if (resultado) {
-				return ResponseEntity.ok("Partido modificado exitosamente");
-			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Partido no encontrado");
-			}
-		} catch (Exception e) {
-			Logs.ficheroLog("Error al modificar partido con ID " + idPartidoTorneo + ": " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al modificar partido");
-		}
+	public ResponseEntity<?> modificarPartidoTorneo(
+	        @PathVariable("idPartidoTorneo") Long idPartidoTorneo,
+	        @RequestBody PartidoTorneoDto partidoTorneoDto,
+	        Principal principal) { 
+
+	    Logs.ficheroLog("Solicitud para modificar partido con ID: " + idPartidoTorneo);
+
+	    try {
+	        String emailLogueado = principal.getName(); // email de la instalación logueada
+	        boolean resultado = partidoTorneoFuncionalidades.modificarPartidoTorneo(idPartidoTorneo, partidoTorneoDto, emailLogueado);
+
+	        if (resultado) {
+	            return ResponseEntity.ok("Partido modificado exitosamente");
+	        } else {
+	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+	                    .body("No tienes permisos para modificar este partido");
+	        }
+	    } catch (IllegalStateException e) {
+	        Logs.ficheroLog("Error al modificar partido con ID " + idPartidoTorneo + ": " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+	    } catch (Exception e) {
+	        Logs.ficheroLog("Error al modificar partido con ID " + idPartidoTorneo + ": " + e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al modificar partido");
+	    }
 	}
 
-	/**
-	 * Método DELETE para eliminar un partido.
-	 *
-	 * @param idPartidoTorneo ID del partido a eliminar.
-	 * @return Resultado de la eliminación.
-	 */
-	@DeleteMapping("/eliminarPartidoTorneo/{idPartidoTorneo}")
-	public ResponseEntity<Boolean> eliminarPartidoTorneo(@PathVariable("idPartidoTorneo") Long idPartidoTorneo) {
-		try {
-			Logs.ficheroLog("Solicitud para eliminar partido con ID: " + idPartidoTorneo);
-			boolean resultado = partidoTorneoFuncionalidades.eliminarPartidoTorneo(idPartidoTorneo);
-			return resultado ? ResponseEntity.ok(true) : ResponseEntity.notFound().build();
-		} catch (Exception e) {
-			Logs.ficheroLog("Error al eliminar partido con ID " + idPartidoTorneo + ": " + e.getMessage());
-			return ResponseEntity.status(500).body(false);
-		}
-	}
+
+
 
 }

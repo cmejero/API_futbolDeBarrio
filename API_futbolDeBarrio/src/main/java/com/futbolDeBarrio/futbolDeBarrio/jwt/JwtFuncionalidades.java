@@ -1,7 +1,6 @@
 package com.futbolDeBarrio.futbolDeBarrio.jwt;
 
-import java.security.Key;
-import java.sql.Date;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +18,9 @@ import io.jsonwebtoken.security.Keys;
  */
 public class JwtFuncionalidades {
 
-    private static final String SECRET_KEY = "altair";
+	  private static final String CLAVE_SECRETA = "AltairFutbolDeBarrioSuperSecreto123456"; 
+
+	
 
     /**
      * Genera un token JWT utilizando el email del usuario y su rol.
@@ -28,27 +29,19 @@ public class JwtFuncionalidades {
      * @param rol   Rol del usuario, que se añade como "claim" adicional
      * @return Token JWT como cadena
      */
-    public String obtenerToken(String email, Rol rol) {
-        Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("role", rol.name()); 
+	    public String obtenerToken(String email, Rol rol) {
+	        Map<String, Object> extraClaims = new HashMap<>();
+	        extraClaims.put("role", rol.name());
 
-        return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(email) 
-                .setIssuedAt(new Date(System.currentTimeMillis())) 
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
-                .signWith(getKey(), SignatureAlgorithm.HS256) 
-                .compact(); 
-    }
-
-    /**
-     * Obtiene la clave secreta necesaria para firmar/verificar los tokens JWT.
-     *
-     * @return Objeto Key creado a partir de la clave secreta
-     */
-    	private Key getKey() {
-    	    return Keys.secretKeyFor(SignatureAlgorithm.HS256); 
-    	}
+	        return Jwts.builder()
+	                .setClaims(extraClaims)
+	                .setSubject(email)
+	                .setIssuedAt(new java.util.Date(System.currentTimeMillis()))
+	                .setExpiration(new java.util.Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24)) 
+	                .signWith(Keys.hmacShaKeyFor(CLAVE_SECRETA.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+	                .compact();
+	    }
+  
 
     
 }
