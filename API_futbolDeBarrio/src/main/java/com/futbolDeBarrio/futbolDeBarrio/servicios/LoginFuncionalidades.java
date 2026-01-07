@@ -1,5 +1,6 @@
 package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,7 @@ import com.futbolDeBarrio.futbolDeBarrio.dtos.RespuestaLoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEstadisticaGlobalEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.CuentaEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.JugadorEstadisticaGlobalEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
@@ -26,6 +28,7 @@ import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
 import com.futbolDeBarrio.futbolDeBarrio.jwt.JwtFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubEstadisticaGlobalInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.CuentaInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.JugadorEstadisticaGlobalInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
@@ -42,7 +45,8 @@ public class LoginFuncionalidades {
 
 	@Autowired
 	private ClubInterfaz clubInterfaz;
-
+	@Autowired
+	private CuentaInterfaz cuentaInterfaz;
 	@Autowired
 	private InstalacionInterfaz instalacionInterfaz;
 
@@ -146,211 +150,279 @@ public class LoginFuncionalidades {
 	 * token.
 	 * 
 	 * @param loginGoogleDto contiene email y tipoUsuario
-	 * @return RespuestaLoginDto con token y datos del usuario
+	 * @return Map con RespuestaLoginDto y datos del usuario/club/instalacion
 	 */
 	public Map<String, Object> loginConGoogle(LoginGoogleDto loginGoogleDto) {
-		Map<String, Object> respuesta = new HashMap<>();
-		String tipoUsuario = loginGoogleDto.getTipoUsuario().toLowerCase();
+	    Map<String, Object> respuesta = new HashMap<>();
+	    String tipoUsuario = loginGoogleDto.getTipoUsuario().toLowerCase();
 
-		LoginGoogleDto dtoBase = new LoginGoogleDto();
-		dtoBase.setEmail(loginGoogleDto.getEmail());
-		dtoBase.setTipoUsuario(tipoUsuario);
-		dtoBase.setNombreCompleto(loginGoogleDto.getNombreCompleto());
+	    LoginGoogleDto dtoBase = new LoginGoogleDto();
+	    dtoBase.setEmail(loginGoogleDto.getEmail());
+	    dtoBase.setTipoUsuario(tipoUsuario);
+	    dtoBase.setNombreCompleto(loginGoogleDto.getNombreCompleto());
 
+	    switch (tipoUsuario) {
+	        case "jugador":
+	            UsuarioDto jugador = loginJugador(loginGoogleDto);
+	            dtoBase.setIdTipoUsuario(jugador.getIdUsuario());
+	            dtoBase.setEsPremium(jugador.isEsPremium());
 
-		switch (tipoUsuario) {
-		case "jugador":
-			UsuarioDto jugador = loginJugador(loginGoogleDto);
-			dtoBase.setIdTipoUsuario(jugador.getIdUsuario());
-			dtoBase.setEsPremium(jugador.isEsPremium());
-			respuesta.put("login", dtoBase);
-			respuesta.put("jugador", jugador);
-			break;
-		case "club":
-			ClubDto club = loginClub(loginGoogleDto);
-			dtoBase.setIdTipoUsuario(club.getIdClub());
-			dtoBase.setEsPremium(club.isEsPremium());
-			respuesta.put("login", dtoBase);
-			respuesta.put("club", club);
-			break;
-		case "instalacion":
-			InstalacionDto instalacion = loginInstalacion(loginGoogleDto);
-			dtoBase.setIdTipoUsuario(instalacion.getIdInstalacion());
-			respuesta.put("login", dtoBase);
-			respuesta.put("instalacion", instalacion);
-			break;
-		default:
-			return null;
-		}
+	            // 6️⃣ Generar token JWT
+	            String token = jwtUtil.obtenerToken(jugador.getEmailUsuario(), Rol.Usuario);
 
-		return respuesta;
+	            respuesta.put("login", dtoBase);
+	            respuesta.put("jugador", jugador);
+	            respuesta.put("token", token); 
+	            break;
+
+	        case "club":
+	            ClubDto club = loginClub(loginGoogleDto);
+	            dtoBase.setIdTipoUsuario(club.getIdClub());
+	            dtoBase.setEsPremium(club.isEsPremium());
+
+	            token = jwtUtil.obtenerToken(club.getEmailClub(), Rol.Club);
+
+	            respuesta.put("login", dtoBase);
+	            respuesta.put("club", club);
+	            respuesta.put("token", token);
+	            break;
+
+	        case "instalacion":
+	            InstalacionDto instalacion = loginInstalacion(loginGoogleDto);
+	            dtoBase.setIdTipoUsuario(instalacion.getIdInstalacion());
+
+	            token = jwtUtil.obtenerToken(instalacion.getEmailInstalacion(), Rol.Instalacion);
+
+	            respuesta.put("login", dtoBase);
+	            respuesta.put("instalacion", instalacion);
+	            respuesta.put("token", token);
+	            break;
+
+	        default:
+	            throw new IllegalArgumentException("Tipo de usuario inválido");
+	    }
+
+	    return respuesta;
 	}
 
 	// ------------------ Jugador ------------------
 	private UsuarioDto loginJugador(LoginGoogleDto loginGoogleDto) {
-		String email = loginGoogleDto.getEmail();
-		String nombreCompleto = loginGoogleDto.getNombreCompleto() != null ? loginGoogleDto.getNombreCompleto()
-				: "Desconocido";
-		String imagenBase64Usuario = loginGoogleDto.getImagenUsuario();
+	    String email = loginGoogleDto.getEmail();
+	    String nombreCompleto = loginGoogleDto.getNombreCompleto() != null ? loginGoogleDto.getNombreCompleto() : "Desconocido";
+	    String imagenBase64Usuario = loginGoogleDto.getImagenUsuario();
 
-		UsuarioEntidad usuario = usuarioInterfaz.findByEmailUsuario(email).orElse(null);
-		if (usuario == null) {
-			usuario = inicializarUsuarioPorDefecto(email, nombreCompleto, imagenBase64Usuario);
-			usuario = usuarioInterfaz.save(usuario);
-			crearEstadisticasJugador(usuario);
-		}
+	    UsuarioEntidad usuario = usuarioInterfaz.findByEmailUsuario(email).orElse(null);
 
-		if (usuario.getImagenUsuario() != null) {
-			imagenBase64Usuario = Base64.getEncoder().encodeToString(usuario.getImagenUsuario());
-		}
+	    if (usuario == null) {
+	        usuario = inicializarUsuarioPorDefecto(email, nombreCompleto, imagenBase64Usuario);
 
-		String token = jwtUtil.obtenerToken(email, Rol.Usuario);
+	        usuario = usuarioInterfaz.save(usuario);
 
-		UsuarioDto dto = new UsuarioDto();
-		dto.setIdUsuario(usuario.getIdUsuario());
-		dto.setNombreCompletoUsuario(usuario.getNombreCompletoUsuario());
-		dto.setAliasUsuario(usuario.getAliasUsuario());
-		dto.setFechaNacimientoUsuario(usuario.getFechaNacimientoUsuario());
-		dto.setEmailUsuario(usuario.getEmailUsuario());
-		dto.setTelefonoUsuario(usuario.getTelefonoUsuario());
-		dto.setPasswordUsuario(usuario.getPasswordUsuario());
-		dto.setRolUsuario(usuario.getRolUsuario());
-		dto.setDescripcionUsuario(usuario.getDescripcionUsuario());
-		if (dto.getImagenUsuario() != null) {
-			byte[] imagenBytes = Base64.getDecoder().decode(dto.getImagenUsuario());
-			usuario.setImagenUsuario(imagenBytes);
-		}
-		dto.setEstadoUsuario(usuario.getEstadoUsuario());
-		dto.setEsPremium(usuario.isEsPremium());
+	        crearEstadisticasJugador(usuario);
+	    }
 
-		return dto;
+	    if (usuario.getImagenUsuario() != null && usuario.getImagenUsuario().length > 0) {
+	        imagenBase64Usuario = Base64.getEncoder().encodeToString(usuario.getImagenUsuario());
+	    }
 
+	    // 6️⃣ Generar token JWT
+	    String token = jwtUtil.obtenerToken(email, Rol.Usuario);
+
+	    // 7️⃣ Mapear a DTO
+	    UsuarioDto dto = new UsuarioDto();
+	    dto.setIdUsuario(usuario.getIdUsuario());
+	    dto.setNombreCompletoUsuario(usuario.getNombreCompletoUsuario());
+	    dto.setAliasUsuario(usuario.getAliasUsuario());
+	    dto.setFechaNacimientoUsuario(usuario.getFechaNacimientoUsuario());
+	    dto.setEmailUsuario(usuario.getEmailUsuario());
+	    dto.setTelefonoUsuario(usuario.getTelefonoUsuario());
+	    dto.setPasswordUsuario(usuario.getPasswordUsuario());
+	    dto.setRolUsuario(usuario.getRolUsuario());
+	    dto.setDescripcionUsuario(usuario.getDescripcionUsuario());
+	    dto.setEstadoUsuario(usuario.getEstadoUsuario());
+	    dto.setEsPremium(usuario.isEsPremium());
+	    dto.setImagenUsuario(imagenBase64Usuario);
+
+	    return dto;
 	}
+
 
 	private UsuarioEntidad inicializarUsuarioPorDefecto(String email, String nombreCompleto, String imagenBase64) {
-		UsuarioEntidad usuario = new UsuarioEntidad();
-		usuario.setEmailUsuario(email);
-		usuario.setNombreCompletoUsuario(nombreCompleto);
-		usuario.setAliasUsuario(generarAlias(nombreCompleto));
-		usuario.setPasswordUsuario(Utilidades.encriptarContrasenya(UUID.randomUUID().toString()));
-		usuario.setRolUsuario(RolUsuario.Jugador);
-		usuario.setEstadoUsuario(Estado.Activo);
-		usuario.setDescripcionUsuario("");
-		usuario.setFechaNacimientoUsuario("1970-01-01");
-		usuario.setTelefonoUsuario("");
-		usuario.setEsPremium(false);
-		usuario.setImagenUsuario(imagenBase64 != null ? Base64.getDecoder().decode(imagenBase64) : new byte[0]);
-		return usuario;
+	    // 1️⃣ Crear cuenta
+	    CuentaEntidad cuenta = new CuentaEntidad();
+	    cuenta.setEmail(email); 
+	    cuenta.setPassword(Utilidades.encriptarContrasenya(UUID.randomUUID().toString()));
+	    cuenta.setRol(Rol.Usuario);
+	    cuenta.setEmailVerificado(true);
+	    cuenta.setFechaCreacion(LocalDateTime.now());
+	    cuenta = cuentaInterfaz.save(cuenta);
+
+	    // 2️⃣ Crear usuario y asociar cuenta
+	    UsuarioEntidad usuario = new UsuarioEntidad();
+	    usuario.setEmailUsuario(email);
+	    usuario.setNombreCompletoUsuario(nombreCompleto);
+	    usuario.setAliasUsuario(generarAlias(nombreCompleto));
+	    usuario.setPasswordUsuario(Utilidades.encriptarContrasenya(UUID.randomUUID().toString()));
+	    usuario.setRolUsuario(RolUsuario.Jugador);
+	    usuario.setEstadoUsuario(Estado.Activo);
+	    usuario.setDescripcionUsuario("");
+	    usuario.setFechaNacimientoUsuario("1970-01-01");
+	    usuario.setTelefonoUsuario("");
+	    usuario.setEsPremium(false);
+	    usuario.setImagenUsuario(imagenBase64 != null ? Base64.getDecoder().decode(imagenBase64) : new byte[0]);
+
+	    usuario.setCuenta(cuenta); // <- Asocia la cuenta al usuario
+
+	    return usuario;
 	}
+
+
 
 	// ------------------ Club ------------------
 	private ClubDto loginClub(LoginGoogleDto loginGoogleDto) {
-		ClubEntidad club = clubInterfaz.findByEmailClub(loginGoogleDto.getEmail()).orElse(null);
+	    ClubEntidad club = clubInterfaz.findByEmailClub(loginGoogleDto.getEmail()).orElse(null);
 
-		if (club == null) {
-			club = inicializarClubPorDefecto(loginGoogleDto.getEmail(), loginGoogleDto.getNombreCompleto(),
-					loginGoogleDto.getImagenUsuario());
-			club = clubInterfaz.save(club);
-			crearEstadisticasClub(club);
-		}
+	    if (club == null) {
+	        // Inicializa club y crea la cuenta dentro de ese método
+	        club = inicializarClubPorDefecto(
+	            loginGoogleDto.getEmail(),
+	            loginGoogleDto.getNombreCompleto(),
+	            loginGoogleDto.getImagenUsuario()
+	        );
 
-		String token = jwtUtil.obtenerToken(club.getEmailClub(), Rol.Club);
+	        club = clubInterfaz.save(club); // guarda el club con la cuenta ya asociada
+	        crearEstadisticasClub(club);
+	    }
 
-		ClubDto dto = new ClubDto();
-		dto.setIdClub(club.getIdClub());
-		dto.setNombreClub(club.getNombreClub());
-		dto.setAbreviaturaClub(club.getAbreviaturaClub());
-		dto.setDescripcionClub(club.getDescripcionClub());
-		dto.setFechaCreacionClub(club.getFechaCreacionClub());
-		dto.setFechaFundacionClub(club.getFechaFundacionClub());
-		dto.setLocalidadClub(club.getLocalidadClub());
-		dto.setPaisClub(club.getPaisClub());
-		dto.setTelefonoClub(club.getTelefonoClub());
-		dto.setEmailClub(club.getEmailClub());
-		dto.setPasswordClub(club.getPasswordClub());
-		dto.setEsPremium(club.isEsPremium());
-		if (dto.getLogoClub() != null) {
-			byte[] imagenBytes = Base64.getDecoder().decode(dto.getLogoClub());
-			club.setLogoClub(imagenBytes);
-		}
+	    String token = jwtUtil.obtenerToken(club.getEmailClub(), Rol.Club);
 
-		return dto;
+	    ClubDto dto = new ClubDto();
+	    dto.setIdClub(club.getIdClub());
+	    dto.setNombreClub(club.getNombreClub());
+	    dto.setAbreviaturaClub(club.getAbreviaturaClub());
+	    dto.setDescripcionClub(club.getDescripcionClub());
+	    dto.setFechaCreacionClub(club.getFechaCreacionClub());
+	    dto.setFechaFundacionClub(club.getFechaFundacionClub());
+	    dto.setLocalidadClub(club.getLocalidadClub());
+	    dto.setPaisClub(club.getPaisClub());
+	    dto.setTelefonoClub(club.getTelefonoClub());
+	    dto.setEmailClub(club.getEmailClub());
+	    dto.setPasswordClub(club.getPasswordClub());
+	    dto.setEsPremium(club.isEsPremium());
+	    dto.setLogoClub(club.getLogoClub() != null ? Base64.getEncoder().encodeToString(club.getLogoClub()) : null);
+
+	    return dto;
 	}
+
 
 	private ClubEntidad inicializarClubPorDefecto(String email, String nombreCompleto, String imagenBase64) {
-		ClubEntidad club = new ClubEntidad();
-		club.setEmailClub(email);
-		club.setNombreClub(nombreCompleto);
-		club.setAbreviaturaClub(generarAbreviatura(nombreCompleto));
-		club.setDescripcionClub("");
-		club.setFechaCreacionClub("1970-01-01");
-		club.setFechaFundacionClub("1970-01-01");
-		club.setLocalidadClub("");
-		club.setPaisClub("");
-		club.setTelefonoClub("");
-		club.setPasswordClub(Utilidades.encriptarContrasenya(UUID.randomUUID().toString()));
-		club.setEsPremium(false);
-		club.setLogoClub(imagenBase64 != null ? Base64.getDecoder().decode(imagenBase64) : new byte[0]);
-		return club;
+	    // 1️⃣ Crear cuenta correctamente
+	    CuentaEntidad cuenta = new CuentaEntidad();
+	    cuenta.setEmail(email); 
+	    cuenta.setPassword(Utilidades.encriptarContrasenya(UUID.randomUUID().toString()));
+	    cuenta.setRol(Rol.Club);
+	    cuenta.setEmailVerificado(true);
+	    cuenta.setFechaCreacion(LocalDateTime.now());
+	    cuenta = cuentaInterfaz.save(cuenta);
+
+	    // 2️⃣ Crear club y asociar cuenta
+	    ClubEntidad club = new ClubEntidad();
+	    club.setEmailClub(email);
+	    club.setNombreClub(nombreCompleto);
+	    club.setAbreviaturaClub(generarAbreviatura(nombreCompleto));
+	    club.setDescripcionClub("");
+	    club.setFechaCreacionClub("1970-01-01");
+	    club.setFechaFundacionClub("1970-01-01");
+	    club.setLocalidadClub("");
+	    club.setPaisClub("");
+	    club.setTelefonoClub("");
+	    club.setPasswordClub(Utilidades.encriptarContrasenya(UUID.randomUUID().toString()));
+	    club.setEsPremium(false);
+	    club.setLogoClub(imagenBase64 != null ? Base64.getDecoder().decode(imagenBase64) : new byte[0]);
+	    club.setCuenta(cuenta); // <- asociar cuenta
+	    return club;
 	}
+
 
 	// ------------------ Instalación ------------------
+	// ------------------ Instalación ------------------
 	private InstalacionDto loginInstalacion(LoginGoogleDto loginGoogleDto) {
-		String email = loginGoogleDto.getEmail();
-		String nombreCompleto = loginGoogleDto.getNombreCompleto() != null ? loginGoogleDto.getNombreCompleto()
-				: "Desconocido";
-		String imagenBase64 = loginGoogleDto.getImagenUsuario();
+	    String email = loginGoogleDto.getEmail();
+	    String nombreCompleto = loginGoogleDto.getNombreCompleto() != null ? loginGoogleDto.getNombreCompleto()
+	            : "Desconocido";
+	    String imagenBase64 = loginGoogleDto.getImagenUsuario();
 
-		InstalacionEntidad instalacion = instalacionInterfaz.findByEmailInstalacion(email).orElse(null);
-		if (instalacion == null) {
-			instalacion = inicializarInstalacionPorDefecto(email, nombreCompleto, imagenBase64);
-			instalacion = instalacionInterfaz.save(instalacion);
-		}
+	    // Buscar instalación existente
+	    InstalacionEntidad instalacion = instalacionInterfaz.findByEmailInstalacion(email).orElse(null);
 
-		if (instalacion.getImagenInstalacion() != null) {
-			imagenBase64 = Base64.getEncoder().encodeToString(instalacion.getImagenInstalacion());
-		}
+	    if (instalacion == null) {
+	        // Inicializar instalación y crear cuenta dentro del mismo método
+	        instalacion = inicializarInstalacionPorDefecto(email, nombreCompleto, imagenBase64);
+	        instalacion = instalacionInterfaz.save(instalacion); // guarda instalación con la cuenta asociada
+	    }
 
-		String token = jwtUtil.obtenerToken( email, Rol.Instalacion);
+	    // Convertir imagen a Base64 si existe
+	    if (instalacion.getImagenInstalacion() != null && instalacion.getImagenInstalacion().length > 0) {
+	        imagenBase64 = Base64.getEncoder().encodeToString(instalacion.getImagenInstalacion());
+	    }
 
-		InstalacionDto dto = new InstalacionDto();
-		dto.setIdInstalacion(instalacion.getIdInstalacion());
-		dto.setNombreInstalacion(instalacion.getNombreInstalacion());
-		dto.setDireccionInstalacion(instalacion.getDireccionInstalacion());
-		dto.setTelefonoInstalacion(instalacion.getTelefonoInstalacion());
-		dto.setEmailInstalacion(instalacion.getEmailInstalacion());
-		dto.setTipoCampo1(instalacion.getTipoCampo1());
-		dto.setTipoCampo2(instalacion.getTipoCampo2());
-		dto.setTipoCampo3(instalacion.getTipoCampo3());
-		dto.setServiciosInstalacion(instalacion.getServiciosInstalacion());
-		dto.setEstadoInstalacion(instalacion.getEstadoInstalacion());
-		dto.setPasswordInstalacion(instalacion.getPasswordInstalacion());
-		dto.setTorneoIds(instalacion.getTorneoIds());
-		dto.setImagenInstalacion(imagenBase64);
+	    // Generar token JWT
+	    String token = jwtUtil.obtenerToken(email, Rol.Instalacion);
 
-		return dto;
+	    // Mapear a DTO
+	    InstalacionDto dto = new InstalacionDto();
+	    dto.setIdInstalacion(instalacion.getIdInstalacion());
+	    dto.setNombreInstalacion(instalacion.getNombreInstalacion());
+	    dto.setDireccionInstalacion(instalacion.getDireccionInstalacion());
+	    dto.setTelefonoInstalacion(instalacion.getTelefonoInstalacion());
+	    dto.setEmailInstalacion(instalacion.getEmailInstalacion());
+	    dto.setTipoCampo1(instalacion.getTipoCampo1());
+	    dto.setTipoCampo2(instalacion.getTipoCampo2());
+	    dto.setTipoCampo3(instalacion.getTipoCampo3());
+	    dto.setServiciosInstalacion(instalacion.getServiciosInstalacion());
+	    dto.setEstadoInstalacion(instalacion.getEstadoInstalacion());
+	    dto.setPasswordInstalacion(instalacion.getPasswordInstalacion());
+	    dto.setTorneoIds(instalacion.getTorneoIds());
+	    dto.setImagenInstalacion(imagenBase64);
+
+	    return dto;
 	}
 
-	private InstalacionEntidad inicializarInstalacionPorDefecto(String email, String nombreCompleto,
-			String imagenBase64) {
-		InstalacionEntidad instalacion = new InstalacionEntidad();
-		instalacion.setEmailInstalacion(email);
-		instalacion.setNombreInstalacion(nombreCompleto);
-		instalacion.setDireccionInstalacion("");
-		instalacion.setTelefonoInstalacion("");
-		instalacion.setServiciosInstalacion("");
-		instalacion.setTipoCampo1(null);
-		instalacion.setTipoCampo2(null);
-		instalacion.setTipoCampo3(null);
-		instalacion.setPasswordInstalacion(Utilidades.encriptarContrasenya(UUID.randomUUID().toString()));
-		instalacion.setEstadoInstalacion(Estado.Activo);
-		instalacion.setImagenInstalacion(imagenBase64 != null ? Base64.getDecoder().decode(imagenBase64) : new byte[0]);
-		return instalacion;
+	private InstalacionEntidad inicializarInstalacionPorDefecto(String email, String nombreCompleto, String imagenBase64) {
+	    // 1️⃣ Crear cuenta
+	    CuentaEntidad cuenta = new CuentaEntidad();
+	    cuenta.setEmail(email);
+	    cuenta.setPassword(Utilidades.encriptarContrasenya(UUID.randomUUID().toString()));
+	    cuenta.setRol(Rol.Instalacion);
+	    cuenta.setEmailVerificado(true);
+	    cuenta.setFechaCreacion(LocalDateTime.now());
+	    cuenta = cuentaInterfaz.save(cuenta); // guarda la cuenta aquí
+
+	    // 2️⃣ Crear instalación y asociar cuenta
+	    InstalacionEntidad instalacion = new InstalacionEntidad();
+	    instalacion.setEmailInstalacion(email);
+	    instalacion.setNombreInstalacion(nombreCompleto);
+	    instalacion.setDireccionInstalacion("");
+	    instalacion.setTelefonoInstalacion("");
+	    instalacion.setServiciosInstalacion("");
+	    instalacion.setTipoCampo1(null);
+	    instalacion.setTipoCampo2(null);
+	    instalacion.setTipoCampo3(null);
+	    instalacion.setPasswordInstalacion(Utilidades.encriptarContrasenya(UUID.randomUUID().toString()));
+	    instalacion.setEstadoInstalacion(Estado.Activo);
+	    instalacion.setImagenInstalacion(imagenBase64 != null ? Base64.getDecoder().decode(imagenBase64) : new byte[0]);
+
+	    instalacion.setCuenta(cuenta); // <- Asociar la cuenta a la instalación
+
+	    return instalacion;
 	}
+
+
+
 
 	// ------------------ Métodos auxiliares ------------------
 	private String generarAlias(String nombreCompleto) {
-		String[] palabras = nombreCompleto.split("\s+");
+		String[] palabras = nombreCompleto.split("\\s+");
 		StringBuilder alias = new StringBuilder();
 		for (String palabra : palabras) {
 			alias.append(palabra.length() >= 2 ? palabra.substring(0, 2) : palabra);
@@ -359,7 +431,7 @@ public class LoginFuncionalidades {
 	}
 
 	private String generarAbreviatura(String nombreClub) {
-		String[] palabras = nombreClub.split("\s+");
+		String[] palabras = nombreClub.split("\\s+");
 		StringBuilder abreviatura = new StringBuilder();
 		for (int i = 0; i < palabras.length && i < 3; i++) {
 			abreviatura.append(palabras[i].substring(0, 1));

@@ -151,7 +151,7 @@ public class InstalacionFuncionalidades {
 		Optional<InstalacionEntidad> instalacionExistente = instalacionInterfaz
 				.findByEmailInstalacion(instalacionDto.getEmailInstalacion());
 		if (instalacionExistente.isPresent()) {
-			throw new IllegalArgumentException("El email proporcionado ya está siendo utilizado por otra instalación.");
+		    throw new IllegalArgumentException("El correo ya está en uso");
 		}
 
 		

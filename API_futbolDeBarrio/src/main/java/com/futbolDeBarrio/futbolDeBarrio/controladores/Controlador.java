@@ -137,21 +137,30 @@ public class Controlador {
 
 	@PostMapping("/loginGoogle")
 	public ResponseEntity<Map<String, Object>> loginGoogle(@RequestBody LoginGoogleDto dto) {
+	    // 1️⃣ Log del intento de login
+	    Logs.ficheroLog("Intento de login con Google para email: " + dto.getEmail() + 
+	                     ", tipo: " + dto.getTipoUsuario());
+
 	    Map<String, Object> respuesta = loginFuncionalidades.loginConGoogle(dto);
 
-	    if (respuesta != null) {
+	    if (respuesta != null && respuesta.containsKey("login")) {
 	        LoginGoogleDto login = (LoginGoogleDto) respuesta.get("login");
 
-	        // Log del login básico
-	        Logs.ficheroLog("Login exitoso Google para email: " + login.getEmail() +
+	        // 2️⃣ Log del login exitoso
+	        Logs.ficheroLog("Login exitoso con Google para email: " + login.getEmail() +
 	                         ", tipo: " + login.getTipoUsuario() +
 	                         ", ID: " + login.getIdTipoUsuario());
 
 	        return ResponseEntity.ok(respuesta);
 	    } else {
+	        // 3️⃣ Log de fallo de login
+	        Logs.ficheroLog("Login fallido con Google para email: " + dto.getEmail() +
+	                         ", tipo: " + dto.getTipoUsuario());
+
 	        return ResponseEntity.status(401).body(null);
 	    }
 	}
+
 
 	
 	  /**
@@ -953,21 +962,21 @@ public class Controlador {
 	 * @param usuarioDto Datos del usuario a guardar.
 	 * @return El usuario guardado con su ID.
 	 */
-	@PostMapping("/guardarUsuario")
-	public ResponseEntity<?> guardarUsuario(@RequestBody UsuarioDto usuarioDto) {
-		Logs.ficheroLog("Solicitud para guardar usuario con datos: " + usuarioDto.toString());
-		try {
-			UsuarioEntidad usuarioEntidad = usuarioFuncionalidades.guardarUsuario(usuarioDto);
-			Logs.ficheroLog("Usuario guardado exitosamente con ID: " + usuarioEntidad.getIdUsuario());
-			return ResponseEntity.ok(usuarioFuncionalidades.mapearAUsuarioDto(usuarioEntidad));
-		} catch (IllegalArgumentException e) {
-			Logs.ficheroLog("Error al guardar usuario: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-		} catch (Exception e) {
-			Logs.ficheroLog("Error inesperado al guardar usuario: " + e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
+		@PostMapping("/guardarUsuario")
+		public ResponseEntity<?> guardarUsuario(@RequestBody UsuarioDto usuarioDto) {
+			Logs.ficheroLog("Solicitud para guardar usuario con datos: " + usuarioDto.toString());
+			try {
+				UsuarioEntidad usuarioEntidad = usuarioFuncionalidades.guardarUsuario(usuarioDto);
+				Logs.ficheroLog("Usuario guardado exitosamente con ID: " + usuarioEntidad.getIdUsuario());
+				return ResponseEntity.ok(usuarioFuncionalidades.mapearAUsuarioDto(usuarioEntidad));
+			} catch (IllegalArgumentException e) {
+				Logs.ficheroLog("Error al guardar usuario: " + e.getMessage());
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+			} catch (Exception e) {
+				Logs.ficheroLog("Error inesperado al guardar usuario: " + e.getMessage());
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrió un error inesperado");
+			}
 		}
-	}
 
 	/**
 	 * Método DELETE para eliminar un usuario por su ID.
