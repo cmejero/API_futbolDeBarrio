@@ -33,7 +33,7 @@ import com.futbolDeBarrio.futbolDeBarrio.dtos.LoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.LoginGoogleDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.MiembroClubDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.PartidoTorneoDto;
-import com.futbolDeBarrio.futbolDeBarrio.dtos.RecuperarContrasenaDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.RecuperarCuentaDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.RespuestaLoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.RestablecerContrasenaDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.TorneoDto;
@@ -62,7 +62,7 @@ import com.futbolDeBarrio.futbolDeBarrio.servicios.JugadorEstadisticaTorneoFunci
 import com.futbolDeBarrio.futbolDeBarrio.servicios.LoginFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.MiembroClubFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.PartidoTorneoFuncionalidades;
-import com.futbolDeBarrio.futbolDeBarrio.servicios.RecuperarContrasenaFuncionalidades;
+import com.futbolDeBarrio.futbolDeBarrio.servicios.RecuperarCuentaFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.TorneoFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.UsuarioFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.verificacion.VerificacionEmailFuncionalidad;
@@ -93,7 +93,7 @@ public class Controlador {
 	@Autowired
 	LoginFuncionalidades loginFuncionalidades;
 	@Autowired
-	RecuperarContrasenaFuncionalidades recuperarContrasenaFuncionalidades;
+	RecuperarCuentaFuncionalidades recuperarContrasenaFuncionalidades;
 	@Autowired
 	ActaPartidoFuncionalidades actaPartidoFuncionalidades;
 	@Autowired
@@ -192,17 +192,19 @@ public class Controlador {
 	 * @param request DTO con el email del usuario.
 	 * @return Respuesta indicando éxito o error.
 	 */
-	public ResponseEntity<?> solicitarRecuperacion(@RequestBody @Valid RecuperarContrasenaDto request) {
+	public ResponseEntity<?> solicitarRecuperacion(@RequestBody @Valid RecuperarCuentaDto request) {
 		Logs.ficheroLog("Solicitud de recuperación de contraseña para email: " + request.getEmail());
 		try {
-			recuperarContrasenaFuncionalidades.enviarEnlaceRecuperacion(request.getEmail());
-			Logs.ficheroLog("Correo de recuperación enviado correctamente para email: " + request.getEmail());
-			return ResponseEntity.ok("Correo enviado con instrucciones");
+		    recuperarContrasenaFuncionalidades.enviarEnlaceRecuperacion(request.getEmail(), request.getTipoUsuario());
+		    return ResponseEntity.ok("Correo enviado con instrucciones");
 		} catch (RuntimeException e) {
-			Logs.ficheroLog("Error al enviar correo de recuperación para email: " + request.getEmail() + ". Error: "
-					+ e.getMessage());
-			return ResponseEntity.badRequest().body(e.getMessage());
+		    Logs.ficheroLog("Error al enviar correo: " + e.getMessage());
+		    return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (Exception e) {
+		    Logs.ficheroLog("Error inesperado: " + e.getMessage());
+		    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno");
 		}
+
 	}
 
 	@PostMapping("/restablecer-contrasena")

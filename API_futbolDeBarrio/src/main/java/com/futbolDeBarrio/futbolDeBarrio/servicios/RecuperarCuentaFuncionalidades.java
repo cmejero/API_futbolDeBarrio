@@ -19,7 +19,7 @@ import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 import jakarta.transaction.Transactional;
 
 @Service
-public class RecuperarContrasenaFuncionalidades {
+public class RecuperarCuentaFuncionalidades {
 
     @Autowired
     private UsuarioInterfaz usuarioInterfaz;
@@ -41,22 +41,23 @@ public class RecuperarContrasenaFuncionalidades {
      * @param email Correo del usuario a recuperar.
      */
     @Transactional
-    public void enviarEnlaceRecuperacion(String email) {
+    public void enviarEnlaceRecuperacion(String email, String tipoUsuario) {
         Logs.ficheroLog("Iniciando recuperación para email: " + email);
-        String tipo = null;
+        String tipo = tipoUsuario;  
 
-        if (usuarioInterfaz.existsByEmailUsuario(email)) {
-            tipo = "usuario";
-        } else if (instalacionInterfaz.existsByEmailInstalacion(email)) {
-            tipo = "instalacion";
-        } else if (clubInterfaz.existsByEmailClub(email)) {
-            tipo = "club";
-        }
-
-        if (tipo == null) {
-            Logs.ficheroLog("Email no encontrado en el sistema: " + email);
-            throw new RuntimeException("No se encontró ningún usuario con ese correo.");
-        }
+        switch(tipoUsuario) {
+        case "usuario":
+            if (!usuarioInterfaz.existsByEmailUsuario(email)) throw new RuntimeException("Email no encontrado");
+            break;
+        case "club":
+            if (!clubInterfaz.existsByEmailClub(email)) throw new RuntimeException("Email no encontrado");
+            break;
+        case "instalacion":
+            if (!instalacionInterfaz.existsByEmailInstalacion(email)) throw new RuntimeException("Email no encontrado");
+            break;
+        default:
+            throw new RuntimeException("Tipo de usuario no válido");
+    }
 
         Logs.ficheroLog("Tipo de usuario identificado: " + tipo + " para email: " + email);
         tokenRecuperacionContrasenaInterfaz.deleteByEmail(email);
@@ -76,7 +77,7 @@ public class RecuperarContrasenaFuncionalidades {
         tokenRecuperacionContrasenaInterfaz.save(trc);
         Logs.ficheroLog("Token guardado para recuperación. Email: " + email + ", Token: " + token);
 
-        String enlace = "http://localhost:8080/vista_futbolDeBarrio/RestablecerPassword.jsp?token=" + token;
+        String enlace = "http://localhost:8080/vista_futbolDeBarrio/restablecerCuenta?token=" + token;
 
         enviarCorreo(email, enlace);
         Logs.ficheroLog("Correo de recuperación enviado a: " + email);
