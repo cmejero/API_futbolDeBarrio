@@ -36,5 +36,7 @@ public interface InstalacionInterfaz extends JpaRepository<InstalacionEntidad, L
      * @return Un Optional que puede contener la instalación encontrada.
      */
     Optional<InstalacionEntidad> findByEmailInstalacion(String email);
+    
+    
     boolean existsByEmailInstalacion(String email);
 }

@@ -37,6 +37,9 @@ public interface ClubInterfaz extends JpaRepository<ClubEntidad, Long> {
      *         si existe.
      */
     Optional<ClubEntidad> findByEmailClub(String email); 
+    
+    
+    
     boolean existsByEmailClub(String email);
     
 }

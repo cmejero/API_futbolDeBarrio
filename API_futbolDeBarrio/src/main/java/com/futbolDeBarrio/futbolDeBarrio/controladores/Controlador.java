@@ -42,12 +42,10 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.ActaPartidoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.entidad.MiembroClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.entidad.TorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
-import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
 import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.EquipoTorneoInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.JugadorEstadisticaGlobalInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.ActaPartidoFuncionalidades;
@@ -112,6 +110,8 @@ public class Controlador {
 	VerificacionEmailFuncionalidad verificacionEmailFuncionalidad;
 	@Autowired
 	EquipoTorneoInterfaz equipoTorneoInterfaz;
+	@Autowired
+	ClubInterfaz clubInterfaz;
 	@Autowired
 	JugadorEstadisticaGlobalInterfaz jugadorEstadisticaGlobalInterfaz;
 
@@ -494,37 +494,19 @@ public class Controlador {
 	                .body("Error al intentar unirse al torneo.");
 	    }
 	}
-
-
-	@DeleteMapping("/eliminarEquipoTorneo/{id_equipoTorneo}")
-	/**
-	 * Metodo para eliminar un equipo del torneo por su ID.
-	 * 
-	 * @param id_equipoTorneo ID del equipo torneo a eliminar.
-	 * @return Resultado de la eliminación.
-	 */
-	public boolean borrarEquipoTorneo(@PathVariable("id_equipoTorneo") String id_equipoTorneo) {
-		Logs.ficheroLog("Solicitud para eliminar equipo torneo con ID: " + id_equipoTorneo);
-		boolean resultado = this.equipoTorneoFuncionalidades.borrarEquipoTorneo(id_equipoTorneo);
-		Logs.ficheroLog("Resultado de eliminación del equipo torneo con ID " + id_equipoTorneo + ": " + resultado);
-		return resultado;
+	
+	@GetMapping("/equipoTorneo/torneo/{torneoId}")
+	public List<EquipoTorneoDto> obtenerEquiposPorTorneo(@PathVariable Long torneoId) {
+	    List<EquipoTorneoEntidad> equipos = equipoTorneoInterfaz.findByTorneo_IdTorneo(torneoId);
+	    return equipos.stream()
+	                  .map(equipo -> equipoTorneoFuncionalidades.mapearAEquipoTorneoDto(equipo))
+	                  .toList();
 	}
 
-	@PutMapping("/modificarEquipoTorneo/{id_equipoTorneo}")
-	/**
-	 * Metodo para modificar los detalles de un equipo en el torneo.
-	 * 
-	 * @param idEquipoTorneo  ID del equipo torneo a modificar.
-	 * @param equipoTorneoDto Datos actualizados del equipo torneo.
-	 * @return Resultado de la modificación.
-	 */
-	public boolean modificarEquipoTorneo(@PathVariable("id_equipoTorneo") String idEquipoTorneo,
-			@RequestBody EquipoTorneoDto equipoTorneoDto) {
-		Logs.ficheroLog("Solicitud para modificar equipo torneo con ID: " + idEquipoTorneo);
-		boolean resultado = this.equipoTorneoFuncionalidades.modificarEquipoTorneo(idEquipoTorneo, equipoTorneoDto);
-		Logs.ficheroLog("Resultado de modificación del equipo torneo con ID " + idEquipoTorneo + ": " + resultado);
-		return resultado;
-	}
+
+
+
+	
 
 	/* METODOS CRUD DE LA TABLA INSTALACION */
 

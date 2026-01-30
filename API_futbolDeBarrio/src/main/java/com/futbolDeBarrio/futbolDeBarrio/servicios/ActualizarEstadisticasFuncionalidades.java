@@ -103,7 +103,7 @@ public class ActualizarEstadisticasFuncionalidades {
 	 */
 	private void actualizarEstadisticasClubTorneo(EquipoTorneoEntidad equipo, ActaPartidoEntidad acta, int golesFavor,
 			int golesContra, int resultado, Long clubId) {
-		ClubEstadisticaTorneoEntidad torneoStats = clubEstadisticasTorneoInterfaz
+		ClubEstadisticaTorneoEntidad torneoEstadisticas = clubEstadisticasTorneoInterfaz
 				.findByClub_IdClubAndTorneo_IdTorneo(clubId, acta.getTorneo().getIdTorneo()).orElseGet(() -> {
 					ClubEstadisticaTorneoEntidad nueva = new ClubEstadisticaTorneoEntidad();
 					nueva.setClub(equipo.getClub());
@@ -117,18 +117,18 @@ public class ActualizarEstadisticasFuncionalidades {
 					return nueva;
 				});
 
-		torneoStats.setPartidosJugados(torneoStats.getPartidosJugados() + 1);
-		torneoStats.setGolesFavor(torneoStats.getGolesFavor() + golesFavor);
-		torneoStats.setGolesContra(torneoStats.getGolesContra() + golesContra);
+		torneoEstadisticas.setPartidosJugados(torneoEstadisticas.getPartidosJugados() + 1);
+		torneoEstadisticas.setGolesFavor(torneoEstadisticas.getGolesFavor() + golesFavor);
+		torneoEstadisticas.setGolesContra(torneoEstadisticas.getGolesContra() + golesContra);
 
 		if (resultado == 1)
-			torneoStats.setGanados(torneoStats.getGanados() + 1);
+			torneoEstadisticas.setGanados(torneoEstadisticas.getGanados() + 1);
 		else if (resultado == -1)
-			torneoStats.setPerdidos(torneoStats.getPerdidos() + 1);
+			torneoEstadisticas.setPerdidos(torneoEstadisticas.getPerdidos() + 1);
 		else
-			torneoStats.setEmpatados(torneoStats.getEmpatados() + 1);
+			torneoEstadisticas.setEmpatados(torneoEstadisticas.getEmpatados() + 1);
 
-		clubEstadisticasTorneoInterfaz.save(torneoStats);
+		clubEstadisticasTorneoInterfaz.save(torneoEstadisticas);
 	}
 
 	/**
@@ -141,7 +141,7 @@ public class ActualizarEstadisticasFuncionalidades {
 	 */
 	private void actualizarEstadisticasClubGlobal(EquipoTorneoEntidad equipo, int golesFavor, int golesContra,
 			int resultado, Long clubId) {
-		ClubEstadisticaGlobalEntidad globalStats = clubEstadisticasGlobalInterfaz.findByClubGlobal_IdClub(clubId)
+		ClubEstadisticaGlobalEntidad globalEstadisticas = clubEstadisticasGlobalInterfaz.findByClubGlobal_IdClub(clubId)
 				.orElseGet(() -> {
 					ClubEstadisticaGlobalEntidad nueva = new ClubEstadisticaGlobalEntidad();
 					nueva.setClubGlobal(equipo.getClub());
@@ -154,18 +154,18 @@ public class ActualizarEstadisticasFuncionalidades {
 					return nueva;
 				});
 
-		globalStats.setPartidosJugadosGlobal(globalStats.getPartidosJugadosGlobal() + 1);
-		globalStats.setGolesFavorGlobal(globalStats.getGolesFavorGlobal() + golesFavor);
-		globalStats.setGolesContraGlobal(globalStats.getGolesContraGlobal() + golesContra);
+		globalEstadisticas.setPartidosJugadosGlobal(globalEstadisticas.getPartidosJugadosGlobal() + 1);
+		globalEstadisticas.setGolesFavorGlobal(globalEstadisticas.getGolesFavorGlobal() + golesFavor);
+		globalEstadisticas.setGolesContraGlobal(globalEstadisticas.getGolesContraGlobal() + golesContra);
 
 		if (resultado == 1)
-			globalStats.setGanadosGlobal(globalStats.getGanadosGlobal() + 1);
+			globalEstadisticas.setGanadosGlobal(globalEstadisticas.getGanadosGlobal() + 1);
 		else if (resultado == -1)
-			globalStats.setPerdidosGlobal(globalStats.getPerdidosGlobal() + 1);
+			globalEstadisticas.setPerdidosGlobal(globalEstadisticas.getPerdidosGlobal() + 1);
 		else
-			globalStats.setEmpatadosGlobal(globalStats.getEmpatadosGlobal() + 1);
+			globalEstadisticas.setEmpatadosGlobal(globalEstadisticas.getEmpatadosGlobal() + 1);
 
-		clubEstadisticasGlobalInterfaz.save(globalStats);
+		clubEstadisticasGlobalInterfaz.save(globalEstadisticas);
 	}
 
 	/**
@@ -217,61 +217,61 @@ public class ActualizarEstadisticasFuncionalidades {
 	 */
 	private void actualizarEstadisticasJugador(UsuarioEntidad jugador, ActaPartidoEntidad acta,
 			Map<Long, List<EventoPartidoEntidad>> eventosPorJugador, int resultado) {
-		JugadorEstadisticaTorneoEntidad torneoStats = jugadorEstadisticasTorneoInterfaz
+		JugadorEstadisticaTorneoEntidad torneoEstadisticas = jugadorEstadisticasTorneoInterfaz
 				.findByJugadorIdUsuarioAndTorneoIdTorneo(jugador.getIdUsuario(), acta.getTorneo().getIdTorneo())
 				.orElseGet(JugadorEstadisticaTorneoEntidad::new);
 
-		torneoStats.setJugador(jugador);
-		torneoStats.setTorneo(acta.getTorneo());
+		torneoEstadisticas.setJugador(jugador);
+		torneoEstadisticas.setTorneo(acta.getTorneo());
 
-		JugadorEstadisticaGlobalEntidad globalStats = jugadorEstadisticasGlobalInterfaz
+		JugadorEstadisticaGlobalEntidad globalEstadisticas = jugadorEstadisticasGlobalInterfaz
 				.findByJugadorGlobalId_IdUsuario(jugador.getIdUsuario())
 				.orElseGet(JugadorEstadisticaGlobalEntidad::new);
 
-		globalStats.setJugadorGlobalId(jugador);
+		globalEstadisticas.setJugadorGlobalId(jugador);
 
 		List<EventoPartidoEntidad> eventos = eventosPorJugador.getOrDefault(jugador.getIdUsuario(), List.of());
-		procesarEventosJugador(torneoStats, globalStats, eventos);
+		procesarEventosJugador(torneoEstadisticas, globalEstadisticas, eventos);
 
-		torneoStats.setPartidosJugadosTorneo(torneoStats.getPartidosJugadosTorneo() + 1);
-		torneoStats.setMinutosJugadosTorneo(torneoStats.getMinutosJugadosTorneo() + 90);
-		globalStats.setPartidosJugadosGlobal(globalStats.getPartidosJugadosGlobal() + 1);
-		globalStats.setMinutosJugadosGlobal(globalStats.getMinutosJugadosGlobal() + 90);
+		torneoEstadisticas.setPartidosJugadosTorneo(torneoEstadisticas.getPartidosJugadosTorneo() + 1);
+		torneoEstadisticas.setMinutosJugadosTorneo(torneoEstadisticas.getMinutosJugadosTorneo() + 90);
+		globalEstadisticas.setPartidosJugadosGlobal(globalEstadisticas.getPartidosJugadosGlobal() + 1);
+		globalEstadisticas.setMinutosJugadosGlobal(globalEstadisticas.getMinutosJugadosGlobal() + 90);
 
 		if (resultado == 1) {
-			torneoStats.setPartidosGanadosTorneo(torneoStats.getPartidosGanadosTorneo() + 1);
-			globalStats.setPartidosGanadosGlobal(globalStats.getPartidosGanadosGlobal() + 1);
+			torneoEstadisticas.setPartidosGanadosTorneo(torneoEstadisticas.getPartidosGanadosTorneo() + 1);
+			globalEstadisticas.setPartidosGanadosGlobal(globalEstadisticas.getPartidosGanadosGlobal() + 1);
 		} else if (resultado == -1) {
-			torneoStats.setPartidosPerdidosTorneo(torneoStats.getPartidosPerdidosTorneo() + 1);
-			globalStats.setPartidosPerdidosGlobal(globalStats.getPartidosPerdidosGlobal() + 1);
+			torneoEstadisticas.setPartidosPerdidosTorneo(torneoEstadisticas.getPartidosPerdidosTorneo() + 1);
+			globalEstadisticas.setPartidosPerdidosGlobal(globalEstadisticas.getPartidosPerdidosGlobal() + 1);
 		}
 
-		jugadorEstadisticasTorneoInterfaz.save(torneoStats);
-		jugadorEstadisticasGlobalInterfaz.save(globalStats);
+		jugadorEstadisticasTorneoInterfaz.save(torneoEstadisticas);
+		jugadorEstadisticasGlobalInterfaz.save(globalEstadisticas);
 	}
 
 	/**
 	 * Procesa los eventos del partido y actualiza goles y tarjetas de un jugador.
 	 *
-	 * @param torneoStats Estadísticas del torneo del jugador.
-	 * @param globalStats Estadísticas globales del jugador.
+	 * @param torneoEstadisticas Estadísticas del torneo del jugador.
+	 * @param globalEstadisticas Estadísticas globales del jugador.
 	 * @param eventos     Lista de eventos ocurridos para el jugador.
 	 */
-	private void procesarEventosJugador(JugadorEstadisticaTorneoEntidad torneoStats,
-			JugadorEstadisticaGlobalEntidad globalStats, List<EventoPartidoEntidad> eventos) {
+	private void procesarEventosJugador(JugadorEstadisticaTorneoEntidad torneoEstadisticas,
+			JugadorEstadisticaGlobalEntidad globalEstadisticas, List<EventoPartidoEntidad> eventos) {
 		for (EventoPartidoEntidad evento : eventos) {
 			switch (evento.getTipoEvento()) {
 			case "Gol":
-				torneoStats.setGolesTorneo(torneoStats.getGolesTorneo() + 1);
-				globalStats.setGolesGlobal(globalStats.getGolesGlobal() + 1);
+				torneoEstadisticas.setGolesTorneo(torneoEstadisticas.getGolesTorneo() + 1);
+				globalEstadisticas.setGolesGlobal(globalEstadisticas.getGolesGlobal() + 1);
 				break;
 			case "Tarjeta Amarilla":
-				torneoStats.setAmarillasTorneo(torneoStats.getAmarillasTorneo() + 1);
-				globalStats.setAmarillasGlobal(globalStats.getAmarillasGlobal() + 1);
+				torneoEstadisticas.setAmarillasTorneo(torneoEstadisticas.getAmarillasTorneo() + 1);
+				globalEstadisticas.setAmarillasGlobal(globalEstadisticas.getAmarillasGlobal() + 1);
 				break;
 			case "Tarjeta Roja":
-				torneoStats.setRojasTorneo(torneoStats.getRojasTorneo() + 1);
-				globalStats.setRojasGlobal(globalStats.getRojasGlobal() + 1);
+				torneoEstadisticas.setRojasTorneo(torneoEstadisticas.getRojasTorneo() + 1);
+				globalEstadisticas.setRojasGlobal(globalEstadisticas.getRojasGlobal() + 1);
 				break;
 			}
 		}

@@ -44,7 +44,8 @@ public interface EquipoTorneoInterfaz extends JpaRepository<EquipoTorneoEntidad,
     
     List<EquipoTorneoEntidad> findByClub_IdClub(Long clubId);
 
-    
+    List<EquipoTorneoEntidad> findByTorneo_IdTorneo(Long torneoId);
+
     
     
 }

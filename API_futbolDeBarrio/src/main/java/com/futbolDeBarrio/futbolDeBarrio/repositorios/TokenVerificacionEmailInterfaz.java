@@ -9,6 +9,8 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.TokenVerificacionEmailEntidad;
 
 @Repository
 public interface TokenVerificacionEmailInterfaz extends JpaRepository<TokenVerificacionEmailEntidad, Long> {
+	
+	
 	Optional<TokenVerificacionEmailEntidad> findByToken(String token);
 
 }

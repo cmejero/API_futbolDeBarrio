@@ -36,5 +36,8 @@ public interface UsuarioInterfaz extends JpaRepository<UsuarioEntidad, Long> {
      * @return Un {@link Optional} que puede contener la entidad {@link UsuarioEntidad} si existe.
      */
     Optional<UsuarioEntidad> findByEmailUsuario(String email);
+    
+    
+    
     boolean existsByEmailUsuario(String email);
 }
