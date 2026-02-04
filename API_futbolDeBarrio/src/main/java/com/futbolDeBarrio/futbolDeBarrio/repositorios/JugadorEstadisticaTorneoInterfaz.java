@@ -37,5 +37,8 @@ public interface JugadorEstadisticaTorneoInterfaz extends JpaRepository<JugadorE
     
     List<JugadorEstadisticaTorneoEntidad> findByJugador_IdUsuario(Long jugadorId);
 
+    
+    List<JugadorEstadisticaTorneoEntidad> findByTorneo_IdTorneo(Long torneoId);
+
 }
 

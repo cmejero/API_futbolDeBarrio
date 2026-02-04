@@ -55,6 +55,14 @@ public class ClubEstadisticaTorneoFuncionalidades {
     }
     
     
+    public ArrayList<ClubEstadisticaTorneoDto> obtenerClubesPorTorneo(Long torneoId) {
+        ArrayList<ClubEstadisticaTorneoDto> lista = new ArrayList<>();
+        clubEstadisticaTorneoInterfaz.findByTorneo_IdTorneo(torneoId)
+            .forEach(entidad -> lista.add(mapearAClubEstadisticaTorneoDto(entidad)));
+        return lista;
+    }
+
+    
 
 	public ArrayList<ClubEstadisticaTorneoDto> obtenerEstadisticasDeTodosLosTorneos(Long clubId) {
 	    ArrayList<ClubEstadisticaTorneoDto> listaDto = new ArrayList<>();

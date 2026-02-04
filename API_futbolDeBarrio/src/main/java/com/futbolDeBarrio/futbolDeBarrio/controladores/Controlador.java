@@ -1298,6 +1298,12 @@ public class Controlador {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	@GetMapping("/jugadorEstadisticaTorneo/torneo/{torneoId}")
+	public ResponseEntity<List<JugadorEstadisticaTorneoDto>> obtenerJugadoresPorTorneo(@PathVariable Long torneoId) {
+	    List<JugadorEstadisticaTorneoDto> lista = jugadorEstadisticaTorneoFuncionalidades.obtenerJugadoresPorTorneo(torneoId);
+	    return ResponseEntity.ok(lista);
+	}
 
 	/**
 	 * Método GET para obtener todas las estadísticas de jugadores en torneos como
@@ -1471,6 +1477,12 @@ public class Controlador {
 		}
 	}
 	
+	
+	@GetMapping("/clubEstadisticaTorneo/torneo/{torneoId}")
+	public ArrayList<ClubEstadisticaTorneoDto> obtenerClubesPorTorneo(@PathVariable Long torneoId) {
+	    return clubEstadisticaTorneoFuncionalidades.obtenerClubesPorTorneo(torneoId);
+	}
+
 	
 
 	 @GetMapping("/clubEstadisticaTorneo/club/{clubId}")

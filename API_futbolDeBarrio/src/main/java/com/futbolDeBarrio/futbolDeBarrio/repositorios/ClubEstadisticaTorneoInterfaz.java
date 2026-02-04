@@ -34,5 +34,8 @@ public interface ClubEstadisticaTorneoInterfaz extends JpaRepository<ClubEstadis
     Optional<ClubEstadisticaTorneoEntidad> findByClub_IdClubAndTorneo_IdTorneo(Long clubId, Long torneoId);
     
     List<ClubEstadisticaTorneoEntidad> findByClub_IdClub(Long clubId);
+    
+    List<ClubEstadisticaTorneoEntidad> findByTorneo_IdTorneo(Long torneoId);
+
 
 }
