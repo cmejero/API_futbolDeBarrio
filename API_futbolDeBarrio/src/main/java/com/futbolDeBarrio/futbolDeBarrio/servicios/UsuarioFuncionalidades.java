@@ -17,6 +17,7 @@ import com.futbolDeBarrio.futbolDeBarrio.enums.RolUsuario;
 import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.CuentaInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.JugadorEstadisticaGlobalInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.TokenVerificacionEmailInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 import com.futbolDeBarrio.futbolDeBarrio.verificacion.VerificacionEmailFuncionalidad;
@@ -37,6 +38,8 @@ public class UsuarioFuncionalidades {
     CuentaInterfaz cuentaInterfaz;
     @Autowired
     VerificacionEmailFuncionalidad verificacionEmailFuncionalidad;
+    @Autowired
+    TokenVerificacionEmailInterfaz tokenVerificacionEmailInterfaz;
     
     
     /**
@@ -142,8 +145,10 @@ public class UsuarioFuncionalidades {
         }
 
         // Validar email existente
-        cuentaInterfaz.findByEmailAndRol(usuarioDto.getEmailUsuario(), Rol.Usuario)
-            .ifPresent(c -> { throw new IllegalArgumentException("El email ya está en uso."); });
+        Optional<CuentaEntidad> cuentaExistente = cuentaInterfaz.findByEmailAndRol(usuarioDto.getEmailUsuario(), Rol.Usuario);
+        if (cuentaExistente.isPresent()) {
+            throw new IllegalArgumentException("El email ya está en uso.");
+        }
 
         // 1️⃣ Crear y guardar Cuenta
         CuentaEntidad cuenta = new CuentaEntidad();
@@ -178,6 +183,7 @@ public class UsuarioFuncionalidades {
 
         return usuarioEntidad;
     }
+
     /**
      * Método que se encarga de modificar un usuario en la base de datos.
      * 
@@ -286,44 +292,34 @@ public class UsuarioFuncionalidades {
      * @param idUsuarioString el ID del usuario como cadena
      * @return true si el usuario fue borrado correctamente, false en caso contrario
      */
+    @Transactional
     public boolean borrarUsuario(String idUsuarioString) {
-        boolean estaBorrado = false;
         final String EMAIL_ADMIN_PRINCIPAL = "futboldebarriosevilla@gmail.com";
 
         try {
             Long idUsuario = Long.parseLong(idUsuarioString);
             UsuarioEntidad usuarioEntidad = usuarioInterfaz.findByIdUsuario(idUsuario);
 
-            if (usuarioEntidad == null) {
-                Logs.ficheroLog("Usuario no encontrado con ID: " + idUsuario);
-                estaBorrado = false;
+            if (usuarioEntidad == null) return false;
+            if (EMAIL_ADMIN_PRINCIPAL.equalsIgnoreCase(usuarioEntidad.getEmailUsuario())) return false;
 
-            } else {
-                String email = usuarioEntidad.getEmailUsuario();
-
-                // Verificamos que no sea el admin principal
-                if (EMAIL_ADMIN_PRINCIPAL.equalsIgnoreCase(email)) {
-                    Logs.ficheroLog("Intento de eliminar el administrador principal: " + email);
-                    estaBorrado = false;
-
-                } else {
-                    usuarioInterfaz.delete(usuarioEntidad);
-                    Logs.ficheroLog("Usuario eliminado: " + email);
-                    estaBorrado = true;
-                }
+            CuentaEntidad cuenta = usuarioEntidad.getCuenta();
+            if (cuenta != null) {
+                // 🔹 Primero borrar tokens de verificación
+                tokenVerificacionEmailInterfaz.deleteByCuenta(cuenta);
             }
 
-        } catch (NumberFormatException nfe) {
-            Logs.ficheroLog("ID de usuario inválido: " + idUsuarioString);
-            nfe.printStackTrace();
+            // 🔹 Luego borrar el usuario (Hibernate borrará la cuenta automáticamente gracias a orphanRemoval)
+            usuarioInterfaz.delete(usuarioEntidad);
+
+            return true;
 
         } catch (Exception e) {
-            Logs.ficheroLog("Error al eliminar usuario con ID: " + idUsuarioString);
             e.printStackTrace();
+            return false;
         }
-
-        return estaBorrado;
     }
 
-    
+
+
 }

@@ -13,8 +13,10 @@ import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.CuentaEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Rol;
+import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.CuentaInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.TokenVerificacionEmailInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 import com.futbolDeBarrio.futbolDeBarrio.verificacion.VerificacionEmailFuncionalidad;
 
@@ -32,6 +34,8 @@ public class InstalacionFuncionalidades {
     CuentaInterfaz cuentaInterfaz;
     @Autowired
     VerificacionEmailFuncionalidad verificacionEmailFuncionalidad;
+    @Autowired
+	TokenVerificacionEmailInterfaz tokenVerificacionEmailInterfaz;
     
 
 	/**
@@ -146,38 +150,39 @@ public class InstalacionFuncionalidades {
 	 * @throws IllegalArgumentException Si el email ya está en uso o si la
 	 *                                  contraseña es nula o vacía.
 	 */
-    @Transactional
+	@Transactional
 	public InstalacionEntidad guardarInstalacion(InstalacionDto instalacionDto) {
-		Optional<InstalacionEntidad> instalacionExistente = instalacionInterfaz
-				.findByEmailInstalacion(instalacionDto.getEmailInstalacion());
-		if (instalacionExistente.isPresent()) {
-		    throw new IllegalArgumentException("El correo ya está en uso");
-		}
+	    // Validar si ya existe cuenta con ese email
+	    Optional<CuentaEntidad> cuentaExistente = cuentaInterfaz.findByEmailAndRol(instalacionDto.getEmailInstalacion(), Rol.Instalacion);
+	    if (cuentaExistente.isPresent()) {
+	        throw new IllegalArgumentException("El correo ya está en uso");
+	    }
 
-		
-        CuentaEntidad cuenta = new CuentaEntidad();
-        cuenta.setEmail(instalacionDto.getEmailInstalacion());
-        cuenta.setPassword(Utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
-        cuenta.setRol(Rol.Instalacion);
-        cuenta.setEmailVerificado(false);
-        cuenta.setFechaCreacion(LocalDateTime.now());
-        cuenta = cuentaInterfaz.save(cuenta);
-        
-        
-		InstalacionEntidad instalacionEntidad = mapearADtoAEntidad(instalacionDto);
+	    if (instalacionDto.getPasswordInstalacion() == null || instalacionDto.getPasswordInstalacion().isEmpty()) {
+	        throw new IllegalArgumentException("La contraseña de la instalación no puede ser nula o vacía.");
+	    }
 
-		if (instalacionDto.getPasswordInstalacion() == null || instalacionDto.getPasswordInstalacion().isEmpty()) {
-			throw new IllegalArgumentException("La contraseña de la instalación no puede ser nula o vacía.");
-		}
-		instalacionEntidad
-				.setPasswordInstalacion(Utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
-		instalacionEntidad.setCuenta(cuenta); 
-		instalacionInterfaz.save(instalacionEntidad);
-        verificacionEmailFuncionalidad.generarYEnviarToken(cuenta);
-        
-        return instalacionEntidad;
+	    // Crear y guardar la cuenta
+	    CuentaEntidad cuenta = new CuentaEntidad();
+	    cuenta.setEmail(instalacionDto.getEmailInstalacion());
+	    cuenta.setPassword(Utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
+	    cuenta.setRol(Rol.Instalacion);
+	    cuenta.setEmailVerificado(false);
+	    cuenta.setFechaCreacion(LocalDateTime.now());
+	    cuenta = cuentaInterfaz.save(cuenta);
 
+	    // Crear la instalación y asociar la cuenta
+	    InstalacionEntidad instalacionEntidad = mapearADtoAEntidad(instalacionDto);
+	    instalacionEntidad.setPasswordInstalacion(Utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion()));
+	    instalacionEntidad.setCuenta(cuenta);
+
+	    instalacionInterfaz.save(instalacionEntidad);
+
+	    verificacionEmailFuncionalidad.generarYEnviarToken(cuenta);
+
+	    return instalacionEntidad;
 	}
+
 
 	/**
 	 * Método que modifica una instalación en la base de datos.
@@ -239,26 +244,32 @@ public class InstalacionFuncionalidades {
 	 * @param idInstalacionString El ID de la instalación en formato String
 	 * @return true si la instalación fue borrada, false si no se encontró
 	 */
+	@Transactional
 	public boolean borrarInstalacion(String idInstalacionString) {
-		try {
-			Long idInstalacion = Long.parseLong(idInstalacionString);
-			if (instalacionInterfaz.existsById(idInstalacion)) {
-				instalacionInterfaz.deleteById(idInstalacion);
-				// System.out.println("La instalación con ID " + idInstalacion + " ha sido
-				// borrada con éxito.");
-				return true;
-			} else {
-				// System.out.println("El ID de la instalación no existe.");
-				return false;
-			}
-		} catch (NumberFormatException e) {
-			// System.out.println("Error: El ID proporcionado no es válido. " +
-			// e.getMessage());
-			return false;
-		} catch (Exception e) {
-			// System.out.println("Se ha producido un error al borrar la instalación. " +
-			// e.getMessage());
-			return false;
-		}
+	    try {
+	        Long idInstalacion = Long.parseLong(idInstalacionString);
+	        InstalacionEntidad instalacion = instalacionInterfaz.findByIdInstalacion(idInstalacion);
+
+	        if (instalacion == null) return false;
+
+	        CuentaEntidad cuenta = instalacion.getCuenta();
+	        if (cuenta != null) {
+	            tokenVerificacionEmailInterfaz.deleteByCuenta(cuenta);
+	        }
+
+	        instalacionInterfaz.delete(instalacion);
+
+	        Logs.ficheroLog("Instalación eliminada: " + instalacion.getNombreInstalacion());
+	        return true;
+
+	    } catch (NumberFormatException e) {
+	        e.printStackTrace();
+	        return false;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return false;
+	    }
 	}
+
+
 }

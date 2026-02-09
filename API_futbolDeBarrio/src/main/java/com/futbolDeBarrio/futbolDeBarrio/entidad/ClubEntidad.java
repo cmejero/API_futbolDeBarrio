@@ -65,7 +65,7 @@ public class ClubEntidad {
     @Column(name = "es_premium")
     private boolean esPremium;
     
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id_cuenta")
     private CuentaEntidad cuenta;
 

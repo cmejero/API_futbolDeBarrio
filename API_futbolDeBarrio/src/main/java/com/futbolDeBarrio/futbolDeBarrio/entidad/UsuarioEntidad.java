@@ -72,7 +72,7 @@ public class UsuarioEntidad {
 	private boolean esPremium;
 	
 	
-    @OneToOne
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id_cuenta", nullable = false)
     private CuentaEntidad cuenta;
 

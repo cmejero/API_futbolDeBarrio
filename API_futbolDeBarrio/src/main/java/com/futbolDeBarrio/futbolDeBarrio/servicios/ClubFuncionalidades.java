@@ -17,6 +17,7 @@ import com.futbolDeBarrio.futbolDeBarrio.enums.Rol;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubEstadisticaGlobalInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.CuentaInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.TokenVerificacionEmailInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 import com.futbolDeBarrio.futbolDeBarrio.verificacion.VerificacionEmailFuncionalidad;
 
@@ -37,6 +38,8 @@ public class ClubFuncionalidades {
 	VerificacionEmailFuncionalidad verificacionEmailFuncionalidad;
 	@Autowired
 	ClubEstadisticaGlobalInterfaz clubEstadisticaGlobalInterfaz;
+	 @Autowired
+	TokenVerificacionEmailInterfaz tokenVerificacionEmailInterfaz;
 
 	/**
 	 * Busca un club por su email.
@@ -106,14 +109,13 @@ public class ClubFuncionalidades {
 	 * @return Lista de ClubDto.
 	 */
 	public List<ClubDto> obtenerClubesDto() {
-	    List<ClubEntidad> clubesEntidad = (List<ClubEntidad>) clubInterfaz.findAll();
-	    List<ClubDto> clubesDto = new ArrayList<>();
-	    for (ClubEntidad club : clubesEntidad) {
-	        clubesDto.add(mapearAClubDto(club));
-	    }
-	    return clubesDto;
+		List<ClubEntidad> clubesEntidad = (List<ClubEntidad>) clubInterfaz.findAll();
+		List<ClubDto> clubesDto = new ArrayList<>();
+		for (ClubEntidad club : clubesEntidad) {
+			clubesDto.add(mapearAClubDto(club));
+		}
+		return clubesDto;
 	}
-
 
 	/**
 	 * Obtiene un ClubDto por su ID.
@@ -134,7 +136,7 @@ public class ClubFuncionalidades {
 	 * @throws IllegalArgumentException si el email ya existe o la contraseña es
 	 *                                  inválida.
 	 */
-    @Transactional
+	@Transactional
 	public ClubEntidad guardarClub(ClubDto clubDto) {
 		if (clubDto.getEmailClub() == null || clubDto.getEmailClub().isEmpty()) {
 			throw new IllegalArgumentException("El email del club es obligatorio.");
@@ -261,21 +263,31 @@ public class ClubFuncionalidades {
 	 * @param idClubString ID del club en formato String.
 	 * @return true si se eliminó correctamente, false en caso contrario.
 	 */
+	@Transactional
 	public boolean borrarClub(String idClubString) {
-		boolean estaBorrado = false;
-		try {
-			Long idClub = Long.parseLong(idClubString);
-			ClubEntidad clubEntidad = clubInterfaz.findByIdClub(idClub);
+	    try {
+	        Long idClub = Long.parseLong(idClubString);
+	        ClubEntidad clubEntidad = clubInterfaz.findByIdClub(idClub);
 
-			if (clubEntidad != null) {
-				clubInterfaz.delete(clubEntidad);
-				estaBorrado = true;
-			}
-		} catch (NumberFormatException nfe) {
-			// Error de formato
-		} catch (Exception e) {
-			// Error general
-		}
-		return estaBorrado;
+	        if (clubEntidad == null) return false;
+
+	        CuentaEntidad cuenta = clubEntidad.getCuenta();
+	        if (cuenta != null) {
+	            tokenVerificacionEmailInterfaz.deleteByCuenta(cuenta);
+	        }
+
+	        clubInterfaz.delete(clubEntidad);
+
+	        return true;
+
+	    } catch (NumberFormatException nfe) {
+	        // ID inválido
+	        return false;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return false;
+	    }
 	}
+
+
 }
