@@ -74,11 +74,11 @@ public class LoginFuncionalidades {
 			if (usuarioOpt.isPresent()) {
 				UsuarioEntidad usuario = usuarioOpt.get();
 
-				/*
-				 * if (usuario.getCuenta() != null && !usuario.getCuenta().isEmailVerificado())
-				 * { throw new
-				 * IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada."
-				 * ); }
+				
+				/*  if (usuario.getCuenta() != null && !usuario.getCuenta().isEmailVerificado())
+				  { throw new
+				  IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada."
+				  ); }
 				 */
 
 				if (Utilidades.verificarContrasena(loginDto.getPassword(), usuario.getPasswordUsuario())) {
@@ -101,10 +101,10 @@ public class LoginFuncionalidades {
 				ClubEntidad club = clubOpt.get();
 
 				/*
-				 * if (club.getCuenta() != null && !club.getCuenta().isEmailVerificado()) {
-				 * throw new
-				 * IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada."
-				 * ); }
+				 if (club.getCuenta() != null && !club.getCuenta().isEmailVerificado()) {
+				  throw new
+				 IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada."
+				  ); }
 				 */
 
 				if (Utilidades.verificarContrasena(loginDto.getPassword(), club.getPasswordClub())) {
@@ -124,10 +124,10 @@ public class LoginFuncionalidades {
 				InstalacionEntidad instalacion = instalacionOpt.get();
 
 				/*
-				 * if (instalacion.getCuenta() != null &&
-				 * !instalacion.getCuenta().isEmailVerificado()) { throw new
-				 * IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada."
-				 * ); }
+				 if (instalacion.getCuenta() != null &&
+				 !instalacion.getCuenta().isEmailVerificado()) { throw new
+				 IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada."
+				 ); }
 				 */
 
 				if (Utilidades.verificarContrasena(loginDto.getPassword(), instalacion.getPasswordInstalacion())) {
