@@ -1,4 +1,4 @@
-package com.futbolDeBarrio.futbolDeBarrio.entidad;
+																																																																																																																																																																																																																																																																														package com.futbolDeBarrio.futbolDeBarrio.entidad;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,53 +18,62 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "club", schema = "sch")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idClub")
 public class ClubEntidad {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_club")
-    private long idClub;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_club")
+	private long idClub;
 
-    @Column(name = "nombre_club")
-    private String nombreClub;
+	@Size(min = 3, max = 50, message = "El nombre del club debe tener entre 3 y 100 caracteres")
+	@Column(name = "nombre_club")
+	private String nombreClub;
 
-    @Column(name = "abreviatura_club")
-    private String abreviaturaClub;
+	@Size(min = 2, max = 3, message = "La abreviatura del club debe tener entre 2 y 20 caracteres")
+	@Column(name = "abreviatura_club")
+	private String abreviaturaClub;
 
-    @Column(name = "descripcion_club")
-    private String descripcionClub;
+	@Size(max = 300, message = "La descripción del club puede tener hasta 500 caracteres")
+	@Column(name = "descripcion_club")
+	private String descripcionClub;
 
-    @Column(name = "fecha_creacion_club")
-    private String fechaCreacionClub;
+	@Column(name = "fecha_creacion_club")
+	private String fechaCreacionClub;
 
-    @Column(name = "fecha_fundacion_club")
-    private String fechaFundacionClub;
+	@Column(name = "fecha_fundacion_club")
+	private String fechaFundacionClub;
 
-    @Column(name = "localidad_club")
-    private String localidadClub;
+	@Size(min = 2, max = 50, message = "La localidad debe tener entre 2 y 50 caracteres")
+	@Column(name = "localidad_club")
+	private String localidadClub;
 
-    @Column(name = "pais_club")
-    private String paisClub;
+	@Size(min = 2, max = 30, message = "El país debe tener entre 2 y 50 caracteres")
+	@Column(name = "pais_club")
+	private String paisClub;
 
-    @Column(name = "logo_club")
-    private byte[] logoClub;
+	@Column(name = "logo_club")
+	private byte[] logoClub;
 
-    @Column(name = "email_club")
-    private String emailClub;
+	@Size(min = 5, max = 40, message = "El correo debe tener entre 5 y 50 caracteres")
+	@Column(name = "email_club")
+	private String emailClub;
 
-    @Column(name = "password_club")
-    private String passwordClub;
+	@Size(min = 8, max = 100, message = "La contraseña debe tener entre 8 y 100 caracteres")
+	@Column(name = "password_club")
+	private String passwordClub;
 
-    @Column(name = "telefono_club")
-    private String telefonoClub;
+	@Size(min = 9, max = 15, message = "El teléfono debe tener entre 9 y 15 dígitos")
+	@Column(name = "telefono_club")
+	private String telefonoClub;
 
-    @Column(name = "es_premium")
-    private boolean esPremium;
-    
+	@Column(name = "es_premium")
+	private boolean esPremium;
+
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id_cuenta")
     private CuentaEntidad cuenta;

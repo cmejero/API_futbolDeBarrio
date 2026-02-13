@@ -33,18 +33,18 @@ public class UsuarioEntidad {
 	@Column(name = "id_usuario")
 	private long idUsuario;
 
-	@Size(min = 3, max = 50, message = "El nombre debe tener entre 1 y 50 caracteres")
+	@Size(min = 3, max = 40, message = "El nombre debe tener entre 3 y 40 caracteres")
 	@Column(name = "nombreCompleto_usuario")
 	private String nombreCompletoUsuario;
 
-	@Size(min = 3, max = 30, message = "El nombre debe tener entre 1 y 50 caracteres")
+	@Size(min = 3, max = 12, message = "El alias debe tener entre 3 y 12 caracteres")
 	@Column(name = "alias_usuario")
 	private String aliasUsuario;
 
 	@Column(name = "fecha_nacimiento_usuario")
 	private String fechaNacimientoUsuario;
 
-	@Size(min = 3, max = 50, message = "El correo debe tener entre 3 y 50 caracteres")
+	@Size(min = 3, max = 42, message = "El correo debe tener entre 3 y 50 caracteres")
 	@Column(name = "email_usuario")
 	private String emailUsuario;
 

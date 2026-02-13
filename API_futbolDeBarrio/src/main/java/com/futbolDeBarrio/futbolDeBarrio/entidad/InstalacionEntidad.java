@@ -23,6 +23,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idInstalacion")
 @Entity
@@ -34,15 +35,19 @@ public class InstalacionEntidad {
 	@Column(name = "id_instalacion")
 	private long idInstalacion;
 
+	@Size(min = 3, max = 50, message = "El nombre de la instalación debe tener entre 3 y 50 caracteres")
 	@Column(name = "nombre_instalacion")
 	private String nombreInstalacion;
 
+	@Size(min = 5, max = 100, message = "La dirección debe tener entre 5 y 100 caracteres")
 	@Column(name = "direccion_instalacion")
 	private String direccionInstalacion;
 
+	@Size(min = 9, max = 15, message = "El teléfono debe tener entre 9 y 15 dígitos")
 	@Column(name = "telefono_instalacion")
 	private String telefonoInstalacion;
 
+	@Size(min = 5, max = 50, message = "El correo debe tener entre 5 y 50 caracteres")
 	@Column(name = "email_instalacion")
 	private String emailInstalacion;
 
@@ -58,6 +63,7 @@ public class InstalacionEntidad {
 	@Column(name = "tipo_campo3")
 	private Modalidad tipoCampo3;
 
+	@Size(max = 300, message = "Los servicios pueden tener hasta 300 caracteres")
 	@Column(name = "servicios_instalacion")
 	private String serviciosInstalacion;
 
@@ -65,12 +71,13 @@ public class InstalacionEntidad {
 	@Column(name = "estado_instalacion")
 	private Estado estadoInstalacion;
 
+	@Size(min = 8, max = 100, message = "La contraseña debe tener entre 8 y 100 caracteres")
 	@Column(name = "password_instalacion")
 	private String passwordInstalacion;
 
 	@Column(name = "imagen_instalacion")
 	private byte[] imagenInstalacion;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "id_cuenta")
 	private CuentaEntidad cuenta;
