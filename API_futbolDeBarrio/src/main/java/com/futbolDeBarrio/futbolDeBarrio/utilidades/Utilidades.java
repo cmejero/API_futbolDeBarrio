@@ -1,13 +1,9 @@
 package com.futbolDeBarrio.futbolDeBarrio.utilidades;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import org.mindrot.jbcrypt.BCrypt;
-
-import jakarta.servlet.ServletContext;
 
 /**
  * Clase con metodos que usaremos varias veces en la aplicación

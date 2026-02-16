@@ -138,6 +138,31 @@ public class InstalacionFuncionalidades {
 	    return mapearAInstalacionDto(instalacion);
 	}
 
+	/**
+	 * Obtiene un InstalacionDto por su ID sin validación de email.
+	 * Este método es útil para reconstrucción de sesión desde token persistente.
+	 *
+	 * @param idInstalacion El ID de la instalación
+	 * @return InstalacionDto o null si no existe
+	 */
+	public InstalacionDto obtenerInstalacionDtoPorId(Long idInstalacion) {
+	    return instalacionInterfaz.findById(idInstalacion)
+	            .map(this::mapearAInstalacionDto)
+	            .orElse(null);
+	}
+
+	/**
+	 * Obtiene un InstalacionDto por su email.
+	 *
+	 * @param email Email de la instalación
+	 * @return InstalacionDto si existe, null si no
+	 */
+	public InstalacionDto obtenerInstalacionDtoPorEmail(String email) {
+	    return instalacionInterfaz.findByEmailInstalacion(email)
+	            .map(this::mapearAInstalacionDto)
+	            .orElse(null);
+	}
+
 	
 
 	/**

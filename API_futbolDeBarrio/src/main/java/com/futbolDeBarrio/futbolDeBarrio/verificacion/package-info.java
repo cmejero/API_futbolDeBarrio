@@ -1,1 +1,0 @@
-package com.futbolDeBarrio.futbolDeBarrio.verificacion;

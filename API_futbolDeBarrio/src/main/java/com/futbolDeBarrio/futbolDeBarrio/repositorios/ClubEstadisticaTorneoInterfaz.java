@@ -33,8 +33,21 @@ public interface ClubEstadisticaTorneoInterfaz extends JpaRepository<ClubEstadis
      */
     Optional<ClubEstadisticaTorneoEntidad> findByClub_IdClubAndTorneo_IdTorneo(Long clubId, Long torneoId);
     
+    /**
+     * Recupera todas las estadísticas de torneos asociadas a un club específico.
+     *
+     * @param clubId Identificador del club.
+     * @return Lista de entidades de estadísticas de torneos del club.
+     */
     List<ClubEstadisticaTorneoEntidad> findByClub_IdClub(Long clubId);
     
+    
+    /**
+     * Recupera todas las estadísticas de clubes asociadas a un torneo específico.
+     *
+     * @param torneoId Identificador del torneo.
+     * @return Lista de entidades de estadísticas de clubes en el torneo.
+     */
     List<ClubEstadisticaTorneoEntidad> findByTorneo_IdTorneo(Long torneoId);
 
 

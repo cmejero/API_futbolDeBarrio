@@ -39,11 +39,30 @@ public interface EquipoTorneoInterfaz extends JpaRepository<EquipoTorneoEntidad,
      */
     boolean existsByTorneo_IdTorneoAndClub_IdClub(Long torneoId, Long clubId);
 
+    /**
+     * Busca la relación de un equipo en un torneo específico por los IDs de torneo y club.
+     *
+     * @param torneoId Identificador del torneo.
+     * @param clubId Identificador del club.
+     * @return Optional que contiene la entidad EquipoTorneo si existe, o vacío si no se encuentra.
+     */
     Optional<EquipoTorneoEntidad> findByTorneo_IdTorneoAndClub_IdClub(Long torneoId, Long clubId);
     
-    
+    /**
+     * Recupera todos los equipos asociados a un club específico.
+     *
+     * @param clubId Identificador del club.
+     * @return Lista de entidades EquipoTorneo pertenecientes al club.
+     */
     List<EquipoTorneoEntidad> findByClub_IdClub(Long clubId);
 
+    
+    /**
+     * Recupera todos los equipos participantes en un torneo específico.
+     *
+     * @param torneoId Identificador del torneo.
+     * @return Lista de entidades EquipoTorneo inscritas en el torneo.
+     */
     List<EquipoTorneoEntidad> findByTorneo_IdTorneo(Long torneoId);
 
     

@@ -102,6 +102,12 @@ public class JugadorEstadisticaGlobalFuncionalidades {
     }
 
 
+    /**
+     * Obtiene la estadística global de un jugador a partir de su identificador.
+     *
+     * @param jugadorId Identificador del jugador.
+     * @return DTO con la estadística global del jugador, o null si no se encuentra.
+     */
 	public JugadorEstadisticaGlobalDto obtenerPorJugadorId(Long jugadorId) {
 		return jugadorEstadisticaGlobalInterfaz.findByJugadorGlobalId_IdUsuario(jugadorId)
 				.map(this::mapearAJugadorEstadisticaGlobalDto).orElse(null);

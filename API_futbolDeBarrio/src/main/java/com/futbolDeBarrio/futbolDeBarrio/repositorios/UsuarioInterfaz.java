@@ -38,6 +38,11 @@ public interface UsuarioInterfaz extends JpaRepository<UsuarioEntidad, Long> {
     Optional<UsuarioEntidad> findByEmailUsuario(String email);
     
     
-    
+    /**
+     * Verifica si ya existe un usuario con el correo electrónico proporcionado.
+     *
+     * @param email Correo electrónico del usuario.
+     * @return true si ya existe un usuario con ese email, false en caso contrario.
+     */
     boolean existsByEmailUsuario(String email);
 }

@@ -69,7 +69,12 @@ public class ClubEstadisticaGlobalFuncionalidades {
         return listaDto;
     }
 
-    
+    /**
+     * Obtiene la estadística global de un club a partir de su identificador.
+     *
+     * @param clubId Identificador del club.
+     * @return DTO con la estadística global del club, o null si no se encuentra.
+     */
     public ClubEstadisticaGlobalDto obtenerPorClubId(Long clubId) {
 		return clubEstadisticaGlobalInterfaz.findByClubGlobal_IdClub(clubId)
 				.map(this::mapearAClubEstadisticaGlobalDto).orElse(null);

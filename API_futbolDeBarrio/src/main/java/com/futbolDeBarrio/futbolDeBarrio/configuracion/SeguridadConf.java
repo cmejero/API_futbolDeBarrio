@@ -48,7 +48,7 @@ public class SeguridadConf {
 						// 🔓 ENDPOINTS PÚBLICOS
 						.requestMatchers("/api/login", "/api/loginGoogle", "/api/verificarEmail",
 								"/api/recuperar-contrasena", "/api/restablecer-contrasena", "/api/guardarUsuario",
-								"/api/guardarClub", "/api/guardarInstalacion")
+								"/api/guardarClub", "/api/guardarInstalacion", "/api/recordar", "/api/validarToken" )
 						.permitAll()
 
 						.requestMatchers(HttpMethod.GET, "/api/mostrarClubEstadisticaGlobal",

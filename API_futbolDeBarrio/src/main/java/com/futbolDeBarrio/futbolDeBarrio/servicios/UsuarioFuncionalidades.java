@@ -131,6 +131,19 @@ public class UsuarioFuncionalidades {
         UsuarioEntidad usuarioEntidad = usuarioInterfaz.findById(idUsuario).orElse(null);
         return usuarioEntidad != null ? mapearAUsuarioDto(usuarioEntidad) : null;
     }
+    
+    /**
+     * Obtiene un UsuarioDto por su email.
+     * 
+     * @param email Email del usuario a buscar
+     * @return UsuarioDto si existe, null si no
+     */
+    public UsuarioDto obtenerUsuarioDtoPorEmail(String email) {
+        return usuarioInterfaz.findByEmailUsuario(email)
+                .map(this::mapearAUsuarioDto)
+                .orElse(null);
+    }
+
 
     /**
      * Método para guardar un usuario en la base de datos, recibiendo un DTO.

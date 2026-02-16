@@ -77,6 +77,12 @@ public class JugadorEstadisticaTorneoFuncionalidades {
 	}
 	
 	
+	/**
+	 * Recupera las estadísticas de todos los torneos en los que participa un jugador.
+	 *
+	 * @param jugadorId Identificador del jugador.
+	 * @return Lista de DTOs con las estadísticas del jugador en cada torneo.
+	 */
 	public ArrayList<JugadorEstadisticaTorneoDto> obtenerEstadisticasDeTodosLosTorneos(Long jugadorId) {
 	    ArrayList<JugadorEstadisticaTorneoDto> listaDto = new ArrayList<>();
 	    jugadorEstadisticaTorneoInterfaz.findByJugador_IdUsuario(jugadorId)
@@ -84,6 +90,13 @@ public class JugadorEstadisticaTorneoFuncionalidades {
 	    return listaDto;
 	}
 	
+	
+	/**
+	 * Obtiene las estadísticas de todos los jugadores en un torneo específico.
+	 *
+	 * @param torneoId Identificador del torneo.
+	 * @return Lista de DTOs con las estadísticas de los jugadores en el torneo.
+	 */
 	public List<JugadorEstadisticaTorneoDto> obtenerJugadoresPorTorneo(Long torneoId) {
 	    return jugadorEstadisticaTorneoInterfaz.findByTorneo_IdTorneo(torneoId)
 	        .stream()

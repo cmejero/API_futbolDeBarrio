@@ -4,10 +4,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.futbolDeBarrio.futbolDeBarrio.dtos.ClubDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.InstalacionDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.enums.Rol;
+import com.futbolDeBarrio.futbolDeBarrio.servicios.ClubFuncionalidades;
+import com.futbolDeBarrio.futbolDeBarrio.servicios.InstalacionFuncionalidades;
+import com.futbolDeBarrio.futbolDeBarrio.servicios.UsuarioFuncionalidades;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -19,7 +27,12 @@ import io.jsonwebtoken.security.Keys;
 public class JwtFuncionalidades {
 
 	  private static final String CLAVE_SECRETA = "AltairFutbolDeBarrioSuperSecreto123456"; 
-
+	  @Autowired
+	  UsuarioFuncionalidades usuarioFuncionalidades;
+	  @Autowired
+	  ClubFuncionalidades clubFuncionalidades;
+	  @Autowired
+	  InstalacionFuncionalidades instalacionFuncionalidades;
 	
 
     /**
@@ -42,6 +55,40 @@ public class JwtFuncionalidades {
 	                .compact();
 	    }
   
+	    
+	    /**
+	     * Obtiene el ID del usuario asociado a un JWT dado.
+	     *
+	     * @param token JWT a validar.
+	     * @return ID del usuario (jugador, club o instalación), o null si no se encuentra o el token es inválido.
+	     */
+	    public Long obtenerIdUsuario(String token) {
+	        try {
+	            Claims claims = Jwts.parserBuilder()
+	                    .setSigningKey(Keys.hmacShaKeyFor(CLAVE_SECRETA.getBytes(StandardCharsets.UTF_8)))
+	                    .build()
+	                    .parseClaimsJws(token)
+	                    .getBody();
+
+	            // Supongamos que tu "subject" es el email
+	            String email = claims.getSubject();
+
+	            // Aquí devuelves el ID del usuario según el email
+	            // Por ejemplo usando tu servicio de usuarios:
+	            UsuarioDto u = usuarioFuncionalidades.obtenerUsuarioDtoPorEmail(email);
+	            if (u != null) return u.getIdUsuario();
+
+	            ClubDto c = clubFuncionalidades.obtenerClubDtoPorEmail(email);
+	            if (c != null) return c.getIdClub();
+
+	            InstalacionDto i = instalacionFuncionalidades.obtenerInstalacionDtoPorEmail(email);
+	            if (i != null) return i.getIdInstalacion();
+
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	        return null;
+	    }
 
     
 }

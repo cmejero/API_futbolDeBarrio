@@ -29,9 +29,16 @@ public class JwtFiltroAutentificacion extends OncePerRequestFilter {
     // Clave secreta para firmar y verificar el JWT
 	private final String CLAVE_SECRETA = "AltairFutbolDeBarrioSuperSecreto123456";
 
-    /**
-     * Método para interceptar y verificar el token JWT en cada solicitud.
-     */
+	/**
+	 * Filtra cada solicitud HTTP para validar el token JWT y establecer la autenticación en el contexto de seguridad.
+	 *
+	 * @param solicitud Objeto HttpServletRequest de la petición entrante.
+	 * @param respuesta Objeto HttpServletResponse para la respuesta.
+	 * @param cadena Cadena de filtros a ejecutar después de este filtro.
+	 * @throws ServletException Si ocurre un error en el procesamiento del filtro.
+	 * @throws IOException Si hay un error de entrada/salida durante la verificación del token.
+	 */
+
     @Override
     protected void doFilterInternal(HttpServletRequest solicitud, HttpServletResponse respuesta, FilterChain cadena)
             throws ServletException, IOException {

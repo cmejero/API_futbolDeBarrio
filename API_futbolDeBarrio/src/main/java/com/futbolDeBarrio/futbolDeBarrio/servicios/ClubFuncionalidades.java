@@ -127,6 +127,19 @@ public class ClubFuncionalidades {
 		ClubEntidad clubEntidad = clubInterfaz.findById(idClub).orElse(null);
 		return clubEntidad != null ? mapearAClubDto(clubEntidad) : null;
 	}
+	
+	/**
+	 * Obtiene un ClubDto por su email.
+	 *
+	 * @param email Email del club
+	 * @return ClubDto si existe, null si no
+	 */
+	public ClubDto obtenerClubDtoPorEmail(String email) {
+	    return clubInterfaz.findByEmailClub(email)
+	            .map(this::mapearAClubDto)
+	            .orElse(null);
+	}
+
 
 	/**
 	 * Guarda un nuevo club en la base de datos.

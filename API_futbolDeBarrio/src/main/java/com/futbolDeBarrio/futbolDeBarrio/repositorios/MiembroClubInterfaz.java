@@ -58,15 +58,17 @@ public interface MiembroClubInterfaz extends JpaRepository<MiembroClubEntidad, L
      */
     List<MiembroClubEntidad> findByClubAndFechaBajaUsuarioIsNull(ClubEntidad  clubId);
 
+    
     /**
-     * Devuelve el miembro del club de un jugador que esté en un club
-     * participando en un torneo específico.
+     * Busca la membresía de un jugador en un club que participe en un torneo específico.
+     *
+     * @param jugadorId Identificador del jugador.
+     * @param torneoId Identificador del torneo.
+     * @return Optional que contiene la entidad MiembroClub si se encuentra, o vacío si no existe.
      */
     default Optional<MiembroClubEntidad> findMiembroPorJugadorYTorneo(Long jugadorId, Long torneoId) {
-        // Traemos todos los clubes del jugador
         List<MiembroClubEntidad> miembros = findByUsuario_IdUsuario(jugadorId);
 
-        // Buscamos el club que tenga un equipo en el torneo indicado
         for (MiembroClubEntidad mc : miembros) {
             boolean participa = mc.getClub().getEquipoTorneo().stream()
                                   .anyMatch(et -> et.getTorneo().getIdTorneo() == torneoId);
@@ -76,6 +78,7 @@ public interface MiembroClubInterfaz extends JpaRepository<MiembroClubEntidad, L
         }
         return Optional.empty();
     }
+    
     
     /**
      *  Método estándar para traer todos los clubes de un jugador

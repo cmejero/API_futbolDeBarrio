@@ -55,6 +55,12 @@ public class ClubEstadisticaTorneoFuncionalidades {
     }
     
     
+    /**
+     * Obtiene las estadísticas de todos los clubes en un torneo específico.
+     *
+     * @param torneoId Identificador del torneo.
+     * @return Lista de DTOs con las estadísticas de los clubes en el torneo.
+     */
     public ArrayList<ClubEstadisticaTorneoDto> obtenerClubesPorTorneo(Long torneoId) {
         ArrayList<ClubEstadisticaTorneoDto> lista = new ArrayList<>();
         clubEstadisticaTorneoInterfaz.findByTorneo_IdTorneo(torneoId)
@@ -63,7 +69,12 @@ public class ClubEstadisticaTorneoFuncionalidades {
     }
 
     
-
+    /**
+     * Recupera las estadísticas de todos los torneos en los que participa un club.
+     *
+     * @param clubId Identificador del club.
+     * @return Lista de DTOs con las estadísticas del club en cada torneo.
+     */
 	public ArrayList<ClubEstadisticaTorneoDto> obtenerEstadisticasDeTodosLosTorneos(Long clubId) {
 	    ArrayList<ClubEstadisticaTorneoDto> listaDto = new ArrayList<>();
 	    clubEstadisticaTorneoInterfaz.findByClub_IdClub(clubId)

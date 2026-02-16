@@ -37,6 +37,11 @@ public interface InstalacionInterfaz extends JpaRepository<InstalacionEntidad, L
      */
     Optional<InstalacionEntidad> findByEmailInstalacion(String email);
     
-    
+    /**
+     * Verifica si ya existe una instalación con el correo electrónico proporcionado.
+     *
+     * @param email Correo electrónico de la instalación.
+     * @return true si ya existe una instalación con ese email, false en caso contrario.
+     */
     boolean existsByEmailInstalacion(String email);
 }

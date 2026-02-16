@@ -34,10 +34,21 @@ public interface JugadorEstadisticaTorneoInterfaz extends JpaRepository<JugadorE
     Optional<JugadorEstadisticaTorneoEntidad> findByJugadorIdUsuarioAndTorneoIdTorneo(Long jugadorId, Long torneoId);
     
     
-    
+    /**
+     * Recupera todas las estadísticas de torneos asociadas a un jugador específico.
+     *
+     * @param jugadorId Identificador del jugador.
+     * @return Lista de entidades de estadísticas de torneos del jugador.
+     */
     List<JugadorEstadisticaTorneoEntidad> findByJugador_IdUsuario(Long jugadorId);
 
     
+    /**
+     * Recupera todas las estadísticas de jugadores asociadas a un torneo específico.
+     *
+     * @param torneoId Identificador del torneo.
+     * @return Lista de entidades de estadísticas de jugadores en el torneo.
+     */
     List<JugadorEstadisticaTorneoEntidad> findByTorneo_IdTorneo(Long torneoId);
 
 }

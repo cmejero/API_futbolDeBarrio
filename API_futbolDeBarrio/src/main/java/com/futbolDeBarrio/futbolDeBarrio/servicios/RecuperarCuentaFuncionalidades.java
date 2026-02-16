@@ -18,6 +18,9 @@ import com.futbolDeBarrio.futbolDeBarrio.utilidades.Utilidades;
 
 import jakarta.transaction.Transactional;
 
+/*
+ * Clase que se encarga de la lógica de recuperar cuenta de un usuario
+ */
 @Service
 public class RecuperarCuentaFuncionalidades {
 

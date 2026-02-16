@@ -202,7 +202,15 @@ public class MiembroClubFuncionalidades {
     }
 
 
-
+    /**
+     * Elimina un miembro de un club verificando la autorización del usuario o club logueado.
+     *
+     * @param idMiembroClub ID del miembro a eliminar.
+     * @param usuarioId ID del usuario solicitante (puede ser null si es un club).
+     * @param clubId ID del club solicitante (puede ser null si es un usuario).
+     * @param emailLogueado Email del solicitante para validar autorización.
+     * @return true si la eliminación fue exitosa y autorizada, false en caso contrario.
+     */
     public boolean eliminarMiembroClub(Long idMiembroClub, Long usuarioId, Long clubId, String emailLogueado) {
         Optional<MiembroClubEntidad> miembroOpt = miembroClubInterfaz.findById(idMiembroClub);
         if (miembroOpt.isEmpty()) return false;

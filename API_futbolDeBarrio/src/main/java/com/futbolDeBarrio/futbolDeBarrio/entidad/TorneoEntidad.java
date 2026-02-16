@@ -47,7 +47,7 @@ public class TorneoEntidad {
 	@Column(name = "descripcion_torneo")
 	private String descripcionTorneo;
 
-	@Column(name = "clubesInscritos")
+	@Column(name = "clubes_inscritos")
 	private String clubesInscritos;
 
 	@NotNull

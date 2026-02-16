@@ -121,6 +121,13 @@ public class EquipoTorneoFuncionalidades {
         return lista;
     }
     
+    
+    /**
+     * Obtiene todos los torneos en los que participa un usuario a través de sus clubes.
+     *
+     * @param usuarioId Identificador del usuario.
+     * @return Lista de DTOs de torneos en los que el usuario está inscrito, sin duplicados.
+     */
     public List<TorneoDto> obtenerTorneosPorUsuario(Long usuarioId) {
         List<TorneoDto> torneosTotales = new ArrayList<>();
 
@@ -194,7 +201,13 @@ public class EquipoTorneoFuncionalidades {
     }
 
 
-    
+    /**
+     * Verifica si un club está inscrito en un torneo específico.
+     *
+     * @param torneoId Identificador del torneo.
+     * @param clubId Identificador del club.
+     * @return true si el club está inscrito en el torneo, false en caso contrario.
+     */
     public boolean estaInscritoEnTorneo(Long torneoId, Long clubId) {
         return equipoTorneoInterfaz.existsByTorneo_IdTorneoAndClub_IdClub(torneoId, clubId);
     }

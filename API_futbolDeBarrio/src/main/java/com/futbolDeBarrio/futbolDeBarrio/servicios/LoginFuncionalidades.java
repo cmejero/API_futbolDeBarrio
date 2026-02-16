@@ -206,6 +206,12 @@ public class LoginFuncionalidades {
 	}
 
 	// ------------------ Jugador ------------------
+	/**
+	 * Gestiona el login de un jugador usando datos de Google, creando la cuenta si no existe.
+	 *
+	 * @param loginGoogleDto DTO con la información del jugador proveniente de Google.
+	 * @return DTO del usuario con sus datos y token JWT generado.
+	 */
 	private UsuarioDto loginJugador(LoginGoogleDto loginGoogleDto) {
 	    String email = loginGoogleDto.getEmail();
 	    String nombreCompleto = loginGoogleDto.getNombreCompleto() != null ? loginGoogleDto.getNombreCompleto() : "Desconocido";
@@ -246,7 +252,15 @@ public class LoginFuncionalidades {
 	    return dto;
 	}
 
-
+	/**
+	 * Inicializa un usuario por defecto a partir del email, nombre y posible imagen.
+	 * Crea también la cuenta asociada con configuración predeterminada.
+	 *
+	 * @param email Correo electrónico del usuario.
+	 * @param nombreCompleto Nombre completo del usuario.
+	 * @param imagenBase64 Imagen del usuario en Base64, si está disponible.
+	 * @return UsuarioEntidad inicializada con valores por defecto y cuenta asociada.
+	 */
 	private UsuarioEntidad inicializarUsuarioPorDefecto(String email, String nombreCompleto, String imagenBase64) {
 	    // 1️⃣ Crear cuenta
 	    CuentaEntidad cuenta = new CuentaEntidad();
@@ -279,6 +293,12 @@ public class LoginFuncionalidades {
 
 
 	// ------------------ Club ------------------
+	/**
+	 * Gestiona el login de un club usando datos de Google, creando la cuenta si no existe.
+	 *
+	 * @param loginGoogleDto DTO con la información del club proveniente de Google.
+	 * @return DTO del club con sus datos y token JWT generado.
+	 */
 	private ClubDto loginClub(LoginGoogleDto loginGoogleDto) {
 	    ClubEntidad club = clubInterfaz.findByEmailClub(loginGoogleDto.getEmail()).orElse(null);
 
@@ -314,7 +334,15 @@ public class LoginFuncionalidades {
 	    return dto;
 	}
 
-
+	/**
+	 * Inicializa un club por defecto a partir del email, nombre y posible logo en Base64.
+	 * Crea también la cuenta asociada con configuración predeterminada.
+	 *
+	 * @param email Correo electrónico del club.
+	 * @param nombreCompleto Nombre completo del club.
+	 * @param imagenBase64 Logo del club en Base64, si está disponible.
+	 * @return ClubEntidad inicializada con valores por defecto y cuenta asociada.
+	 */
 	private ClubEntidad inicializarClubPorDefecto(String email, String nombreCompleto, String imagenBase64) {
 	    // 1️⃣ Crear cuenta correctamente
 	    CuentaEntidad cuenta = new CuentaEntidad();
@@ -345,7 +373,12 @@ public class LoginFuncionalidades {
 
 
 	// ------------------ Instalación ------------------
-	// ------------------ Instalación ------------------
+	/**
+	 * Gestiona el login de una instalación usando datos de Google, creando la cuenta si no existe.
+	 *
+	 * @param loginGoogleDto DTO con la información de la instalación proveniente de Google.
+	 * @return DTO de la instalación con sus datos y token JWT generado.
+	 */
 	private InstalacionDto loginInstalacion(LoginGoogleDto loginGoogleDto) {
 	    String email = loginGoogleDto.getEmail();
 	    String nombreCompleto = loginGoogleDto.getNombreCompleto() != null ? loginGoogleDto.getNombreCompleto()
@@ -388,6 +421,16 @@ public class LoginFuncionalidades {
 	    return dto;
 	}
 
+	
+	/**
+	 * Inicializa una instalación por defecto a partir del email, nombre y posible imagen en Base64.
+	 * Crea también la cuenta asociada con configuración predeterminada.
+	 *
+	 * @param email Correo electrónico de la instalación.
+	 * @param nombreCompleto Nombre de la instalación.
+	 * @param imagenBase64 Imagen de la instalación en Base64, si está disponible.
+	 * @return InstalacionEntidad inicializada con valores por defecto y cuenta asociada.
+	 */
 	private InstalacionEntidad inicializarInstalacionPorDefecto(String email, String nombreCompleto, String imagenBase64) {
 	    // 1️⃣ Crear cuenta
 	    CuentaEntidad cuenta = new CuentaEntidad();
@@ -421,6 +464,14 @@ public class LoginFuncionalidades {
 
 
 	// ------------------ Métodos auxiliares ------------------
+	
+	
+	/**
+	 * Genera un alias a partir del nombre completo del usuario usando las dos primeras letras de cada palabra.
+	 *
+	 * @param nombreCompleto Nombre completo del usuario.
+	 * @return Alias generado en minúsculas.
+	 */
 	private String generarAlias(String nombreCompleto) {
 		String[] palabras = nombreCompleto.split("\\s+");
 		StringBuilder alias = new StringBuilder();
@@ -430,6 +481,13 @@ public class LoginFuncionalidades {
 		return alias.toString().toLowerCase();
 	}
 
+	
+	/**
+	 * Genera una abreviatura de un club tomando la primera letra de hasta las tres primeras palabras.
+	 *
+	 * @param nombreClub Nombre completo del club.
+	 * @return Abreviatura en mayúsculas del club.
+	 */
 	private String generarAbreviatura(String nombreClub) {
 		String[] palabras = nombreClub.split("\\s+");
 		StringBuilder abreviatura = new StringBuilder();
@@ -439,6 +497,12 @@ public class LoginFuncionalidades {
 		return abreviatura.toString().toUpperCase();
 	}
 
+	
+	/**
+	 * Crea las estadísticas globales iniciales para un jugador recién registrado.
+	 *
+	 * @param usuario UsuarioEntidad del jugador para asociar las estadísticas.
+	 */
 	private void crearEstadisticasJugador(UsuarioEntidad usuario) {
 		JugadorEstadisticaGlobalEntidad estadistica = new JugadorEstadisticaGlobalEntidad();
 		estadistica.setJugadorGlobalId(usuario);
@@ -453,6 +517,12 @@ public class LoginFuncionalidades {
 		jugadorEstadisticaGlobalInterfaz.save(estadistica);
 	}
 
+	
+	/**
+	 * Crea las estadísticas globales iniciales para un club recién registrado.
+	 *
+	 * @param club ClubEntidad al que se asociarán las estadísticas.
+	 */
 	private void crearEstadisticasClub(ClubEntidad club) {
 		ClubEstadisticaGlobalEntidad estadisticaClub = new ClubEstadisticaGlobalEntidad();
 		estadisticaClub.setClubGlobal(club);

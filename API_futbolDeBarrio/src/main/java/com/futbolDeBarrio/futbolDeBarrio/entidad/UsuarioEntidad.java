@@ -34,7 +34,7 @@ public class UsuarioEntidad {
 	private long idUsuario;
 
 	@Size(min = 3, max = 40, message = "El nombre debe tener entre 3 y 40 caracteres")
-	@Column(name = "nombreCompleto_usuario")
+	@Column(name = "nombre_completo_usuario")
 	private String nombreCompletoUsuario;
 
 	@Size(min = 3, max = 12, message = "El alias debe tener entre 3 y 12 caracteres")
@@ -65,7 +65,7 @@ public class UsuarioEntidad {
 	private Estado estadoUsuario;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "rolUsuario")
+	@Column(name = "rol_usuario")
 	private RolUsuario rolUsuario;
 
 	@Column(name = "es_premium")

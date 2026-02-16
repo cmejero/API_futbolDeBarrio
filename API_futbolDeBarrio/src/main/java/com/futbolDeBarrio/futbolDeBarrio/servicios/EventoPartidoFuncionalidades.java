@@ -35,13 +35,12 @@ public class EventoPartidoFuncionalidades {
 	@Autowired
 	EquipoTorneoInterfaz equipoTorneoInterfaz;
 
-	 
-	 /**
-	     * Método que mapea una entidad a DTO.
-	     *
-	     * @param eventoPartidoEntidad La entidad del evento partido a mapear.
-	     * @return El DTO correspondiente a la evento.
-	     */
+	/**
+	 * Método que mapea una entidad a DTO.
+	 *
+	 * @param eventoPartidoEntidad La entidad del evento partido a mapear.
+	 * @return El DTO correspondiente a la evento.
+	 */
 	public EventoPartidoDto mapearAEventoPartidoDto(EventoPartidoEntidad eventoPartidoEntidad) {
 
 		EventoPartidoDto eventoPartidoDto = new EventoPartidoDto();

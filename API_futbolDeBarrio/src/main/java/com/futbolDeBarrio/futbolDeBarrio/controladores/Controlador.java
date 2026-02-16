@@ -2,8 +2,10 @@ package com.futbolDeBarrio.futbolDeBarrio.controladores;
 
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +39,7 @@ import com.futbolDeBarrio.futbolDeBarrio.dtos.PartidoTorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.RecuperarCuentaDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.RespuestaLoginDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.RestablecerContrasenaDto;
+import com.futbolDeBarrio.futbolDeBarrio.dtos.TokenPersistenteDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.TorneoDto;
 import com.futbolDeBarrio.futbolDeBarrio.dtos.UsuarioDto;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ActaPartidoEntidad;
@@ -43,11 +47,17 @@ import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.EquipoTorneoEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.PartidoTorneoEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.entidad.TokenPersistenteEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
+import com.futbolDeBarrio.futbolDeBarrio.enums.Rol;
+import com.futbolDeBarrio.futbolDeBarrio.jwt.JwtFuncionalidades;
+import com.futbolDeBarrio.futbolDeBarrio.jwt.TokenPersistenteFuncionalidad;
 import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.EquipoTorneoInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.JugadorEstadisticaGlobalInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.ActaPartidoFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.ClubEstadisticaGlobalFuncionalidades;
 import com.futbolDeBarrio.futbolDeBarrio.servicios.ClubEstadisticaTorneoFuncionalidades;
@@ -114,7 +124,15 @@ public class Controlador {
 	ClubInterfaz clubInterfaz;
 	@Autowired
 	JugadorEstadisticaGlobalInterfaz jugadorEstadisticaGlobalInterfaz;
-
+	@Autowired
+	TokenPersistenteFuncionalidad tokenPersistenteFuncionalidad;
+	@Autowired
+	UsuarioInterfaz usuarioInterfaz;
+	@Autowired
+	InstalacionInterfaz instalacionInterfaz;
+	@Autowired
+	JwtFuncionalidades jwtFuncionalidades;
+	
 	@CrossOrigin(origins = "http://localhost:8080")
 
 	@PostMapping("/login")
@@ -135,6 +153,15 @@ public class Controlador {
 		return ResponseEntity.ok(respuestaLogin);
 	}
 
+	
+	
+	/**
+	 * Gestiona el inicio de sesión mediante Google.
+	 *
+	 * @param dto Datos de autenticación recibidos del cliente.
+	 * @return Respuesta con la información del usuario si el login es correcto,
+	 *         o estado 401 en caso de fallo.
+	 */
 	@PostMapping("/loginGoogle")
 	public ResponseEntity<Map<String, Object>> loginGoogle(@RequestBody LoginGoogleDto dto) {
 	    // 1️⃣ Log del intento de login
@@ -161,11 +188,64 @@ public class Controlador {
 	    }
 	}
 
+	/**
+	 * Genera un token persistente para el usuario autenticado.
+	 *
+	 * @param authHeader Header de autorización con JWT.
+	 * @param body Contiene idUsuario y tipoUsuario.
+	 * @return 200 OK con token o 401/500 si falla.
+	 */
+	   @PostMapping("/recordar")
+	    public ResponseEntity<TokenPersistenteDto> generarTokenPersistente(
+	            @RequestHeader("Authorization") String authHeader,
+	            @RequestBody Map<String, Object> body) {
+
+	        try {
+	            Long idUsuario = Long.valueOf(body.get("idUsuario").toString());
+	            String tipoUsuario = body.get("tipoUsuario").toString();
+
+	            TokenPersistenteDto dto = tokenPersistenteFuncionalidad.generarTokenParaUsuario(authHeader, idUsuario, tipoUsuario);
+	            return ResponseEntity.ok(dto);
+
+	        } catch (SecurityException se) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	        }
+	    }
+
+	   
+	   
+	   /**
+	    * Valida un token persistente recibido del cliente.
+	    *
+	    * @param body Contiene el token a validar.
+	    * @return 200 OK con resultado de validación o 401/500 si falla.
+	    */
+
+	    @PostMapping("/validarToken")
+	    public ResponseEntity<Map<String, Object>> validarToken(@RequestBody Map<String, Object> body) {
+	        try {
+	            String tokenPersistente = body.get("token").toString();
+	            Map<String, Object> resp = tokenPersistenteFuncionalidad.validarTokenPersistente(tokenPersistente);
+	            return ResponseEntity.ok(resp);
+
+	        } catch (SecurityException se) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	        }
+	    }
 
 	
-	  /**
-     * Endpoint que verifica el email a partir del token recibido.
-     */
+	/**
+	 * Verifica el email del usuario a partir del token recibido.
+	 *
+	 * @param token Token de verificación enviado al correo del usuario.
+	 * @return Mensaje de confirmación si es válido o un error en caso contrario.
+	 */
 	@GetMapping("/verificarEmail")
 	public ResponseEntity<String> verificarEmail(@RequestParam String token) {
 	    Logs.ficheroLog("Intento de verificación de email con token: " + token);
@@ -375,6 +455,7 @@ public class Controlador {
 	 * Método PUT para actualizar el campo esPremium de un club.
 	 * 
 	 * @param idClub ID del club a actualizar.
+	 * @param principal Usuario logueado 
 	 * @return Mensaje de confirmación.
 	 */
 	@PutMapping("/modificarPremiumClub/{id_club}")
@@ -495,6 +576,14 @@ public class Controlador {
 	    }
 	}
 	
+	
+	
+	/**
+	 * Obtiene los equipos asociados a un torneo concreto.
+	 *
+	 * @param torneoId Identificador del torneo.
+	 * @return Lista de equipos inscritos en el torneo.
+	 */
 	@GetMapping("/equipoTorneo/torneo/{torneoId}")
 	public List<EquipoTorneoDto> obtenerEquiposPorTorneo(@PathVariable Long torneoId) {
 	    List<EquipoTorneoEntidad> equipos = equipoTorneoInterfaz.findByTorneo_IdTorneo(torneoId);
@@ -682,6 +771,13 @@ public class Controlador {
 		}
 	}
 	
+	
+	/**
+	 * Recupera los clubes a los que pertenece un usuario.
+	 *
+	 * @param usuarioId Identificador del usuario.
+	 * @return Lista de clubes del usuario o respuesta 404 si no existen registros.
+	 */
 	@GetMapping("/miembroClub/porUsuario/{usuarioId}")
 	public ResponseEntity<List<MiembroClubDto>> obtenerMisClubesPorUsuario(@PathVariable("usuarioId") Long usuarioId) {
 	    Logs.ficheroLog("Buscando clubes del usuario con ID: " + usuarioId);
@@ -696,14 +792,22 @@ public class Controlador {
 	    }
 	}
 
-    /**
-     * Devuelve todos los jugadores de un club con estadísticas
-     */
+	
+	
+	/**
+	 * Obtiene los jugadores asociados a un club específico.
+	 *
+	 * @param clubId Identificador del club.
+	 * @return Lista de jugadores pertenecientes al club.
+	 */
+
 	  @GetMapping("/jugadores/porClub/{clubId}")
 	    public List<JugadorEstadisticaGlobalDto> listarJugadoresPorClub(@PathVariable Long clubId) {
 	        return jugadorEstadisticaGlobalFuncionalidades.listarJugadoresPorClub(clubId);
 	    }
 
+	  
+	  
 	/**
 	 * Metodo para guardar un nuevo miembro en el club.
 	 * 
@@ -1209,6 +1313,13 @@ public class Controlador {
 		}
 	}
 
+	
+	/**
+	 * Obtiene la estadística global de un jugador por su identificador.
+	 *
+	 * @param jugadorId Identificador del jugador.
+	 * @return Datos estadísticos del jugador o respuesta 404 si no existe.
+	 */
 	 @GetMapping("/jugadorEstadisticaIndividualGlobal/{jugadorId}")
 	    public ResponseEntity<JugadorEstadisticaGlobalDto> obtenerPorJugadorId(@PathVariable Long jugadorId) {
 	        JugadorEstadisticaGlobalDto dto = jugadorEstadisticaGlobalFuncionalidades
@@ -1249,6 +1360,12 @@ public class Controlador {
 	}
 	
 	
+	/**
+	 * Consulta la estadística global de un jugador a partir de su ID de usuario.
+	 *
+	 * @param idUsuario Identificador del jugador.
+	 * @return Datos estadísticos del jugador o respuesta 404 si no existe.
+	 */
 	@GetMapping("/jugadorEstadisticaGlobal/jugador/{idUsuario}")
 	public ResponseEntity<JugadorEstadisticaGlobalDto> obtenerJugadorEstadisiticaGlobalPorJugadorId(@PathVariable Long idUsuario) {
 	    try {
@@ -1299,6 +1416,13 @@ public class Controlador {
 		}
 	}
 	
+	
+	/**
+	 * Obtiene las estadísticas de los jugadores para un torneo específico.
+	 *
+	 * @param torneoId Identificador del torneo.
+	 * @return Lista de estadísticas de los jugadores en el torneo.
+	 */
 	@GetMapping("/jugadorEstadisticaTorneo/torneo/{torneoId}")
 	public ResponseEntity<List<JugadorEstadisticaTorneoDto>> obtenerJugadoresPorTorneo(@PathVariable Long torneoId) {
 	    List<JugadorEstadisticaTorneoDto> lista = jugadorEstadisticaTorneoFuncionalidades.obtenerJugadoresPorTorneo(torneoId);
@@ -1332,7 +1456,12 @@ public class Controlador {
 	}
 
 	 
-	 
+	/**
+	 * Recupera las estadísticas de todos los torneos para un jugador específico.
+	 *
+	 * @param usuarioId Identificador del jugador.
+	 * @return Lista de estadísticas del jugador en los distintos torneos.
+	 */
 	 @GetMapping("/jugadorEstadisticaTorneo/jugador/{usuarioId}")
 	 public ArrayList<JugadorEstadisticaTorneoDto> obtenerEstadisticasPorjugador(@PathVariable Long usuarioId) {
 	     return jugadorEstadisticaTorneoFuncionalidades.obtenerEstadisticasDeTodosLosTorneos(usuarioId);
@@ -1367,6 +1496,12 @@ public class Controlador {
 	}
 	
 	
+	/**
+	 * Obtiene la estadística global de un club a partir de su identificador.
+	 *
+	 * @param idClub Identificador del club.
+	 * @return Datos estadísticos del club o respuesta 404 si no existe.
+	 */
 	@GetMapping("/clubEstadisticaGlobal/club/{idClub}")
 	public ResponseEntity<ClubEstadisticaGlobalDto> obtenerClubEstadisiticaGlobalPorClubId(@PathVariable Long idClub) {
 	    try {
@@ -1414,6 +1549,13 @@ public class Controlador {
 		}
 	}
 	
+	
+	/**
+	 * Obtiene la estadística global individual de un club por su identificador.
+	 *
+	 * @param clubId Identificador del club.
+	 * @return Datos estadísticos del club o respuesta 404 si no existe.
+	 */
 	@GetMapping("/clubEstadisticaIndividualGlobal/{clubId}")
     public ResponseEntity<ClubEstadisticaGlobalDto> obtenerPorClubId(@PathVariable Long clubId) {
         ClubEstadisticaGlobalDto dto = clubEstadisticaGlobalFuncionalidades
@@ -1478,13 +1620,24 @@ public class Controlador {
 	}
 	
 	
+	/**
+	 * Obtiene las estadísticas de los clubes para un torneo específico.
+	 *
+	 * @param torneoId Identificador del torneo.
+	 * @return Lista de estadísticas de los clubes en el torneo.
+	 */
 	@GetMapping("/clubEstadisticaTorneo/torneo/{torneoId}")
 	public ArrayList<ClubEstadisticaTorneoDto> obtenerClubesPorTorneo(@PathVariable Long torneoId) {
 	    return clubEstadisticaTorneoFuncionalidades.obtenerClubesPorTorneo(torneoId);
 	}
 
 	
-
+	/**
+	 * Recupera las estadísticas de todos los torneos para un club específico.
+	 *
+	 * @param clubId Identificador del club.
+	 * @return Lista de estadísticas del club en los distintos torneos.
+	 */
 	 @GetMapping("/clubEstadisticaTorneo/club/{clubId}")
 	 public ArrayList<ClubEstadisticaTorneoDto> obtenerEstadisticasPorClub(@PathVariable Long clubId) {
 	     return clubEstadisticaTorneoFuncionalidades.obtenerEstadisticasDeTodosLosTorneos(clubId);

@@ -25,6 +25,9 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.PartidoTorneoInterfaz;
 
 import jakarta.transaction.Transactional;
 
+/*
+ * Clase que se encarga de actualizar las estadisticas de los clubes y jugadores
+ */
 @Service
 public class ActualizarEstadisticasFuncionalidades {
 
@@ -278,6 +281,11 @@ public class ActualizarEstadisticasFuncionalidades {
 	}
 	
 	
+	/**
+	 * Actualiza los goles y el estado de un partido de torneo a partir de un acta.
+	 *
+	 * @param acta Acta del partido que contiene los goles y la información a actualizar.
+	 */
 	public void actualizarCamposPartidoTorneo(ActaPartidoEntidad acta) {
 	    if (acta.getPartidoTorneo() != null) {
 	        acta.getPartidoTorneo().setGolesLocal(acta.getGolesLocal());
