@@ -39,11 +39,9 @@ public class InstalacionEntidad {
 	@Column(name = "nombre_instalacion")
 	private String nombreInstalacion;
 
-	@Size(min = 5, max = 100, message = "La dirección debe tener entre 5 y 100 caracteres")
 	@Column(name = "direccion_instalacion")
 	private String direccionInstalacion;
 
-	@Size(min = 9, max = 15, message = "El teléfono debe tener entre 9 y 15 dígitos")
 	@Column(name = "telefono_instalacion")
 	private String telefonoInstalacion;
 

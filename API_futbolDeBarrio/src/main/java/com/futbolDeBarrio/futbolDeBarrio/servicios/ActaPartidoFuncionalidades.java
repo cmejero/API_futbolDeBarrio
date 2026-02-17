@@ -166,7 +166,7 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
 		            .findByEmailInstalacion(principal.getName())
 		            .orElseThrow(() -> new IllegalStateException("Instalación logueada no encontrada"));
 
-		    // 2️⃣ ⚠️ Validar permisos
+		    // 2️⃣ Validar permisos sobre el partido
 		    if (actaPartidoDto.getPartidoTorneoId() != null) {
 		        PartidoTorneoEntidad partidoTorneo = partidoTorneoInterfaz
 		                .findById(actaPartidoDto.getPartidoTorneoId())
@@ -175,12 +175,14 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
 		        if (partidoTorneo.getInstalacion().getIdInstalacion() != instalacionLogueada.getIdInstalacion()) {
 		            throw new IllegalStateException("No tienes permisos para guardar el acta de este partido");
 		        }
+
 		    }
 
-		    // 3️⃣ Guardar acta como antes
+		    // 3️⃣ Mapear DTO a entidad y guardar acta
 		    ActaPartidoEntidad actaPartidoEntidad = mapearAActaPartidoEntidad(actaPartidoDto);
 		    actaPartidoEntidad.setEventoPartido(new ArrayList<>()); // temporalmente vacío
 
+		    // 4️⃣ Asociar acta con PartidoTorneo
 		    if (actaPartidoDto.getPartidoTorneoId() != null) {
 		        PartidoTorneoEntidad partidoTorneo = partidoTorneoInterfaz
 		                .findById(actaPartidoDto.getPartidoTorneoId())
@@ -189,26 +191,34 @@ import com.futbolDeBarrio.futbolDeBarrio.repositorios.TorneoInterfaz;
 		        partidoTorneo.setActaPartido(actaPartidoEntidad);
 		    }
 
-		    // Guardar acta
+		    // 5️⃣ Guardar acta antes de los eventos
 		    actaPartidoEntidad = actaPartidoInterfaz.save(actaPartidoEntidad);
 
-		    // Mapear eventos si existen
+		    // 6️⃣ Mapear y guardar eventos si existen
 		    if (actaPartidoDto.getEventos() != null && !actaPartidoDto.getEventos().isEmpty()) {
 		        for (EventoPartidoDto eventoDto : actaPartidoDto.getEventos()) {
 		            eventoDto.setActaPartidoId(actaPartidoEntidad.getIdActaPartido());
-		            EventoPartidoEntidad eventoEntidad = eventoPartidoFuncionalidades.mapearAEventoPartidoEntidad(eventoDto);
+		            EventoPartidoEntidad eventoEntidad = eventoPartidoFuncionalidades
+		                    .mapearAEventoPartidoEntidad(eventoDto);
 		            actaPartidoEntidad.getEventoPartido().add(eventoEntidad);
 		        }
 		        actaPartidoEntidad = actaPartidoInterfaz.save(actaPartidoEntidad);
 		        actualizarEstadisticasFuncionalidades.actualizarCamposPartidoTorneo(actaPartidoEntidad);
 		    }
 
+		    // 7️⃣ Actualizar estadísticas generales
 		    actualizarEstadisticasFuncionalidades.actualizarEstadisticas(actaPartidoEntidad);
+
+		    // 8️⃣ 🔹 MARCAR EL PARTIDO COMO FINALIZADO
+		    if (actaPartidoEntidad.getPartidoTorneo() != null) {
+		        PartidoTorneoEntidad partido = actaPartidoEntidad.getPartidoTorneo();
+		        partido.setEstado("finalizado"); // ⚡ cambio automático
+		        partidoTorneoInterfaz.save(partido);
+		    }
 
 		    return actaPartidoEntidad;
 		}
 
-	
 	
 		
 	

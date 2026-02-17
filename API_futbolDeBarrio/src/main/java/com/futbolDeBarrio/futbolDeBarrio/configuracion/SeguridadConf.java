@@ -83,7 +83,7 @@ public class SeguridadConf {
 						.requestMatchers(HttpMethod.POST, "/api/guardarEquipoTorneo").hasRole("CLUB")
 						.requestMatchers(HttpMethod.GET, "/api/instalacion/**").hasRole("INSTALACION")
 						.requestMatchers(HttpMethod.POST, "/api/guardarTorneo").hasRole("INSTALACION")
-						.requestMatchers(HttpMethod.POST, "/api/modificarPartidoTorneo/**").hasRole("INSTALACION")
+						.requestMatchers(HttpMethod.PUT, "/api/modificarPartidoTorneo/**").hasRole("INSTALACION")
 						.requestMatchers(HttpMethod.POST, "/api/guardarPartidoTorneo").hasRole("INSTALACION")
 						.requestMatchers(HttpMethod.POST, "/api/guardarActaPartido").hasRole("INSTALACION")
 

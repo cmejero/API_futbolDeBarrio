@@ -48,11 +48,9 @@ public class ClubEntidad {
 	@Column(name = "fecha_fundacion_club")
 	private String fechaFundacionClub;
 
-	@Size(min = 2, max = 50, message = "La localidad debe tener entre 2 y 50 caracteres")
 	@Column(name = "localidad_club")
 	private String localidadClub;
 
-	@Size(min = 2, max = 30, message = "El país debe tener entre 2 y 50 caracteres")
 	@Column(name = "pais_club")
 	private String paisClub;
 
@@ -67,7 +65,6 @@ public class ClubEntidad {
 	@Column(name = "password_club")
 	private String passwordClub;
 
-	@Size(min = 9, max = 15, message = "El teléfono debe tener entre 9 y 15 dígitos")
 	@Column(name = "telefono_club")
 	private String telefonoClub;
 
