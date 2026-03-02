@@ -100,6 +100,7 @@ public class ClubFuncionalidades {
 		}
 		clubEntidad.setEmailClub(clubDto.getEmailClub());
 		clubEntidad.setTelefonoClub(clubDto.getTelefonoClub());
+		clubEntidad.setEsPremium(false);
 		return clubEntidad;
 	}
 
@@ -204,42 +205,50 @@ public class ClubFuncionalidades {
 	 * @return true si fue modificado correctamente, false en caso contrario.
 	 */
 	public boolean modificarClub(String id, ClubDto clubDto) {
-		boolean esModificado = false;
-		try {
-			Long idClub = Long.parseLong(id);
-			ClubEntidad club = clubInterfaz.findByIdClub(idClub);
+	    try {
+	        Long idClub = Long.parseLong(id);
+	        ClubEntidad club = clubInterfaz.findByIdClub(idClub);
 
-			if (club != null) {
-				club.setNombreClub(clubDto.getNombreClub());
-				club.setAbreviaturaClub(clubDto.getAbreviaturaClub());
-				club.setDescripcionClub(clubDto.getDescripcionClub());
-				club.setFechaCreacionClub(clubDto.getFechaCreacionClub());
-				club.setFechaFundacionClub(clubDto.getFechaFundacionClub());
-				club.setLocalidadClub(clubDto.getLocalidadClub());
-				club.setPaisClub(clubDto.getPaisClub());
-				if (clubDto.getLogoClub() != null) {
-					byte[] imagenBytes = Base64.getDecoder().decode(clubDto.getLogoClub());
-					club.setLogoClub(imagenBytes);
-				}
-				club.setEmailClub(clubDto.getEmailClub());
-				club.setTelefonoClub(clubDto.getTelefonoClub());
-				if (clubDto.getPasswordClub() != null && !clubDto.getPasswordClub().isEmpty()) {
-					if (!Utilidades.verificarContrasena(clubDto.getPasswordClub(), club.getPasswordClub())) {
-						club.setPasswordClub(Utilidades.encriptarContrasenya(clubDto.getPasswordClub()));
-					}
-				}
-				clubInterfaz.save(club);
-				esModificado = true;
-			}
+	        if (club == null) {
+	            return false; // Club no existe
+	        }
 
-		} catch (NumberFormatException nfe) {
-			// Error de formato del ID
-		} catch (Exception e) {
-			// Error general
-		}
-		return esModificado;
+	        // Actualizar campos básicos
+	        club.setNombreClub(clubDto.getNombreClub());
+	        club.setAbreviaturaClub(clubDto.getAbreviaturaClub());
+	        club.setDescripcionClub(clubDto.getDescripcionClub());
+	        club.setFechaCreacionClub(clubDto.getFechaCreacionClub());
+	        club.setFechaFundacionClub(clubDto.getFechaFundacionClub());
+	        club.setLocalidadClub(clubDto.getLocalidadClub());
+	        club.setPaisClub(clubDto.getPaisClub());
+	        club.setEmailClub(clubDto.getEmailClub());
+	        club.setTelefonoClub(clubDto.getTelefonoClub());
+
+	        // Actualizar logo si viene
+	        if (clubDto.getLogoClub() != null) {
+	            byte[] logoBytes = Base64.getDecoder().decode(clubDto.getLogoClub());
+	            club.setLogoClub(logoBytes);
+	        }
+
+	        // Actualizar email de la cuenta asociada si cambia
+	        if (club.getCuenta() != null && clubDto.getEmailClub() != null &&
+	            !clubDto.getEmailClub().equals(club.getCuenta().getEmail())) {
+	            club.getCuenta().setEmail(clubDto.getEmailClub());
+	        }
+
+	        // No modificamos la contraseña nunca aquí
+	        clubInterfaz.save(club);
+	        return true;
+
+	    } catch (NumberFormatException nfe) {
+	        return false; 
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return false; 
+	    }
 	}
-
+	
+	
 	/**
 	 * Método para actualizar solo el campo esPremium de un club.
 	 *

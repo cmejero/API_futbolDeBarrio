@@ -76,7 +76,7 @@ public class InstalacionEntidad {
 	@Column(name = "imagen_instalacion")
 	private byte[] imagenInstalacion;
 
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "id_cuenta")
 	private CuentaEntidad cuenta;
 

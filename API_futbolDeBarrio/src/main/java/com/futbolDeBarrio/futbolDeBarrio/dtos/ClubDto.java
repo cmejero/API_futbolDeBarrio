@@ -48,7 +48,7 @@ public class ClubDto {
 	@Pattern(regexp = "^\\d{10}$", message = "El teléfono debe tener 10 dígitos")
 	private String telefonoClub;
 
-	private boolean esPremium = false;
+	private Boolean esPremium = false;
 
 	public ClubDto(ClubEntidad clubEntidad) {
 	    this.idClub = clubEntidad.getIdClub();
@@ -167,11 +167,11 @@ public class ClubDto {
 		this.telefonoClub = telefonoClub;
 	}
 
-	public boolean isEsPremium() {
+	public Boolean getEsPremium() {
 		return esPremium;
 	}
 
-	public void setEsPremium(boolean esPremium) {
+	public void setEsPremium(Boolean esPremium) {
 		this.esPremium = esPremium;
 	}
 

@@ -3,6 +3,8 @@ package com.futbolDeBarrio.futbolDeBarrio.repositorios;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.futbolDeBarrio.futbolDeBarrio.entidad.InstalacionEntidad;
@@ -44,4 +46,14 @@ public interface InstalacionInterfaz extends JpaRepository<InstalacionEntidad, L
      * @return true si ya existe una instalación con ese email, false en caso contrario.
      */
     boolean existsByEmailInstalacion(String email);
+    
+    
+    /**
+     * Busca una instalación por su correo electrónico incluyendo la cuenta asociada.
+     *
+     * @param email Correo electrónico de la instalación.
+     * @return Un Optional que contiene la entidad InstalacionEntidad con la cuenta cargada si existe.
+     */
+    @Query("SELECT i FROM InstalacionEntidad i JOIN FETCH i.cuenta WHERE i.emailInstalacion = :email")
+    Optional<InstalacionEntidad> findByEmailInstalacionConCuenta(@Param("email") String email);
 }

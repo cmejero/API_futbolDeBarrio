@@ -19,6 +19,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
 /**
@@ -26,69 +27,67 @@ import io.jsonwebtoken.security.Keys;
  */
 public class JwtFuncionalidades {
 
-	  private static final String CLAVE_SECRETA = "AltairFutbolDeBarrioSuperSecreto123456"; 
-	  @Autowired
-	  UsuarioFuncionalidades usuarioFuncionalidades;
-	  @Autowired
-	  ClubFuncionalidades clubFuncionalidades;
-	  @Autowired
-	  InstalacionFuncionalidades instalacionFuncionalidades;
-	
+	@Value("${jwt.secret}")
+	private String claveSecreta;
+	@Autowired
+	UsuarioFuncionalidades usuarioFuncionalidades;
+	@Autowired
+	ClubFuncionalidades clubFuncionalidades;
+	@Autowired
+	InstalacionFuncionalidades instalacionFuncionalidades;
 
-    /**
-     * Genera un token JWT utilizando el email del usuario y su rol.
-     *
-     * @param email Email del usuario (se usará como "subject" del token)
-     * @param rol   Rol del usuario, que se añade como "claim" adicional
-     * @return Token JWT como cadena
-     */
-	    public String obtenerToken(String email, Rol rol) {
-	        Map<String, Object> extraClaims = new HashMap<>();
-	        extraClaims.put("role", rol.name());
+	/**
+	 * Genera un token JWT utilizando el email del usuario y su rol.
+	 *
+	 * @param email Email del usuario (se usará como "subject" del token)
+	 * @param rol   Rol del usuario, que se añade como "claim" adicional
+	 * @return Token JWT como cadena
+	 */
+	public String obtenerToken(String email, Rol rol) {
+		Map<String, Object> extraClaims = new HashMap<>();
+		extraClaims.put("role", rol.name());
 
-	        return Jwts.builder()
-	                .setClaims(extraClaims)
-	                .setSubject(email)
-	                .setIssuedAt(new java.util.Date(System.currentTimeMillis()))
-	                .setExpiration(new java.util.Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24)) 
-	                .signWith(Keys.hmacShaKeyFor(CLAVE_SECRETA.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
-	                .compact();
-	    }
-  
-	    
-	    /**
-	     * Obtiene el ID del usuario asociado a un JWT dado.
-	     *
-	     * @param token JWT a validar.
-	     * @return ID del usuario (jugador, club o instalación), o null si no se encuentra o el token es inválido.
-	     */
-	    public Long obtenerIdUsuario(String token) {
-	        try {
-	            Claims claims = Jwts.parserBuilder()
-	                    .setSigningKey(Keys.hmacShaKeyFor(CLAVE_SECRETA.getBytes(StandardCharsets.UTF_8)))
-	                    .build()
-	                    .parseClaimsJws(token)
-	                    .getBody();
+		return Jwts.builder().setClaims(extraClaims).setSubject(email)
+				.setIssuedAt(new java.util.Date(System.currentTimeMillis()))
+				.setExpiration(new java.util.Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24))
+				.signWith(Keys.hmacShaKeyFor(claveSecreta.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+				.compact();
+	}
 
-	            // Supongamos que tu "subject" es el email
-	            String email = claims.getSubject();
+	/**
+	 * Obtiene el ID del usuario asociado a un JWT dado.
+	 *
+	 * @param token JWT a validar.
+	 * @return ID del usuario (jugador, club o instalación), o null si no se
+	 *         encuentra o el token es inválido.
+	 */
+	public Long obtenerIdUsuario(String token) {
+		try {
+			Claims claims = Jwts.parserBuilder()
+					.setSigningKey(Keys.hmacShaKeyFor(claveSecreta.getBytes(StandardCharsets.UTF_8))).build()
+					.parseClaimsJws(token).getBody();
 
-	            // Aquí devuelves el ID del usuario según el email
-	            // Por ejemplo usando tu servicio de usuarios:
-	            UsuarioDto u = usuarioFuncionalidades.obtenerUsuarioDtoPorEmail(email);
-	            if (u != null) return u.getIdUsuario();
+			// Supongamos que tu "subject" es el email
+			String email = claims.getSubject();
 
-	            ClubDto c = clubFuncionalidades.obtenerClubDtoPorEmail(email);
-	            if (c != null) return c.getIdClub();
+			// Aquí devuelves el ID del usuario según el email
+			// Por ejemplo usando tu servicio de usuarios:
+			UsuarioDto u = usuarioFuncionalidades.obtenerUsuarioDtoPorEmail(email);
+			if (u != null)
+				return u.getIdUsuario();
 
-	            InstalacionDto i = instalacionFuncionalidades.obtenerInstalacionDtoPorEmail(email);
-	            if (i != null) return i.getIdInstalacion();
+			ClubDto c = clubFuncionalidades.obtenerClubDtoPorEmail(email);
+			if (c != null)
+				return c.getIdClub();
 
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
-	        return null;
-	    }
+			InstalacionDto i = instalacionFuncionalidades.obtenerInstalacionDtoPorEmail(email);
+			if (i != null)
+				return i.getIdInstalacion();
 
-    
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

@@ -50,7 +50,7 @@ public class UsuarioDto {
 
 	private Estado estadoUsuario;
 
-	private boolean esPremium = false;
+	private Boolean esPremium = false;
 
 	public UsuarioDto(String nombreCompletoUsuario, String aliasusuario, String emailUsuario) {
 		super();
@@ -166,11 +166,11 @@ public class UsuarioDto {
 		this.estadoUsuario = estadoUsuario;
 	}
 
-	public boolean isEsPremium() {
+	public Boolean getEsPremium() {
 		return esPremium;
 	}
 
-	public void setEsPremium(boolean esPremium) {
+	public void setEsPremium(Boolean esPremium) {
 		this.esPremium = esPremium;
 	}
 

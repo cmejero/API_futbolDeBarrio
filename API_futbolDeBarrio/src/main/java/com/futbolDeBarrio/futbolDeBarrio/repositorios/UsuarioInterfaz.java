@@ -3,6 +3,8 @@ package com.futbolDeBarrio.futbolDeBarrio.repositorios;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.futbolDeBarrio.futbolDeBarrio.entidad.UsuarioEntidad;
@@ -45,4 +47,13 @@ public interface UsuarioInterfaz extends JpaRepository<UsuarioEntidad, Long> {
      * @return true si ya existe un usuario con ese email, false en caso contrario.
      */
     boolean existsByEmailUsuario(String email);
+    
+    /**
+     * Busca un usuario por su correo electrónico incluyendo la cuenta asociada.
+     *
+     * @param email Correo electrónico del usuario.
+     * @return Un Optional que contiene la entidad UsuarioEntidad con la cuenta cargada si existe.
+    */
+    @Query("SELECT u FROM UsuarioEntidad u JOIN FETCH u.cuenta WHERE u.emailUsuario = :email")
+    Optional<UsuarioEntidad> findByEmailUsuarioConCuenta(@Param("email") String email);
 }

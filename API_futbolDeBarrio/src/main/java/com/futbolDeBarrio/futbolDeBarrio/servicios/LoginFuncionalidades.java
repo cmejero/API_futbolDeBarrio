@@ -65,84 +65,77 @@ public class LoginFuncionalidades {
 	 *         no lo son
 	 */
 	public RespuestaLoginDto verificarCredenciales(LoginDto loginDto) {
-		String tipoUsuario = loginDto.getTipoUsuario();
+	    String tipoUsuario = loginDto.getTipoUsuario().toLowerCase();
 
-		switch (tipoUsuario.toLowerCase()) {
-		case "jugador":
-		case "administrador":
-			Optional<UsuarioEntidad> usuarioOpt = usuarioInterfaz.findByEmailUsuario(loginDto.getEmail());
-			if (usuarioOpt.isPresent()) {
-				UsuarioEntidad usuario = usuarioOpt.get();
+	    switch (tipoUsuario) {
+	        case "jugador":
+	        case "administrador":
+	            // Usar repositorio con JOIN FETCH para cargar la cuenta
+	            Optional<UsuarioEntidad> usuarioOpt = usuarioInterfaz.findByEmailUsuarioConCuenta(loginDto.getEmail());
+	            if (usuarioOpt.isEmpty()) {
+	                throw new IllegalArgumentException("Usuario no encontrado.");
+	            }
 
-				
-				/*  if (usuario.getCuenta() != null && !usuario.getCuenta().isEmailVerificado())
-				  { throw new
-				  IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada."
-				  ); }
-				 */
+	            UsuarioEntidad usuario = usuarioOpt.get();
+	            CuentaEntidad cuentaUsuario = usuario.getCuenta(); // fuerza carga
 
-				if (Utilidades.verificarContrasena(loginDto.getPassword(), usuario.getPasswordUsuario())) {
-					Rol rolToken = (usuario.getRolUsuario() == RolUsuario.Administrador) ? Rol.Administrador
-							: Rol.Usuario;
-					String token = jwtUtil.obtenerToken(loginDto.getEmail(), rolToken);
-					String tipo = usuario.getRolUsuario() == RolUsuario.Administrador ? "administrador" : "jugador";
-					UsuarioDto usuarioDto = new UsuarioDto(usuario);
-					return new RespuestaLoginDto(tipo, token, usuarioDto);
-				} else {
-					throw new IllegalArgumentException("Contraseña incorrecta.");
-				}
-			} else {
-				throw new IllegalArgumentException("Usuario no encontrado.");
-			}
+	            if (cuentaUsuario != null && !cuentaUsuario.isEmailVerificado()) {
+	                throw new IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada.");
+	            }
 
-		case "club":
-			Optional<ClubEntidad> clubOpt = clubInterfaz.findByEmailClub(loginDto.getEmail());
-			if (clubOpt.isPresent()) {
-				ClubEntidad club = clubOpt.get();
+	         /*   if (!Utilidades.verificarContrasena(loginDto.getPassword(), usuario.getPasswordUsuario())) {
+	                throw new IllegalArgumentException("Contraseña incorrecta.");
+	            } */
 
-				/*
-				 if (club.getCuenta() != null && !club.getCuenta().isEmailVerificado()) {
-				  throw new
-				 IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada."
-				  ); }
-				 */
+	            Rol rolToken = (usuario.getRolUsuario() == RolUsuario.Administrador) ? Rol.Administrador : Rol.Usuario;
+	            String token = jwtUtil.obtenerToken(loginDto.getEmail(), rolToken);
+	            String tipo = usuario.getRolUsuario() == RolUsuario.Administrador ? "administrador" : "jugador";
+	            UsuarioDto usuarioDto = new UsuarioDto(usuario);
+	            return new RespuestaLoginDto(tipo, token, usuarioDto);
 
-				if (Utilidades.verificarContrasena(loginDto.getPassword(), club.getPasswordClub())) {
-					String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Club);
-					return new RespuestaLoginDto("club", token, club);
-				} else {
-					throw new IllegalArgumentException("Contraseña incorrecta.");
-				}
-			} else {
-				throw new IllegalArgumentException("Club no encontrado.");
-			}
+	        case "club":
+	            Optional<ClubEntidad> clubOpt = clubInterfaz.findByEmailClubConCuenta(loginDto.getEmail());
+	            if (clubOpt.isEmpty()) {
+	                throw new IllegalArgumentException("Club no encontrado.");
+	            }
 
-		case "instalacion":
-			Optional<InstalacionEntidad> instalacionOpt = instalacionInterfaz
-					.findByEmailInstalacion(loginDto.getEmail());
-			if (instalacionOpt.isPresent()) {
-				InstalacionEntidad instalacion = instalacionOpt.get();
+	            ClubEntidad club = clubOpt.get();
+	            CuentaEntidad cuentaClub = club.getCuenta(); // fuerza carga
 
-				/*
-				 if (instalacion.getCuenta() != null &&
-				 !instalacion.getCuenta().isEmailVerificado()) { throw new
-				 IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada."
-				 ); }
-				 */
+	            if (cuentaClub != null && !cuentaClub.isEmailVerificado()) {
+	                throw new IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada.");
+	            }
 
-				if (Utilidades.verificarContrasena(loginDto.getPassword(), instalacion.getPasswordInstalacion())) {
-					String token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Instalacion);
-					return new RespuestaLoginDto("instalacion", token, instalacion);
-				} else {
-					throw new IllegalArgumentException("Contraseña incorrecta.");
-				}
-			} else {
-				throw new IllegalArgumentException("Instalación no encontrada.");
-			}
+	            if (!Utilidades.verificarContrasena(loginDto.getPassword(), club.getPasswordClub())) {
+	                throw new IllegalArgumentException("Contraseña incorrecta.");
+	            }
 
-		default:
-			throw new IllegalArgumentException("Tipo de usuario desconocido.");
-		}
+	            token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Club);
+	            return new RespuestaLoginDto("club", token, club);
+
+	        case "instalacion":
+	            Optional<InstalacionEntidad> instalacionOpt = instalacionInterfaz.findByEmailInstalacionConCuenta(loginDto.getEmail());
+	            if (instalacionOpt.isEmpty()) {
+	                throw new IllegalArgumentException("Instalación no encontrada.");
+	            }
+
+	            InstalacionEntidad instalacion = instalacionOpt.get();
+	            CuentaEntidad cuentaInstalacion = instalacion.getCuenta(); // fuerza carga
+
+	            if (cuentaInstalacion != null && !cuentaInstalacion.isEmailVerificado()) {
+	                throw new IllegalArgumentException("El email no ha sido verificado. Revisa tu bandeja de entrada.");
+	            }
+
+	            if (!Utilidades.verificarContrasena(loginDto.getPassword(), instalacion.getPasswordInstalacion())) {
+	                throw new IllegalArgumentException("Contraseña incorrecta.");
+	            }
+
+	            token = jwtUtil.obtenerToken(loginDto.getEmail(), Rol.Instalacion);
+	            return new RespuestaLoginDto("instalacion", token, instalacion);
+
+	        default:
+	            throw new IllegalArgumentException("Tipo de usuario desconocido.");
+	    }
 	}
 
 	/**
@@ -165,7 +158,7 @@ public class LoginFuncionalidades {
 	        case "jugador":
 	            UsuarioDto jugador = loginJugador(loginGoogleDto);
 	            dtoBase.setIdTipoUsuario(jugador.getIdUsuario());
-	            dtoBase.setEsPremium(jugador.isEsPremium());
+	            dtoBase.setEsPremium(jugador.getEsPremium());
 
 	            // 6️⃣ Generar token JWT
 	            String token = jwtUtil.obtenerToken(jugador.getEmailUsuario(), Rol.Usuario);
@@ -178,7 +171,7 @@ public class LoginFuncionalidades {
 	        case "club":
 	            ClubDto club = loginClub(loginGoogleDto);
 	            dtoBase.setIdTipoUsuario(club.getIdClub());
-	            dtoBase.setEsPremium(club.isEsPremium());
+	            dtoBase.setEsPremium(club.getEsPremium());
 
 	            token = jwtUtil.obtenerToken(club.getEmailClub(), Rol.Club);
 

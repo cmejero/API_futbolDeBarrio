@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.futbolDeBarrio.futbolDeBarrio.entidad.TokenRecuperacionContrasenaEntidad;
 import com.futbolDeBarrio.futbolDeBarrio.logs.Logs;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.ClubInterfaz;
+import com.futbolDeBarrio.futbolDeBarrio.repositorios.CuentaInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.InstalacionInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.TokenRecuperacionContrasenaInterfaz;
 import com.futbolDeBarrio.futbolDeBarrio.repositorios.UsuarioInterfaz;
@@ -32,6 +33,9 @@ public class RecuperarCuentaFuncionalidades {
 
     @Autowired
     private ClubInterfaz clubInterfaz;
+    
+    @Autowired
+    private CuentaInterfaz cuentaInterfaz;
 
     @Autowired
     private TokenRecuperacionContrasenaInterfaz tokenRecuperacionContrasenaInterfaz;
@@ -80,8 +84,7 @@ public class RecuperarCuentaFuncionalidades {
         tokenRecuperacionContrasenaInterfaz.save(trc);
         Logs.ficheroLog("Token guardado para recuperación. Email: " + email + ", Token: " + token);
 
-        String enlace = "http://localhost:8080/vista_futbolDeBarrio/restablecerCuenta?token=" + token;
-
+        String enlace = "https://www.futboldebarriosevilla.es/restablecerCuenta?token=" + token;
         enviarCorreo(email, enlace);
         Logs.ficheroLog("Correo de recuperación enviado a: " + email);
     }
@@ -139,6 +142,9 @@ public class RecuperarCuentaFuncionalidades {
         String email = trc.getEmail();
         Logs.ficheroLog("Token válido. Tipo de usuario: " + tipo + ", Email: " + email);
 
+        // Generamos el hash una sola vez
+        String hash = Utilidades.encriptarContrasenya(nuevaContrasenya);
+
         switch (tipo) {
             case "usuario" -> {
                 var usuario = usuarioInterfaz.findByEmailUsuario(email)
@@ -146,33 +152,55 @@ public class RecuperarCuentaFuncionalidades {
                             Logs.ficheroLog("Usuario no encontrado con email: " + email);
                             return new RuntimeException("Usuario no encontrado");
                         });
-                usuario.setPasswordUsuario(Utilidades.encriptarContrasenya(nuevaContrasenya));
+                usuario.setPasswordUsuario(hash);
+
+                if (usuario.getCuenta() != null) {
+                    usuario.getCuenta().setPassword(hash);
+                    cuentaInterfaz.save(usuario.getCuenta());
+                }
+
                 usuarioInterfaz.save(usuario);
             }
+
             case "instalacion" -> {
                 var instalacion = instalacionInterfaz.findByEmailInstalacion(email)
                         .orElseThrow(() -> {
                             Logs.ficheroLog("Instalación no encontrada con email: " + email);
                             return new RuntimeException("Instalación no encontrada");
                         });
-                instalacion.setPasswordInstalacion(Utilidades.encriptarContrasenya(nuevaContrasenya));
+                instalacion.setPasswordInstalacion(hash);
+
+                if (instalacion.getCuenta() != null) {
+                    instalacion.getCuenta().setPassword(hash);
+                    cuentaInterfaz.save(instalacion.getCuenta());
+                }
+
                 instalacionInterfaz.save(instalacion);
             }
+
             case "club" -> {
                 var club = clubInterfaz.findByEmailClub(email)
                         .orElseThrow(() -> {
                             Logs.ficheroLog("Club no encontrado con email: " + email);
                             return new RuntimeException("Club no encontrado");
                         });
-                club.setPasswordClub(Utilidades.encriptarContrasenya(nuevaContrasenya));
+                club.setPasswordClub(hash);
+
+                if (club.getCuenta() != null) {
+                    club.getCuenta().setPassword(hash);
+                    cuentaInterfaz.save(club.getCuenta());
+                }
+
                 clubInterfaz.save(club);
             }
+
             default -> {
                 Logs.ficheroLog("Tipo de usuario desconocido: " + tipo);
                 throw new RuntimeException("Tipo de usuario desconocido.");
             }
         }
 
+        // Eliminamos el token después de actualizar
         tokenRecuperacionContrasenaInterfaz.delete(trc);
         Logs.ficheroLog("Token eliminado y contraseña actualizada para email: " + email);
     }

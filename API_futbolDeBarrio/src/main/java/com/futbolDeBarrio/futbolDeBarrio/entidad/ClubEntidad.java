@@ -71,7 +71,7 @@ public class ClubEntidad {
 	@Column(name = "es_premium")
 	private boolean esPremium;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id_cuenta")
     private CuentaEntidad cuenta;
 

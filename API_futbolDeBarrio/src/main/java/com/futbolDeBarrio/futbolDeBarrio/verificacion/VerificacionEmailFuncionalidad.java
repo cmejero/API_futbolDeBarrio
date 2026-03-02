@@ -79,7 +79,7 @@ public class VerificacionEmailFuncionalidad {
 	    mensaje.setSubject("Verifica tu correo");
 	    mensaje.setText("Hola " + cuenta.getEmail() + ",\n\n"
 	        + "Por favor verifica tu correo haciendo clic en el siguiente enlace:\n"
-	        + "http://localhost:9527/api/verificarEmail?token=" + token
+	        + "https://www.futboldebarriosevilla.es/api/verificarEmail?token=" + token
 	        + "\n\nEste enlace expirará en 24 horas.");
 	    mensaje.setFrom("futboldebarriosevilla@gmail.com");
 	    

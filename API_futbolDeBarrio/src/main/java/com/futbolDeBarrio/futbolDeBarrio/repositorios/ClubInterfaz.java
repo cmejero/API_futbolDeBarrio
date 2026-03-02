@@ -3,6 +3,8 @@ package com.futbolDeBarrio.futbolDeBarrio.repositorios;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.futbolDeBarrio.futbolDeBarrio.entidad.ClubEntidad;
@@ -47,4 +49,12 @@ public interface ClubInterfaz extends JpaRepository<ClubEntidad, Long> {
      */
     boolean existsByEmailClub(String email);
     
+    /**
+     * Busca un club por su correo electrónico incluyendo la cuenta asociada.
+     *
+     * @param email Correo electrónico del club.
+     * @return Un Optional que contiene la entidad ClubEntidad con la cuenta cargada si existe.
+     */
+    @Query("SELECT c FROM ClubEntidad c JOIN FETCH c.cuenta WHERE c.emailClub = :email")
+    Optional<ClubEntidad> findByEmailClubConCuenta(@Param("email") String email);
 }

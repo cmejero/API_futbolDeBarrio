@@ -229,18 +229,18 @@ public class InstalacionFuncionalidades {
 				instalacion.setNombreInstalacion(instalacionDto.getNombreInstalacion());
 				instalacion.setDireccionInstalacion(instalacionDto.getDireccionInstalacion());
 				instalacion.setTelefonoInstalacion(instalacionDto.getTelefonoInstalacion());
-				instalacion.setEmailInstalacion(instalacionDto.getEmailInstalacion());
-				instalacion.setTipoCampo1(instalacionDto.getTipoCampo1());
+				if (instalacionDto.getEmailInstalacion() != null &&
+					    !instalacionDto.getEmailInstalacion().equals(instalacion.getEmailInstalacion())) {
+					    instalacion.setEmailInstalacion(instalacionDto.getEmailInstalacion());
+					    if (instalacion.getCuenta() != null) {
+					        instalacion.getCuenta().setEmail(instalacionDto.getEmailInstalacion());
+					    }
+					}				instalacion.setTipoCampo1(instalacionDto.getTipoCampo1());
 				instalacion.setTipoCampo2(instalacionDto.getTipoCampo2());
 				instalacion.setTipoCampo3(instalacionDto.getTipoCampo3());
 				instalacion.setServiciosInstalacion(instalacionDto.getServiciosInstalacion());
 				instalacion.setEstadoInstalacion(instalacionDto.getEstadoInstalacion());
-				if (instalacionDto.getPasswordInstalacion() != null
-				        && !instalacionDto.getPasswordInstalacion().isEmpty()) {
-				    instalacion.setPasswordInstalacion(
-				        Utilidades.encriptarContrasenya(instalacionDto.getPasswordInstalacion())
-				    );
-				}
+		
 				if (instalacionDto.getImagenInstalacion() != null) {
 					byte[] imagenBytes = Base64.getDecoder().decode(instalacionDto.getImagenInstalacion());
 					instalacion.setImagenInstalacion(imagenBytes);

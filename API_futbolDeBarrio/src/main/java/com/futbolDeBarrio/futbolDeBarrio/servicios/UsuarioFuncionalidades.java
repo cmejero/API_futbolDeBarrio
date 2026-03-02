@@ -1,4 +1,4 @@
-	package com.futbolDeBarrio.futbolDeBarrio.servicios;
+package com.futbolDeBarrio.futbolDeBarrio.servicios;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,309 +30,309 @@ import jakarta.transaction.Transactional;
 @Service
 public class UsuarioFuncionalidades {
 
-    @Autowired
-    UsuarioInterfaz usuarioInterfaz;
-    @Autowired
-    JugadorEstadisticaGlobalInterfaz jugadorEstadisticaGlobalInterfaz;
-    @Autowired
-    CuentaInterfaz cuentaInterfaz;
-    @Autowired
-    VerificacionEmailFuncionalidad verificacionEmailFuncionalidad;
-    @Autowired
-    TokenVerificacionEmailInterfaz tokenVerificacionEmailInterfaz;
-    
-    
-    /**
-     * Método para buscar un usuario por su email.
-     * 
-     * @param email el email del usuario
-     * @return un Optional con el usuario encontrado
-     */
-    public Optional<UsuarioEntidad> buscarUsuarioPorEmail(String email) {
-        return usuarioInterfaz.findByEmailUsuario(email);
-    }
-    
-    /**
-     * Método que mapea de entidad a DTO.
-     * 
-     * @param usuarioEntidad la entidad del usuario
-     * @return el DTO correspondiente al usuario
-     */
-    public UsuarioDto mapearAUsuarioDto(UsuarioEntidad usuarioEntidad) {
-        UsuarioDto usuarioDto = new UsuarioDto();
-        usuarioDto.setIdUsuario(usuarioEntidad.getIdUsuario());
-        usuarioDto.setNombreCompletoUsuario(usuarioEntidad.getNombreCompletoUsuario());
-        usuarioDto.setAliasUsuario(usuarioEntidad.getAliasUsuario());
-        usuarioDto.setFechaNacimientoUsuario(usuarioEntidad.getFechaNacimientoUsuario());
-        usuarioDto.setEmailUsuario(usuarioEntidad.getEmailUsuario());
-        usuarioDto.setPasswordUsuario(null);
-        usuarioDto.setTelefonoUsuario(usuarioEntidad.getTelefonoUsuario());
-        usuarioDto.setDescripcionUsuario(usuarioEntidad.getDescripcionUsuario());
-        if (usuarioEntidad.getImagenUsuario() != null) {
-            String imagenBase64 = Base64.getEncoder().encodeToString(usuarioEntidad.getImagenUsuario());
-            usuarioDto.setImagenUsuario(imagenBase64);
-        }
-        usuarioDto.setEstadoUsuario(usuarioEntidad.getEstadoUsuario());
-        usuarioDto.setRolUsuario(usuarioEntidad.getRolUsuario());
-        usuarioDto.setEsPremium(usuarioEntidad.isEsPremium());
-        return usuarioDto;
-    }
-    /**
-     * Método que mapea de DTO a entidad.
-     * 
-     * @param usuarioDto el DTO del usuario
-     * @return la entidad correspondiente al usuario
-     */
-    private UsuarioEntidad mapearADtoAEntidad(UsuarioDto usuarioDto) {
-        UsuarioEntidad usuarioEntidad = new UsuarioEntidad();
-        usuarioEntidad.setIdUsuario(usuarioDto.getIdUsuario());
-        usuarioEntidad.setNombreCompletoUsuario(usuarioDto.getNombreCompletoUsuario());
-        usuarioEntidad.setAliasUsuario(usuarioDto.getAliasUsuario());
-        usuarioEntidad.setFechaNacimientoUsuario(usuarioDto.getFechaNacimientoUsuario());
-        usuarioEntidad.setEmailUsuario(usuarioDto.getEmailUsuario());
-        usuarioEntidad.setPasswordUsuario(usuarioDto.getPasswordUsuario());
-        usuarioEntidad.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
-        usuarioEntidad.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
-        if (usuarioDto.getImagenUsuario() != null) {
-            byte[] imagenBytes = Base64.getDecoder().decode(usuarioDto.getImagenUsuario());
-            usuarioEntidad.setImagenUsuario(imagenBytes);
-        }
-        usuarioEntidad.setEstadoUsuario(usuarioDto.getEstadoUsuario());
-        usuarioEntidad.setRolUsuario(usuarioDto.getRolUsuario());
-        usuarioEntidad.setEsPremium(usuarioDto.isEsPremium());
-        System.out.println(usuarioEntidad.toString());
-        return usuarioEntidad;
-    }
+	@Autowired
+	UsuarioInterfaz usuarioInterfaz;
+	@Autowired
+	JugadorEstadisticaGlobalInterfaz jugadorEstadisticaGlobalInterfaz;
+	@Autowired
+	CuentaInterfaz cuentaInterfaz;
+	@Autowired
+	VerificacionEmailFuncionalidad verificacionEmailFuncionalidad;
+	@Autowired
+	TokenVerificacionEmailInterfaz tokenVerificacionEmailInterfaz;
 
-    /**
-     * Método que mapea una lista de entidades a DTOs.
-     * 
-     * @return la lista de DTOs de usuarios
-     */
-    public ArrayList<UsuarioDto> obtenerUsuariosDto(String emailLogueado) {
+	/**
+	 * Método para buscar un usuario por su email.
+	 * 
+	 * @param email el email del usuario
+	 * @return un Optional con el usuario encontrado
+	 */
+	public Optional<UsuarioEntidad> buscarUsuarioPorEmail(String email) {
+		return usuarioInterfaz.findByEmailUsuario(email);
+	}
 
-        ArrayList<UsuarioEntidad> usuariosEntidad = (ArrayList<UsuarioEntidad>) usuarioInterfaz.findAll();
-        ArrayList<UsuarioDto> usuariosDto = new ArrayList<>();
-        for (UsuarioEntidad usuario : usuariosEntidad) {
-            usuariosDto.add(mapearAUsuarioDto(usuario));
-        }
+	/**
+	 * Método que mapea de entidad a DTO.
+	 * 
+	 * @param usuarioEntidad la entidad del usuario
+	 * @return el DTO correspondiente al usuario
+	 */
+	public UsuarioDto mapearAUsuarioDto(UsuarioEntidad usuarioEntidad) {
+		UsuarioDto usuarioDto = new UsuarioDto();
+		usuarioDto.setIdUsuario(usuarioEntidad.getIdUsuario());
+		usuarioDto.setNombreCompletoUsuario(usuarioEntidad.getNombreCompletoUsuario());
+		usuarioDto.setAliasUsuario(usuarioEntidad.getAliasUsuario());
+		usuarioDto.setFechaNacimientoUsuario(usuarioEntidad.getFechaNacimientoUsuario());
+		usuarioDto.setEmailUsuario(usuarioEntidad.getEmailUsuario());
+		usuarioDto.setPasswordUsuario(null);
+		usuarioDto.setTelefonoUsuario(usuarioEntidad.getTelefonoUsuario());
+		usuarioDto.setDescripcionUsuario(usuarioEntidad.getDescripcionUsuario());
+		if (usuarioEntidad.getImagenUsuario() != null) {
+			String imagenBase64 = Base64.getEncoder().encodeToString(usuarioEntidad.getImagenUsuario());
+			usuarioDto.setImagenUsuario(imagenBase64);
+		}
+		usuarioDto.setEstadoUsuario(usuarioEntidad.getEstadoUsuario());
+		usuarioDto.setRolUsuario(usuarioEntidad.getRolUsuario());
+		usuarioDto.setEsPremium(usuarioEntidad.isEsPremium());
+		return usuarioDto;
+	}
 
-        return usuariosDto;
-    }
+	/**
+	 * Método que mapea de DTO a entidad.
+	 * 
+	 * @param usuarioDto el DTO del usuario
+	 * @return la entidad correspondiente al usuario
+	 */
+	private UsuarioEntidad mapearADtoAEntidad(UsuarioDto usuarioDto) {
+		UsuarioEntidad usuarioEntidad = new UsuarioEntidad();
+		usuarioEntidad.setIdUsuario(usuarioDto.getIdUsuario());
+		usuarioEntidad.setNombreCompletoUsuario(usuarioDto.getNombreCompletoUsuario());
+		usuarioEntidad.setAliasUsuario(usuarioDto.getAliasUsuario());
+		usuarioEntidad.setFechaNacimientoUsuario(usuarioDto.getFechaNacimientoUsuario());
+		usuarioEntidad.setEmailUsuario(usuarioDto.getEmailUsuario());
+		usuarioEntidad.setPasswordUsuario(usuarioDto.getPasswordUsuario());
+		usuarioEntidad.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
+		usuarioEntidad.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
+		usuarioEntidad.setRolUsuario(RolUsuario.Jugador);
+		if (usuarioDto.getImagenUsuario() != null) {
+			byte[] imagenBytes = Base64.getDecoder().decode(usuarioDto.getImagenUsuario());
+			usuarioEntidad.setImagenUsuario(imagenBytes);
+		}
+		usuarioEntidad.setEstadoUsuario(usuarioDto.getEstadoUsuario());
+		usuarioEntidad.setEsPremium(false);
+		return usuarioEntidad;
+	}
 
-    
-    /**
-     * Método que obtiene un usuario por su ID.
-     * 
-     * @param idUsuario el ID del usuario
-     * @return el DTO del usuario o null si no se encuentra
-     */
-    public UsuarioDto obtenerUsuarioDtoPorId(Long idUsuario) {
-        UsuarioEntidad usuarioEntidad = usuarioInterfaz.findById(idUsuario).orElse(null);
-        return usuarioEntidad != null ? mapearAUsuarioDto(usuarioEntidad) : null;
-    }
-    
-    /**
-     * Obtiene un UsuarioDto por su email.
-     * 
-     * @param email Email del usuario a buscar
-     * @return UsuarioDto si existe, null si no
-     */
-    public UsuarioDto obtenerUsuarioDtoPorEmail(String email) {
-        return usuarioInterfaz.findByEmailUsuario(email)
-                .map(this::mapearAUsuarioDto)
-                .orElse(null);
-    }
+	/**
+	 * Método que mapea una lista de entidades a DTOs.
+	 * 
+	 * @return la lista de DTOs de usuarios
+	 */
+	public ArrayList<UsuarioDto> obtenerUsuariosDto(String emailLogueado) {
 
+		ArrayList<UsuarioEntidad> usuariosEntidad = (ArrayList<UsuarioEntidad>) usuarioInterfaz.findAll();
+		ArrayList<UsuarioDto> usuariosDto = new ArrayList<>();
+		for (UsuarioEntidad usuario : usuariosEntidad) {
+			usuariosDto.add(mapearAUsuarioDto(usuario));
+		}
 
-    /**
-     * Método para guardar un usuario en la base de datos, recibiendo un DTO.
-     * 
-     * @param usuarioDto el DTO del usuario
-     * @return la entidad del usuario guardada
-     */
-    @Transactional
-    public UsuarioEntidad guardarUsuario(UsuarioDto usuarioDto) {
-        if (usuarioDto.getRolUsuario() == null) {
-            throw new IllegalArgumentException("El rol del usuario es obligatorio.");
-        }
+		return usuariosDto;
+	}
 
-        // Validar email existente
-        Optional<CuentaEntidad> cuentaExistente = cuentaInterfaz.findByEmailAndRol(usuarioDto.getEmailUsuario(), Rol.Usuario);
-        if (cuentaExistente.isPresent()) {
-            throw new IllegalArgumentException("El email ya está en uso.");
-        }
+	/**
+	 * Método que obtiene un usuario por su ID.
+	 * 
+	 * @param idUsuario el ID del usuario
+	 * @return el DTO del usuario o null si no se encuentra
+	 */
+	public UsuarioDto obtenerUsuarioDtoPorId(Long idUsuario) {
+		UsuarioEntidad usuarioEntidad = usuarioInterfaz.findById(idUsuario).orElse(null);
+		return usuarioEntidad != null ? mapearAUsuarioDto(usuarioEntidad) : null;
+	}
 
-        // 1️⃣ Crear y guardar Cuenta
-        CuentaEntidad cuenta = new CuentaEntidad();
-        cuenta.setEmail(usuarioDto.getEmailUsuario());
-        cuenta.setPassword(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
-        cuenta.setRol(Rol.Usuario);
-        cuenta.setEmailVerificado(false);
-        cuenta.setFechaCreacion(LocalDateTime.now());
-        cuenta = cuentaInterfaz.save(cuenta);
+	/**
+	 * Obtiene un UsuarioDto por su email.
+	 * 
+	 * @param email Email del usuario a buscar
+	 * @return UsuarioDto si existe, null si no
+	 */
+	public UsuarioDto obtenerUsuarioDtoPorEmail(String email) {
+		return usuarioInterfaz.findByEmailUsuario(email).map(this::mapearAUsuarioDto).orElse(null);
+	}
 
-        // 2️⃣ Crear Usuario y asociar Cuenta
-        UsuarioEntidad usuarioEntidad = mapearADtoAEntidad(usuarioDto);
-        usuarioEntidad.setCuenta(cuenta);
-        usuarioEntidad.setPasswordUsuario(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
+	/**
+	 * Método para guardar un usuario en la base de datos, recibiendo un DTO.
+	 * 
+	 * @param usuarioDto el DTO del usuario
+	 * @return la entidad del usuario guardada
+	 */
+	@Transactional
+	public UsuarioEntidad guardarUsuario(UsuarioDto usuarioDto) {
 
-        usuarioEntidad = usuarioInterfaz.save(usuarioEntidad);
+		// Validar email existente
+		Optional<CuentaEntidad> cuentaExistente = cuentaInterfaz.findByEmailAndRol(usuarioDto.getEmailUsuario(),
+				Rol.Usuario);
+		if (cuentaExistente.isPresent()) {
+			throw new IllegalArgumentException("El email ya está en uso.");
+		}
 
-        // 3️⃣ Crear estadísticas globales
-        JugadorEstadisticaGlobalEntidad estadistica = new JugadorEstadisticaGlobalEntidad();
-        estadistica.setJugadorGlobalId(usuarioEntidad);
-        estadistica.setGolesGlobal(0);
-        estadistica.setAsistenciasGlobal(0);
-        estadistica.setAmarillasGlobal(0);
-        estadistica.setRojasGlobal(0);
-        estadistica.setPartidosJugadosGlobal(0);
-        estadistica.setPartidosGanadosGlobal(0);
-        estadistica.setPartidosPerdidosGlobal(0);
-        estadistica.setMinutosJugadosGlobal(0);
-        jugadorEstadisticaGlobalInterfaz.save(estadistica);
+		// 1️⃣ Crear y guardar Cuenta
+		CuentaEntidad cuenta = new CuentaEntidad();
+		cuenta.setEmail(usuarioDto.getEmailUsuario());
+		cuenta.setPassword(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
 
-        verificacionEmailFuncionalidad.generarYEnviarToken(cuenta);
+		cuenta.setRol(Rol.Usuario);
+		cuenta.setEmailVerificado(false);
+		cuenta.setFechaCreacion(LocalDateTime.now());
+		cuenta = cuentaInterfaz.save(cuenta);
 
-        return usuarioEntidad;
-    }
+		// 2️⃣ Crear Usuario y asociar Cuenta
+		UsuarioEntidad usuarioEntidad = mapearADtoAEntidad(usuarioDto);
+		usuarioEntidad.setCuenta(cuenta);
+		usuarioEntidad.setPasswordUsuario(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
+		usuarioEntidad.setRolUsuario(RolUsuario.Jugador);
 
-    /**
-     * Método que se encarga de modificar un usuario en la base de datos.
-     * 
-     * @param id el ID del usuario a modificar
-     * @param usuarioDto el DTO con los nuevos datos del usuario
-     * @return true si el usuario fue modificado correctamente, false en caso contrario
-     */
-    public boolean modificarUsuario(String idUsuario, UsuarioDto usuarioDto, String emailAdminLogueado) {
-        try {
-            Long id = Long.parseLong(idUsuario);
-            UsuarioEntidad usuario = usuarioInterfaz.findByIdUsuario(id);
-            if (usuario == null) {
-                return false; // usuario no existe
-            }
+		usuarioEntidad = usuarioInterfaz.save(usuarioEntidad);
 
-            UsuarioEntidad adminLogueado = usuarioInterfaz
-                    .findByEmailUsuario(emailAdminLogueado)
-                    .orElseThrow(() -> new IllegalStateException("No se encontró el usuario logueado"));
+		// 3️⃣ Crear estadísticas globales
+		JugadorEstadisticaGlobalEntidad estadistica = new JugadorEstadisticaGlobalEntidad();
+		estadistica.setJugadorGlobalId(usuarioEntidad);
+		estadistica.setGolesGlobal(0);
+		estadistica.setAsistenciasGlobal(0);
+		estadistica.setAmarillasGlobal(0);
+		estadistica.setRojasGlobal(0);
+		estadistica.setPartidosJugadosGlobal(0);
+		estadistica.setPartidosGanadosGlobal(0);
+		estadistica.setPartidosPerdidosGlobal(0);
+		estadistica.setMinutosJugadosGlobal(0);
+		jugadorEstadisticaGlobalInterfaz.save(estadistica);
 
-            if (adminLogueado.getRolUsuario() != RolUsuario.Administrador) {
-                throw new IllegalStateException("No tienes permisos de administrador");
-            }
+		verificacionEmailFuncionalidad.generarYEnviarToken(cuenta);
 
-            String emailPrincipal = "futboldebarriosevilla@gmail.com";
+		return usuarioEntidad;
+	}
 
-            if (adminLogueado.getEmailUsuario().equals(emailPrincipal)) {
-            } else {
-                if (usuario.getRolUsuario() == RolUsuario.Administrador && 
-                    !usuario.getEmailUsuario().equals(emailAdminLogueado)) {
-                    throw new IllegalStateException(
-                        "No puedes modificar a otro administrador, salvo que seas el principal");
-                }
-            }
+	/**
+	 * Método que se encarga de modificar un usuario en la base de datos.
+	 * 
+	 * @param id         el ID del usuario a modificar
+	 * @param usuarioDto el DTO con los nuevos datos del usuario
+	 * @return true si el usuario fue modificado correctamente, false en caso
+	 *         contrario
+	 */
+	public boolean modificarUsuario(String idUsuario, UsuarioDto usuarioDto, String emailAdminLogueado) {
+	    try {
+	        Long id = Long.parseLong(idUsuario);
+	        UsuarioEntidad usuario = usuarioInterfaz.findByIdUsuario(id);
+	        if (usuario == null) return false;
 
-            // Actualizar los datos del usuario
-            usuario.setNombreCompletoUsuario(usuarioDto.getNombreCompletoUsuario());
-            usuario.setAliasUsuario(usuarioDto.getAliasUsuario());
-            usuario.setFechaNacimientoUsuario(usuarioDto.getFechaNacimientoUsuario());
-            usuario.setEmailUsuario(usuarioDto.getEmailUsuario());
-            usuario.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
+	        UsuarioEntidad adminLogueado = usuarioInterfaz.findByEmailUsuario(emailAdminLogueado)
+	                .orElseThrow(() -> new IllegalStateException("No se encontró el usuario logueado"));
 
-            if (usuarioDto.getPasswordUsuario() != null && !usuarioDto.getPasswordUsuario().isEmpty()) {
-                usuario.setPasswordUsuario(Utilidades.encriptarContrasenya(usuarioDto.getPasswordUsuario()));
-            }
+	        if (adminLogueado.getRolUsuario() != RolUsuario.Administrador) {
+	            throw new IllegalStateException("No tienes permisos de administrador");
+	        }
 
-            usuario.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
+	        final String emailPrincipal = "futboldebarriosevilla@gmail.com";
 
-            if (usuarioDto.getImagenUsuario() != null) {
-                usuario.setImagenUsuario(Base64.getDecoder().decode(usuarioDto.getImagenUsuario()));
-            }
+	        // 🔹 Bloqueo total sobre otros administradores si no eres el principal
+	        if (!adminLogueado.getEmailUsuario().equals(emailPrincipal) &&
+	            usuario.getRolUsuario() == RolUsuario.Administrador) {
+	            throw new IllegalStateException(
+	                "Solo el administrador principal puede modificar otros administradores");
+	        }
 
-            usuario.setEstadoUsuario(usuarioDto.getEstadoUsuario());
-            usuario.setRolUsuario(usuarioDto.getRolUsuario());
-            usuario.setEsPremium(usuarioDto.isEsPremium());
+	        usuario.setNombreCompletoUsuario(usuarioDto.getNombreCompletoUsuario());
+	        usuario.setAliasUsuario(usuarioDto.getAliasUsuario());
+	        usuario.setFechaNacimientoUsuario(usuarioDto.getFechaNacimientoUsuario());
 
-            usuarioInterfaz.save(usuario);
-            return true;
+	        if (usuarioDto.getEmailUsuario() != null &&
+	            !usuarioDto.getEmailUsuario().equals(usuario.getEmailUsuario())) {
+	            
+	            if (usuario.getRolUsuario() == RolUsuario.Administrador &&
+	                !adminLogueado.getEmailUsuario().equals(emailPrincipal)) {
+	                throw new IllegalStateException(
+	                    "No puedes cambiar el email de otro administrador");
+	            }
 
-        } catch (NumberFormatException e) {
-            return false;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+	            usuario.setEmailUsuario(usuarioDto.getEmailUsuario());
+	            if (usuario.getCuenta() != null) {
+	                usuario.getCuenta().setEmail(usuarioDto.getEmailUsuario());
+	            }
+	        }
 
+	        usuario.setTelefonoUsuario(usuarioDto.getTelefonoUsuario());
+	        usuario.setDescripcionUsuario(usuarioDto.getDescripcionUsuario());
 
-    
-    /**
-     * Actualiza el campo esPremium de un jugador, validando que el email
-     * del usuario logueado coincide y que el rol es JUGADOR.
-     *
-     * @param idUsuario ID del usuario a actualizar
-     * @param emailLogueado Email del usuario que hace la solicitud (del token)
-     * @return true si se actualizó correctamente, false si no tiene permisos o usuario no existe
-     */
-    public boolean actualizarPremiumJugador(Long idUsuario, String emailLogueado) {
-        try {
-            Optional<UsuarioEntidad> usuarioOpt = usuarioInterfaz.findById(idUsuario);
-            if (usuarioOpt.isEmpty()) return false;
+	        if (usuarioDto.getImagenUsuario() != null) {
+	            usuario.setImagenUsuario(Base64.getDecoder().decode(usuarioDto.getImagenUsuario()));
+	        }
 
-            UsuarioEntidad usuario = usuarioOpt.get();
+	        usuario.setEstadoUsuario(usuarioDto.getEstadoUsuario());
 
-            // Validamos que sea jugador y que coincida el email
-            if (!emailLogueado.equals(usuario.getEmailUsuario()) ||
-                usuario.getRolUsuario() != RolUsuario.Jugador) {
-                Logs.ficheroLog("Intento no autorizado de modificar Premium por: " + emailLogueado);
-                return false;
-            }
+	        if (usuarioDto.getRolUsuario() != null && adminLogueado.getEmailUsuario().equals(emailPrincipal)) {
+	            usuario.setRolUsuario(usuarioDto.getRolUsuario());
+	        }
 
-            // Actualizamos esPremium
-            usuario.setEsPremium(true);
-            usuarioInterfaz.save(usuario);
-            return true;
+	        usuarioInterfaz.save(usuario);
+	        return true;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+	    } catch (NumberFormatException e) {
+	        return false;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+	/**
+	 * Actualiza el campo esPremium de un jugador, validando que el email del
+	 * usuario logueado coincide y que el rol es JUGADOR.
+	 *
+	 * @param idUsuario     ID del usuario a actualizar
+	 * @param emailLogueado Email del usuario que hace la solicitud (del token)
+	 * @return true si se actualizó correctamente, false si no tiene permisos o
+	 *         usuario no existe
+	 */
+	public boolean actualizarPremiumJugador(Long idUsuario, String emailLogueado) {
+		try {
+			Optional<UsuarioEntidad> usuarioOpt = usuarioInterfaz.findById(idUsuario);
+			if (usuarioOpt.isEmpty())
+				return false;
 
-    
-    /**
-     * Método que borra un usuario por su ID.
-     * 
-     * @param idUsuarioString el ID del usuario como cadena
-     * @return true si el usuario fue borrado correctamente, false en caso contrario
-     */
-    @Transactional
-    public boolean borrarUsuario(String idUsuarioString) {
-        final String EMAIL_ADMIN_PRINCIPAL = "futboldebarriosevilla@gmail.com";
+			UsuarioEntidad usuario = usuarioOpt.get();
 
-        try {
-            Long idUsuario = Long.parseLong(idUsuarioString);
-            UsuarioEntidad usuarioEntidad = usuarioInterfaz.findByIdUsuario(idUsuario);
+			// Validamos que sea jugador y que coincida el email
+			if (!emailLogueado.equals(usuario.getEmailUsuario()) || usuario.getRolUsuario() != RolUsuario.Jugador) {
+				Logs.ficheroLog("Intento no autorizado de modificar Premium por: " + emailLogueado);
+				return false;
+			}
 
-            if (usuarioEntidad == null) return false;
-            if (EMAIL_ADMIN_PRINCIPAL.equalsIgnoreCase(usuarioEntidad.getEmailUsuario())) return false;
+			// Actualizamos esPremium
+			usuario.setEsPremium(true);
+			usuarioInterfaz.save(usuario);
+			return true;
 
-            CuentaEntidad cuenta = usuarioEntidad.getCuenta();
-            if (cuenta != null) {
-                // 🔹 Primero borrar tokens de verificación
-                tokenVerificacionEmailInterfaz.deleteByCuenta(cuenta);
-            }
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 
-            // 🔹 Luego borrar el usuario (Hibernate borrará la cuenta automáticamente gracias a orphanRemoval)
-            usuarioInterfaz.delete(usuarioEntidad);
+	/**
+	 * Método que borra un usuario por su ID.
+	 * 
+	 * @param idUsuarioString el ID del usuario como cadena
+	 * @return true si el usuario fue borrado correctamente, false en caso contrario
+	 */
+	@Transactional
+	public boolean borrarUsuario(String idUsuarioString) {
+		final String EMAIL_ADMIN_PRINCIPAL = "futboldebarriosevilla@gmail.com";
 
-            return true;
+		try {
+			Long idUsuario = Long.parseLong(idUsuarioString);
+			UsuarioEntidad usuarioEntidad = usuarioInterfaz.findByIdUsuario(idUsuario);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+			if (usuarioEntidad == null)
+				return false;
+			if (EMAIL_ADMIN_PRINCIPAL.equalsIgnoreCase(usuarioEntidad.getEmailUsuario()))
+				return false;
 
+			CuentaEntidad cuenta = usuarioEntidad.getCuenta();
+			if (cuenta != null) {
+				// 🔹 Primero borrar tokens de verificación
+				tokenVerificacionEmailInterfaz.deleteByCuenta(cuenta);
+			}
 
+			// 🔹 Luego borrar el usuario (Hibernate borrará la cuenta automáticamente
+			// gracias a orphanRemoval)
+			usuarioInterfaz.delete(usuarioEntidad);
+
+			return true;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 
 }
