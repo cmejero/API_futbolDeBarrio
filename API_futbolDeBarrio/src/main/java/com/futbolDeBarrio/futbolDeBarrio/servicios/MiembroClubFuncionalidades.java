@@ -122,6 +122,12 @@ public class MiembroClubFuncionalidades {
         return miembrosClubDto;
     }
     
+    
+    /**
+     * Obtiene una lista de todos los clubes que es miembro un jugador en formato DTO.
+     * 
+     * @return Una lista de objetos {@link MiembroClubDto} con los miembros del club.
+     */
     public List<MiembroClubDto> obtenerMisClubesPorUsuario(Long usuarioId) {
         List<MiembroClubEntidad> miembros = miembroClubInterfaz.findByUsuario_IdUsuario(usuarioId);
         List<MiembroClubDto> misClubes = new ArrayList<>();
